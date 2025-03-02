@@ -16,9 +16,11 @@ const NeedleExperiment = () => {
 
     return (
         <div ref={mountRef} className="w-screen h-screen">
-            <needle-engine src="https://cloud.needle.tools/-/assets/ZVOHc51tEGla-1tEGla-world/file" autoplay camera-controls contactshadows tonemapping="agx" environment-image="studio"></needle-engine>
+            {/* <needle-engine src="https://cloud.needle.tools/-/assets/ZVOHc51tEGla-1tEGla-world/file" autoplay camera-controls contactshadows tonemapping="agx" environment-image="studio"></needle-engine> */}
+            <iframe src="https://basicsceneneedle-zvohc5cyyhz.needle.run/" allow="xr; xr-spatial-tracking; fullscreen; camera; gyroscope; "></iframe>
         </div>
     );
 };
+// https://basicsceneneedle-zvohc5cyyhz.needle.run/
 
 export default NeedleExperiment;
