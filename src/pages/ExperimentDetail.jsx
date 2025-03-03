@@ -36,7 +36,7 @@ const ExperimentDetail = () => {
       {/* Don't forget to add the attributions before launching it on the web */}
 
       <Link
-        to={`/experiment/${experiment.id}/full`}
+        to={experiment.id == 9 ? experiment.url : `/experiment/${experiment.id}/full`}
         className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow"
       >
         Start Experiment

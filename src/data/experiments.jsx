@@ -81,6 +81,7 @@ export const experiments = [
     description: "Needle Basic Scene Experiment",
     component: NeedleExperiment,
     disabled: false,
+    url: "https://sadlunch.github.io/testingNeedle/",
     attributions: []
   },
 ];
