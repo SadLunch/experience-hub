@@ -23,7 +23,6 @@ const MoveCubesControllers = ({setIsAR, setEndSession}) => {
     sceneRef.current = scene;
 
     const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.01, 10);
-    //camera.position.set(0, 1.6, 3);
     cameraRef.current = camera;
 
     // const controls = new OrbitControls(camera, container);
@@ -31,9 +30,10 @@ const MoveCubesControllers = ({setIsAR, setEndSession}) => {
     // controls.update();
     // controlsRef.current = controls;
 
-    const floorGeometry = new THREE.PlaneGeometry( 6, 6 );
-    const floorMaterial = new THREE.ShadowMaterial( { opacity: 0.25, blending: THREE.CustomBlending, transparent: false } );
+    const floorGeometry = new THREE.PlaneGeometry( 100, 100, 1, 1 );
+    const floorMaterial = new THREE.ShadowMaterial( { opacity: 0.5/*, blending: THREE.CustomBlending, transparent: false */} );
     const floor = new THREE.Mesh( floorGeometry, floorMaterial );
+    floor.position.set(0, 0, 0);
     floor.rotation.x = - Math.PI / 2;
     floor.receiveShadow = true;
     scene.add( floor );
@@ -116,8 +116,11 @@ const MoveCubesControllers = ({setIsAR, setEndSession}) => {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.setAnimationLoop(animate);
     renderer.shadowMap.enabled = true;
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     renderer.xr.enabled = true; // Enable WebXR
     rendererRef.current = renderer;
+
+    camera.position.set(0, 3, 0);
 
     if (container) {
       container.appendChild(renderer.domElement);

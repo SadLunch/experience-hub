@@ -71,8 +71,6 @@ const CardinalVideosLocation = ({ setIsAR, setEndSession }) => {
                 const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 100);
                 scene.add(camera);
 
-                const xrReferenceSpace = await session.requestReferenceSpace("local-floor");
-
                 const gl = renderer.getContext();
                 await gl.makeXRCompatible();
                 renderer.xr.setReferenceSpaceType("local-floor");
@@ -80,7 +78,7 @@ const CardinalVideosLocation = ({ setIsAR, setEndSession }) => {
                 renderer.xr.setSession(session);
                 setIsAR(true);
 
-                placeVideos(scene, session, xrReferenceSpace, headingOffset);
+                placeVideos(scene, headingOffset);
 
                 const animate = () => {
                     renderer.setAnimationLoop(() => {
@@ -110,7 +108,26 @@ const CardinalVideosLocation = ({ setIsAR, setEndSession }) => {
         initAR();
     }, [userLocation, headingOffset, setEndSession, setIsAR]);
 
-    const placeVideos = async (scene, session, referenceSpace, headingOffset) => {
+    // function updateARObjectPosition(object, userLat, userLon, heading) {
+    //     const distance = geolib.getDistance(
+    //       { latitude: userLat, longitude: userLon },
+    //       { latitude: object.latitude, longitude: object.longitude }
+    //     );
+      
+    //     const bearing = geolib.getGreatCircleBearing(
+    //       { latitude: userLat, longitude: userLon },
+    //       { latitude: object.latitude, longitude: object.longitude }
+    //     );
+      
+    //     const relativeAngle = bearing - heading;
+    //     const x = distance * Math.sin(relativeAngle * Math.PI / 180);
+    //     const z = distance * Math.cos(relativeAngle * Math.PI / 180);
+      
+    //     const objectEntity = document.getElementById(object.id);
+    //     objectEntity.setAttribute('position', `${x} 0 ${z}`);
+    //   }
+
+    const placeVideos = async (scene, headingOffset) => {
         const distance = 5; // Distance in meters to place the videos
 
         // Convert real-world North into the Three.js world
@@ -120,10 +137,10 @@ const CardinalVideosLocation = ({ setIsAR, setEndSession }) => {
         const westAngle = (3 * Math.PI) / 2 - headingOffset;
 
         const videoPositions = [
-            { src: "/videos/north.mp4", angle: northAngle },
-            { src: "/videos/east.mp4", angle: eastAngle },
-            { src: "/videos/south.mp4", angle: southAngle },
-            { src: "/videos/west.mp4", angle: westAngle }
+            { src: "/videos/fortaleza_cropped.mp4", angle: northAngle },
+            { src: "/videos/paz_cropped.mp4", angle: eastAngle },
+            { src: "/videos/prudência_cropped.mp4", angle: southAngle },
+            { src: "/videos/temperança_cropped.mp4", angle: westAngle }
         ];
 
         for (const { src, angle } of videoPositions) {
@@ -146,9 +163,9 @@ const CardinalVideosLocation = ({ setIsAR, setEndSession }) => {
 
             // Calculate the plane's position based on direction
             plane.position.set(
-                Math.cos(angle) * distance,
+                Math.sin(angle) * distance,
                 1.5,
-                Math.sin(angle) * distance
+                Math.cos(angle) * distance
             );
 
             // Make the plane always face the user
@@ -156,10 +173,10 @@ const CardinalVideosLocation = ({ setIsAR, setEndSession }) => {
 
             scene.add(plane);
 
-            if (session.requestAnchor) {
-                const anchor = await session.requestAnchor(plane.position, referenceSpace);
-                anchor.attach(plane);
-            }
+            // if (session.requestAnchor) {
+            //     const anchor = await session.requestAnchor(plane.position, referenceSpace);
+            //     anchor.attach(plane);
+            // }
         }
     };
 
