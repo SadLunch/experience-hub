@@ -83,10 +83,10 @@ const CardinalVideosCropped = ({ setIsAR, setEndSession }) => {
 
     const placeVideos = (scene/*, session, referenceSpace*/) => {
         const videoURLs = [
-            { src: "/videos/fortaleza_cropped.mp4", position: [0, 0, -4], rotation: [0, 0, 0], way: "North" },  // North
-            { src: "/videos/paz_cropped.mp4", position: [4, 0, 0], rotation: [0, -Math.PI / 2, 0], way: "East" },  // East
-            { src: "/videos/prudência_cropped.mp4", position: [0, 0, 4], rotation: [0, Math.PI, 0], way: "South" },  // South
-            { src: "/videos/temperança_cropped.mp4", position: [-4, 0, 0], rotation: [0, Math.PI / 2, 0], way: "West" }  // West
+            { src: "/videos/fortaleza_cropped.mp4", position: [0, 0, -4], rotation: [0, 0, 0], way: "North" },  // Front
+            { src: "/videos/paz_cropped.mp4", position: [4, 0, 0], rotation: [0, -Math.PI / 2, 0], way: "East" },  // Right
+            { src: "/videos/prudência_cropped.mp4", position: [0, 0, 4], rotation: [0, Math.PI, 0], way: "South" },  // Back
+            { src: "/videos/temperança_cropped.mp4", position: [-4, 0, 0], rotation: [0, Math.PI / 2, 0], way: "West" }  // Left
         ];
 
         const loader = new GLTFLoader();
