@@ -1,4 +1,3 @@
-import SpawnModel from "../experiments/SpawnModel";
 import SpinningCube from "../experiments/SpinningCube";
 import ImageTracking from "../experiments/ImageTracking";
 import CardinalVideos from "../experiments/VideoExperimentCropped";
@@ -18,9 +17,13 @@ import MoveCubesControllersNew from "../experiments/MoveCubesControllersNew";
 export const experiments = [
   {
     id: "1",
-    title: "Floating Fish",
+    title: "Floating Fish (NEW)",
     description: "A fish model in front of the camera. The user can move it by touching it and dragging.",
-    component: SpawnModel,
+    component: SpawnModelNew,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
     isWebXR: true,
     disabled: false,
     attributions: [
@@ -78,7 +81,7 @@ export const experiments = [
     description: "Three.js scene that shows videos in the four cardinal direction relative to the user's initial position.",
     component: CardinalVideosCropped,
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: []
   },
   {
@@ -87,7 +90,7 @@ export const experiments = [
     description: "Three.js scene that shows videos in the four cardinal direction relative to the user's initial position.",
     component: CardinalVideos,
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: []
   },
   {
@@ -96,7 +99,7 @@ export const experiments = [
     description: "Three.js scene that shows videos in the four cardinal direction relative to the user's initial location.",
     component: CardinalVideosLocation,
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: []
   },
   {
@@ -154,21 +157,6 @@ export const experiments = [
   },
   {
     id: "13",
-    title: "Floating Fish (NEW)",
-    description: "A fish model in front of the camera. The user can move it by touching it and dragging.",
-    component: SpawnModelNew,
-    sessionOptions: {
-      requiredFeatures: ["dom-overlay"],
-      domOverlay: { root: document.body },
-    },
-    isWebXR: true,
-    disabled: false,
-    attributions: [
-      "Fish by jeremy [CC-BY] via Poly Pizza",
-    ]
-  },
-  {
-    id: "14",
     title: "Whac-A-Mole V1",
     description: 'A Whac-A-Mole AR test. Your hammer is in front of you. Get close to the "mole" to hit it!',
     component: WhacAMoleV1,
@@ -183,7 +171,7 @@ export const experiments = [
     ]
   },
   {
-    id: "15",
+    id: "14",
     title: "Whac-A-Mole V2",
     description: 'A Whac-A-Mole AR test. Touch the moleto hit it with you hammer!',
     component: WhacAMoleV2,
@@ -199,7 +187,7 @@ export const experiments = [
     ]
   },
   {
-    id: "16",
+    id: "15",
     title: "Face Tracking",
     description: "A face tracking experiment.",
     isWebXR: false,

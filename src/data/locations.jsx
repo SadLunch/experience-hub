@@ -10,37 +10,37 @@ export const locations = [
   {
     id: "loc2",
     coordinates: [38.709919471081236, -9.141783103313244],
-    experiment: experiments[1],
+    experiment: experiments[2],
     participants: Math.floor(Math.random() * 100),
   },
   {
     id: "loc3",
     coordinates: [38.70936367189781, -9.141035938528868],
-    experiment: experiments[2],
+    experiment: experiments[4],
     participants: Math.floor(Math.random() * 100),
   },
   {
     id: "loc4",
     coordinates: [38.71051404423506, -9.142222742037356],
-    experiment: experiments[3],
+    experiment: experiments[9],
     participants: Math.floor(Math.random() * 100),
   },
   {
     id: "loc5",
     coordinates: [38.75574218614203, -9.157839554723555],
-    experiment: experiments[4],
+    experiment: experiments[11],
     participants: Math.floor(Math.random() * 100),
   },
   {
     id: "loc6",
     coordinates: [38.756503621713556, -9.158023976334482],
-    experiment: experiments[5],
+    experiment: experiments[13],
     participants: Math.floor(Math.random() * 100),
   },
   {
     id: "loc7",
     coordinates: [38.752939351221734, -9.157592357864337],
-    experiment: experiments[6],
+    experiment: experiments[14],
     participants: Math.floor(Math.random() * 100),
   },
 ];
