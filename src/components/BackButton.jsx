@@ -1,7 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import propTypes from "prop-types";
 
-function BackButton({ to = "/" }) {
+function BackButton({ to = "/testing" }) {
   const navigate = useNavigate();
 
   return (

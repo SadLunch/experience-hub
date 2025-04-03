@@ -19,7 +19,7 @@ const MoveCubesControllersNew = ({ session, endSession }) => {
   const spawnFishes = () => {
     const loader = new GLTFLoader();
     for (let i = 0; i < 10; i++) {
-      loader.load("/models/untitled.glb", (gltf) => {
+      loader.load("/models/hammer.glb", (gltf) => {
         const model = gltf.scene;
   
         // Set random position in a radius of 2 meters
@@ -33,7 +33,7 @@ const MoveCubesControllersNew = ({ session, endSession }) => {
         model.rotation.z = Math.random() * 2 * Math.PI;
   
         // Scale it accordig to the model's original scale
-        model.scale.setScalar(0.1);
+        model.scale.setScalar(4);
   
         // Make it so the models can cast and receive shadows
         model.castShadow = true;

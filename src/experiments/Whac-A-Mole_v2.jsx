@@ -19,6 +19,11 @@ const WhacAMoleV2 = ({ session, endSession }) => {
     const hammerMixerRef = useRef(null);
     const clockRef = useRef(new THREE.Clock());
 
+    const [timeLeft, setTimeLeft] = useState(60); // 60 seconds
+    const [gameOver, setGameOver] = useState(false);
+    const timerRef = useRef(null);
+
+
     const loader = new GLTFLoader();
 
     const spawnMole = () => {
@@ -30,7 +35,7 @@ const WhacAMoleV2 = ({ session, endSession }) => {
         const moleMaterial = new THREE.MeshBasicMaterial({ map: imgTexture, transparent: true, side: THREE.DoubleSide });
         const mole = new THREE.Mesh(moleGeometry, moleMaterial);
 
-        const radius = 2; // Distance from the user
+        const radius = 2; // Distance from the user (This can be changed to the value needed)
         const angle = Math.random() * Math.PI * 2; // Random angle for circular placement
 
         mole.position.set(
@@ -44,6 +49,40 @@ const WhacAMoleV2 = ({ session, endSession }) => {
         groupRef.current.add(mole);
         molesRef.current.push(mole);
     }
+
+    // const spawnHammer = () => {
+    //     loader.load("/models/gavel.glb", (gltf) => {
+    //         const model = gltf.scene;
+    //         model.name = "hammer";
+
+    //         // Place the hammer around the user randomly
+    //         const distance = THREE.MathUtils.randFloat(0.3, 0.7);
+    //         const angle = THREE.MathUtils.randFloat(0, Math.PI * 2);
+
+    //         model.position.set(
+    //             distance * Math.sin(angle),
+    //             -1.5,
+    //             distance * Math.cos(angle)
+    //         ).applyMatrix4(cameraRef.current.matrixWorld);
+
+    //         model.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
+
+    //         // Set a random rotation (for variety)
+    //         model.rotation.x = Math.random() * 2 * Math.PI;
+    //         model.rotation.y = Math.random() * 2 * Math.PI;
+    //         model.rotation.z = Math.random() * 2 * Math.PI;
+
+    //         // Scale it accordig to the model's original scale
+    //         model.scale.setScalar(0.04);
+
+    //         // Make it so the models can cast and receive shadows
+    //         model.castShadow = true;
+    //         model.receiveShadow = true;
+    //         hammerGroupRef.current.add(model);
+
+    //         hammerRef.current = model;
+    //     });
+    // };
 
     const loadModel = (src, refVar, name = null) => {
         loader.load(src, (gltf) => {
@@ -82,6 +121,7 @@ const WhacAMoleV2 = ({ session, endSession }) => {
                 const container = containerRef.current;
 
                 const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setPixelRatio(window.devicePixelRatio);
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.xr.enabled = true; // Enable WebXR
                 rendererRef.current = renderer;
@@ -127,7 +167,23 @@ const WhacAMoleV2 = ({ session, endSession }) => {
                     }
                 }, 4000);
 
+                timerRef.current = setInterval(() => {
+                    setTimeLeft((prev) => {
+                        if (prev <= 1) {
+                            clearInterval(timerRef.current);
+                            clearInterval(spawnInterval); // stop mole spawning
+                            setGameOver(true);
+                            window.removeEventListener("pointerdown", onTouch);
+                            return 0;
+                        }
+                        return prev - 1;
+                    });
+                }, 1000);
+
+
                 window.addEventListener("pointerdown", onTouch);
+
+                // spawnHammer();
 
                 // Load the Hammer model
                 loader.load("/models/hammer.glb", (gltf) => {
@@ -157,6 +213,7 @@ const WhacAMoleV2 = ({ session, endSession }) => {
         };
 
         const onTouch = (event) => {
+            if (gameOver) return;
             event.preventDefault();
 
             //const touch = event.touches[0];
@@ -178,7 +235,7 @@ const WhacAMoleV2 = ({ session, endSession }) => {
                 console.log("Mole hit!");
 
                 if (hammerRef.current && hammerMixerRef.current) {
-                    hammerRef.current.position.set(hitMole.position.x, hitMole.position.y, hitMole.position.z);
+                    hammerRef.current.position.set(hitMole.position.x, hitMole.position.y+0.1, hitMole.position.z);
                     hammerRef.current.visible = true;
 
                     const action = hammerMixerRef.current._actions[0];
@@ -186,6 +243,7 @@ const WhacAMoleV2 = ({ session, endSession }) => {
                     action.play();
 
                     const duration = action.getClip().duration * 1000;
+                    // const duration = 1000;
 
                     setTimeout(() => {
                         // Load the Flower model
@@ -195,7 +253,21 @@ const WhacAMoleV2 = ({ session, endSession }) => {
                             flower.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
                             flower.scale.setScalar(3); // Ensure correct scale
 
+                            // Add a Ring below the flower for contrast with the real-world
+                            const ring = new THREE.Mesh(
+                                new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
+                                new THREE.MeshBasicMaterial()
+                            );
+                            ring.position.set(
+                                flower.position.x - 0.1, // This depends on the model
+                                flower.position.y - 0.01, // A bit below the flower
+                                flower.position.z - 0.2 // This depends on the model
+                            );
+
+                            // ring.rotateX(-Math.PI / 2);
+
                             sceneRef.current.add(flower); // Add it to the scene first
+                            sceneRef.current.add(ring);
                         }
 
                         groupRef.current.remove(hitMole);
@@ -218,6 +290,7 @@ const WhacAMoleV2 = ({ session, endSession }) => {
 
         const cleanupScene = () => {
             clearInterval(spawnInterval);
+            clearInterval(timerRef.current);
 
             if (sceneRef.current) {
                 sceneRef.current.children.forEach((object) => {
@@ -242,19 +315,72 @@ const WhacAMoleV2 = ({ session, endSession }) => {
 
     return (
         <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}>
-            <div style={{
-                position: "absolute",
-                top: "10px",
-                left: "50%",
-                transform: "translateX(-50%)",
-                background: "rgba(0, 0, 0, 0.7)",
-                color: "white",
-                padding: "10px",
-                borderRadius: "5px",
-                fontSize: "20px"
-            }}>
-                Score: {score}
-            </div>
+            {!gameOver && (
+                <div style={{
+                    position: "absolute",
+                    top: "10px",
+                    right: "20px",
+                    //transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "20px"
+                }}>
+                    Score: {score}
+                </div>
+            )}
+            {!gameOver && (
+                <div style={{
+                    position: "absolute",
+                    top: "10px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    Time Left: {timeLeft}s
+                </div>
+            )}
+            {gameOver && (
+                <div style={{
+                    position: "absolute",
+                    top: "10px",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "20px"
+                }}>
+                    Score: {score}
+                </div>
+            )}
+            {gameOver && (
+                <button
+                    onClick={endSession}
+                    style={{
+                        position: "absolute",
+                        bottom: "40px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        padding: "12px 24px",
+                        fontSize: "18px",
+                        background: "#ff5555",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                    }}
+                >
+                    End Session
+                </button>
+            )}
+
         </div>
     );
 };

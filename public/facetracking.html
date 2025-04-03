@@ -13,7 +13,7 @@
     </script>
     <script type="module">
         import * as THREE from 'three';
-        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
         import { MindARThree } from 'mindar-face-three';
         const mindarThree = new MindARThree({
             container: document.querySelector("#container"),
@@ -23,10 +23,11 @@
         const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
         scene.add(light);
 
-        const loader = new GLTFLoader();
-        loader.load("/models/untitled.glb", (gltf) => {
-            gltf.scene.scale.setScalar(0.05);
-            anchor.group.add(gltf.scene);
+        const loader = new OBJLoader();
+        loader.load("/models/16812_Balance_Scale_v1_NEW.obj", (obj) => {
+            obj.scale.setScalar(0.05);
+            obj.rotateX(-Math.PI / 2); // Rotate object to face the front
+            anchor.group.add(obj);
         });
 
         const start = async () => {
@@ -38,13 +39,24 @@
 
         const backButton = document.querySelector("#backButton");
         backButton.addEventListener("click", () => {
-            window.location.href = "/#/experiment/15";
+            window.location.href = "/#/testing/experiment/15";
             mindarThree.stop();
             mindarThree.renderer.setAnimationLoop(null);
         });
 
+
         const take_photo = () => {
             const video = document.querySelector("video");
+            const circle = document.querySelector(".circle");
+
+            circle.classList.add("active");
+
+            setTimeout(() => {
+                circle.classList.remove("active");
+            }, 300); // match the duration of the CSS transition
+
+
+            // Your existing photo-taking logic
             const canvas = document.createElement("canvas");
             const ctx = canvas.getContext('2d');
             video.pause();
@@ -64,17 +76,13 @@
             canvas.width = video.videoWidth + imgLeft * 2;
             canvas.height = video.videoHeight + imgTop * 2;
 
-            ctx.save(); // Save the current canvas state
-
-            ctx.translate(canvas.width, 0); // Move to right edge
-            ctx.scale(-1, 1); // Flip horizontally
-
+            ctx.save();
+            ctx.translate(canvas.width, 0);
+            ctx.scale(-1, 1);
             ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
             ctx.restore();
 
-            renderer.render(scene, camera)
-
+            renderer.render(scene, camera);
             ctx.drawImage(renderer.domElement, drawLeft, drawTop, drawWidth, drawHeight);
 
             video.play();
@@ -92,11 +100,8 @@
             optionsDiv.classList.add("options");
 
             optionsDiv.innerHTML = `
-                <button onclick="downloadImage()">Download</button>
-                <button onclick="shareImage('facebook')">Facebook</button>
-                <button onclick="shareImage('instagram')">Instagram</button>
-                <button onclick="shareImage('twitter')">X</button>
-            `;
+        <button onclick="downloadImage()">Download</button>
+    `;
 
             polaroid.appendChild(photoCanvas);
             polaroid.appendChild(optionsDiv);
@@ -104,24 +109,13 @@
             document.body.appendChild(polaroid);
         };
 
+
         window.downloadImage = function () {
             const photoCanvas = document.querySelector(".polaroid canvas");
             const link = document.createElement("a");
             link.download = "polaroid.png";
             link.href = photoCanvas.toDataURL();
             link.click();
-        };
-
-        window.shareImage = function (platform) {
-            const photoCanvas = document.querySelector(".polaroid canvas");
-            const imageUrl = photoCanvas.toDataURL();
-            if (platform === "facebook") {
-                window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(imageUrl)}`, "_blank");
-            } else if (platform === "instagram") {
-                alert("Instagram does not support direct web sharing. You can download and upload manually.");
-            } else if (platform === "twitter") {
-                window.open(`https://twitter.com/intent/tweet?url=${encodeURIComponent(imageUrl)}`, "_blank");
-            }
         };
 
         const photoButton = document.querySelector("#photo-button");
@@ -177,6 +171,11 @@
             border-radius: 100%;
             background-color: #ffffff;
             opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        .circle.active {
+            opacity: 1;
         }
 
         .ring {
@@ -191,25 +190,10 @@
             opacity: 0.8;
         }
 
-        .photo-button .circle,
-        .photo-button .ring {
-            transition: all 0.25s;
-        }
-
-        .photo-button:hover .circle {
-            opacity: 1;
-        }
-
-        .photo-button:active .ring {
-            opacity: 1;
-        }
-
-        .photo-button:active .circle {
-            opacity: 0.5;
-        }
-
         .polaroid {
             background: white;
+            width: 90vw;
+            height: 60vh;
             padding: 10px;
             box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.3);
             border-radius: 5px;
@@ -220,6 +204,13 @@
             top: 10%;
             left: 50%;
             transform: translateX(-50%);
+        }
+
+        .polaroid canvas {
+            aspect-ratio: 3/4;
+            /* adjust to match your canvas' actual shape */
+            width: 95%;
+            height: auto;
         }
     </style>
 </head>

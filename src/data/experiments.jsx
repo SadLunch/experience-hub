@@ -13,6 +13,7 @@ import HittestModelLiveSizeTest from "../experiments/HittestModelLiveSizeTest";
 import InstantTrackingNew from "../experiments/InstantTrackingNew";
 import HittestSurfaceNew from "../experiments/HittestSurfaceNew";
 import MoveCubesControllersNew from "../experiments/MoveCubesControllersNew";
+import WhacAMoleV3 from "../experiments/Whac-A-Mole_v3";
 
 export const experiments = [
   {
@@ -194,6 +195,22 @@ export const experiments = [
     disabled: false,
     url: "/facetracking.html",
     attributions: [
+    ]
+  },
+  {
+    id: "16",
+    title: "Whac-A-Mole Test (NOT WORKING)",
+    description: 'A test for the final version of the whac-a-mole experience.',
+    component: WhacAMoleV3,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: false,
+    attributions: [
+      '"2K Textured Animated Video Game Hammer" (https://skfb.ly/oInYQ) by Kimbell Whatley is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
+      '"White Lilly - Metascan" (https://skfb.ly/o9HYz) by Moshe Caine is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
     ]
   },
 ];
