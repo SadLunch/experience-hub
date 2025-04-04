@@ -333,7 +333,8 @@ const WhacAMoleV3 = ({ session, endSession }) => {
                             clearInterval(spawnInterval); // stop mole spawning
                             setGameOver(true);
                             controller.removeEventListener("selectstart", onSelectStart);
-                            controller.removeEventListener("selectend", onSelectEnd)
+                            controller.removeEventListener("selectend", onSelectEnd);
+                            controller.clear();
                             return 0;
                         }
                         return prev - 1;
