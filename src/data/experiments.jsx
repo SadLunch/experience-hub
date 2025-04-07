@@ -14,6 +14,7 @@ import InstantTrackingNew from "../experiments/InstantTrackingNew";
 import HittestSurfaceNew from "../experiments/HittestSurfaceNew";
 import MoveCubesControllersNew from "../experiments/MoveCubesControllersNew";
 import WhacAMoleV3 from "../experiments/Whac-A-Mole_v3";
+import WhacAMoleV3New from "../experiments/Whac-A-Mole_v3New";
 
 export const experiments = [
   {
@@ -73,7 +74,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: []
   },
   {
@@ -109,7 +110,7 @@ export const experiments = [
     description: "Needle Basic Scene Experiment",
     component: NeedleExperiment,
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     url: "https://sadlunch.github.io/testingNeedle/",
     attributions: []
   },
@@ -123,7 +124,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: [
       '"Charité University Hospital - Operating Room" (https://skfb.ly/oCTvA) by ChrisRE is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).',
     ]
@@ -138,7 +139,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: [
       '"Charité University Hospital - Operating Room" (https://skfb.ly/oCTvA) by ChrisRE is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).',
     ]
@@ -166,7 +167,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: [
       "'Gavel' (https://skfb.ly/6ZNqB) by RushilT is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/)."
     ]
@@ -181,7 +182,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: false,
+    disabled: true,
     attributions: [
       '"2K Textured Animated Video Game Hammer" (https://skfb.ly/oInYQ) by Kimbell Whatley is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
       '"White Lilly - Metascan" (https://skfb.ly/o9HYz) by Moshe Caine is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
@@ -192,16 +193,32 @@ export const experiments = [
     title: "Face Tracking",
     description: "A face tracking experiment.",
     isWebXR: false,
-    disabled: false,
+    disabled: true,
     url: "/facetracking.html",
     attributions: [
     ]
   },
   {
     id: "16",
-    title: "Whac-A-Mole Test (NOT WORKING)",
+    title: "Whac-A-Mole V3",
     description: 'A test for the final version of the whac-a-mole experience.',
     component: WhacAMoleV3,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: true,
+    attributions: [
+      '"2K Textured Animated Video Game Hammer" (https://skfb.ly/oInYQ) by Kimbell Whatley is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
+      '"White Lilly - Metascan" (https://skfb.ly/o9HYz) by Moshe Caine is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
+    ]
+  },
+  {
+    id: "17",
+    title: "Whac-A-Mole with Instructions",
+    description: 'A test for the final version of the whac-a-mole experience with instructions.',
+    component: WhacAMoleV3New,
     sessionOptions: {
       requiredFeatures: ["dom-overlay"],
       domOverlay: { root: document.body },

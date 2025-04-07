@@ -13,7 +13,7 @@ const Hub = () => {
         <button className="block bg-gray-800 p-3 mb-10 rounded-lg shadow-lg hover:bg-gray-700">View Map</button>
       </Link>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl w-full px-4">
-        {experiments.map((exp, index) => (
+        {experiments.filter((exp) => !exp.disabled).map((exp, index) => (
           <motion.div 
             key={exp.id}
             whileHover={{ scale: 1.05 }}
@@ -22,7 +22,7 @@ const Hub = () => {
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <Link 
-              to={!exp.disabled ? `/testing/experiment/${exp.id}` : "/"} 
+              to={`/testing/experiment/${exp.id}`} 
               className="block bg-gray-800 p-5 rounded-lg shadow-lg hover:bg-gray-700 transition"
             >
               <h2 className="text-xl font-semibold">{exp.title}</h2>
