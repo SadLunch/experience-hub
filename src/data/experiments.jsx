@@ -226,7 +226,7 @@ export const experiments = [
     isWebXR: true,
     disabled: false,
     attributions: [
-      '"2K Textured Animated Video Game Hammer" (https://skfb.ly/oInYQ) by Kimbell Whatley is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
+      '"gavel" (https://skfb.ly/owxOK) by rutesh sakpal is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
       '"White Lilly - Metascan" (https://skfb.ly/o9HYz) by Moshe Caine is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
     ]
   },

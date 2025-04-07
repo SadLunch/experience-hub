@@ -81,7 +81,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         // model.rotation.z = Math.random() * 2 * Math.PI;
 
         // Scale it accordig to the model's original scale
-        hammer.scale.setScalar(0.04);
+        hammer.scale.setScalar(0.3);
 
         // Make it so the models can cast and receive shadows
         hammer.castShadow = true;
@@ -354,7 +354,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                 // Load all models to be used
                 loadModel('/models/white_lilly.glb', flowerRef);
-                loadModel('/models/gavel.glb', hammerRef);
+                loadModel('/models/gavel_modified.glb', hammerRef);
 
                 // Add controllers to be able to move the fishes
                 const controller = renderer.xr.getController(0);
