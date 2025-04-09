@@ -98,7 +98,6 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
         // Add hammer to scene
         groupRef.current.add(hammer);
-        hammerRef.current = hammer;
         hasHammerLoaded.current = true;
     };
 
