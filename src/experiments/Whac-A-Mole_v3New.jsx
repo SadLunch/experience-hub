@@ -13,9 +13,10 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     const cameraRef = useRef(null);
     const rendererRef = useRef(null);
     const controllerRef = useRef(null);
-    
+
     const groupRef = useRef(null);
     const hammerRef = useRef(null);
+    const hitBoxGroupRef = useRef(null);
 
     const groupMoleRef = useRef(null);
     const molesRef = useRef([]);
@@ -31,7 +32,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     const instructionMoleHit = useRef(false);
 
     const timerRef = useRef(null);
-    const [timeLeft, setTimeLeft] = useState(60);
+    const [timeLeft, setTimeLeft] = useState(120);
     const gameStartedRef = useRef(false);
     const [gameStarted, setGameStarted] = useState(false);
     const [gameOver, setGameOver] = useState(false);
@@ -52,26 +53,21 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         instructionStepRef.current = step;
     }
 
-    const loadModel = (src, refVar, name = null) => {
+    const loadModel = (src, refVar, name = null, onLoad = null) => {
         loader.load(src, (gltf) => {
             refVar.current = gltf.scene;
             if (name) refVar.current.name = name;
+            if (onLoad) onLoad();
         });
     };
 
     const spawnHammer = () => {
+        if (!hammerRef.current || !cameraRef.current || !groupRef.current) return;
+
         const hammer = hammerRef.current.clone();
         hammer.name = "hammer";
 
-        // Place the hammer around the user randomly
-        const distance = THREE.MathUtils.randFloat(0.3, 0.7);
-        const angle = THREE.MathUtils.randFloat(0, Math.PI * 2);
-
-        hammer.position.set(
-            distance * Math.sin(angle),
-            -1.5,
-            distance * Math.cos(angle)
-        ).applyMatrix4(cameraRef.current.matrixWorld);
+        hammer.position.set(-0.5, 0, -0.7).applyMatrix4(cameraRef.current.matrixWorld);
 
         hammer.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
 
@@ -86,10 +82,27 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         // Make it so the models can cast and receive shadows
         hammer.castShadow = true;
         hammer.receiveShadow = true;
+
+        // Create the hitbox
+        const hitBox = new THREE.Mesh(
+            new THREE.BoxGeometry(0.3, 1, 0.4),
+            new THREE.MeshBasicMaterial({ visible: false })
+        );
+        //hitBox.scale.setScalar(5)
+
+        // Position it correctly
+        hitBox.position.set(-0.5, 0, -1);
+
+        // Add it to the hammer
+        hitBoxGroupRef.current.add(hitBox);
+
+        // Add hammer to scene
         groupRef.current.add(hammer);
+        hammerRef.current = hammer;
+        hasHammerLoaded.current = true;
     };
 
-    const spawnMole = () => {
+    const spawnMole = (v = null) => {
         // Add a "Mole" to the scene
         const moleGeometry = new THREE.PlaneGeometry(1, 1);
         // const moleMaterial = new ChromaKeyMaterial('/bonk_hand.png', 0x81ff8d, 608, 342, 0.2, 0.1, 0);
@@ -98,35 +111,62 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         const moleMaterial = new THREE.MeshBasicMaterial({ map: imgTexture, transparent: true, side: THREE.DoubleSide });
         const mole = new THREE.Mesh(moleGeometry, moleMaterial);
 
-        let canPlace = false;
+        if (v) {
+            mole.position.copy(v);
+        } else {
+            let canPlace = false;
 
-        while (!canPlace) {
-            const radius = THREE.MathUtils.randFloat(3, 5); // Distance from the user (This can be changed to the value needed)
-            const angle = Math.random() * Math.PI * 2; // Random angle for circular placement
+            while (!canPlace) {
+                const radius = THREE.MathUtils.randFloat(3, 5); // Distance from the user (This can be changed to the value needed)
+                const angle = Math.random() * Math.PI * 2; // Random angle for circular placement
 
-            const vectorMole = new THREE.Vector3(
-                (Math.sin(angle) * radius),
-                -1.5,
-                (Math.cos(angle) * radius)
-            );
-            if (groupMoleRef.current.children.length > 0) {
-                groupMoleRef.current.children.forEach((mole) => {
-                    if (vectorMole.distanceTo(mole.position) > 1) {
-                        canPlace = true;
+                const vectorMole = new THREE.Vector3(
+                    (Math.sin(angle) * radius),
+                    -3.4,
+                    (Math.cos(angle) * radius)
+                );
+                if (groupMoleRef.current.children.length > 0) {
+                    for (const mole of groupMoleRef.current.children) {
+                        if (vectorMole.distanceTo(mole.position) > 1) {
+                            canPlace = true;
+                        } else {
+                            canPlace = false;
+                            break;
+                        }
                     }
-                });
-            } else {
-                canPlace = true;
-            }
+                } else {
+                    canPlace = true;
+                }
 
-            if (canPlace) mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
+                if (canPlace) mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
+            }
         }
 
         mole.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
 
         groupMoleRef.current.add(mole);
         molesRef.current.push(mole);
+        animateMoleRise(mole);
     };
+
+    const animateMoleRise = (mole, duration = 1) => {
+        const startY = -3.4;
+        const endY = -1.4;
+
+        const startTime = performance.now();
+
+        const animate = () => {
+            const elapsed = (performance.now() - startTime) / 1000;
+            const t = Math.min(elapsed / duration, 1);
+            const eased = t * t * (3 - 2 * t);
+
+            mole.position.y = THREE.MathUtils.lerp(startY, endY, eased);
+
+            if (t < 1) requestAnimationFrame(animate);
+        };
+
+        animate();
+    }
 
     const moleLookAtPlayer = () => {
         const cameraWorldPos = new THREE.Vector3();
@@ -185,7 +225,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
     const onSelectEnd = (event) => {
         const controller = event.target;
-        
+
         if (controller.userData.selected !== undefined) {
 
             const object = controller.userData.selected;
@@ -231,7 +271,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                         const flower = flowerRef.current.clone();
                         flower.position.copy(objectMole.position);
                         flower.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
-                        flower.scale.setScalar(4); // Ensure correct scale
+                        flower.scale.setScalar(0); // Ensure correct scale
 
                         // Add a Ring below the flower for contrast with the real-world
                         const ring = new THREE.Mesh(
@@ -246,32 +286,51 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                         // ring.rotateX(-Math.PI / 2);
 
+                        function animateFlowerGrowth(flower, duration = 1, targetScale = 6) {
+                            const startTime = performance.now();
+                        
+                            function animate() {
+                                const elapsed = (performance.now() - startTime) / 1000;
+                                const t = Math.min(elapsed / duration, 1);
+                                const eased = t * t * (3 - 2 * t); // easeInOut
+                        
+                                const scale = targetScale * eased;
+                                flower.scale.setScalar(scale);
+                        
+                                if (t < 1) requestAnimationFrame(animate);
+                            }
+                        
+                            animate();
+                        }
+
                         groupFlowerRef.current.add(flower); // Add it to the scene first
                         groupFlowerRef.current.add(ring);
+
+                        animateFlowerGrowth(flower);
                     }
 
                     groupMoleRef.current.remove(objectMole);
                     molesRef.current = molesRef.current.filter(mole => mole !== objectMole);
                     if (gameStartedRef.current) setScore((prevScore) => prevScore + 1); // Increase score
 
-                    if (instructionStepRef.current === 2) {
+                    if (instructionStepRef.current === 1) {
                         instructionMoleHit.current = true;
                         // next step
-                        nextInstructionStep(3);
-    
+                        nextInstructionStep(2);
+
                         setTimeout(() => {
                             // clear groups
                             groupRef.current.clear();
                             groupMoleRef.current.clear();
                             groupFlowerRef.current.clear();
-    
+
                             // next step (message right before starting game)
-                            nextInstructionStep(4);
-                        }, 3000);
+                            nextInstructionStep(3);
+                        }, 3500);
                     }
                     updatePosition(previousPosition);
                 }, duration);
-                
+
             }
 
             controller.userData.selected = undefined;
@@ -344,6 +403,10 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 scene.add(group);
                 groupRef.current = group;
 
+                const hitBoxGroup = new THREE.Group();
+                scene.add(hitBoxGroup)
+                hitBoxGroupRef.current = hitBoxGroup;
+
                 const groupMole = new THREE.Group();
                 scene.add(groupMole);
                 groupMoleRef.current = groupMole;
@@ -354,7 +417,11 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                 // Load all models to be used
                 loadModel('/models/white_lilly.glb', flowerRef);
-                loadModel('/models/gavel_modified.glb', hammerRef);
+                loadModel('/models/gavel_modified.glb', hammerRef, null, () => {
+                    if (!hasHammerLoaded.current) {
+                        spawnHammer();
+                    }
+                });
 
                 // Add controllers to be able to move the fishes
                 const controller = renderer.xr.getController(0);
@@ -376,19 +443,23 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                 controller.add(line.clone());
 
+                
+
                 const animate = () => {
-                    console.log(instructionStepRef.current);
-                    console.log(instructionMoleHit.current);
-                    if (instructionStepRef.current === 1) {
+                    // console.log("instruction:", instructionStepRef.current);
+                    // console.log("mole hit:", instructionMoleHit.current);
+                    // console.log("hammer loaded:", hasHammerLoaded.current);
+                    if (instructionStepRef.current === 0) {
                         const r = new THREE.Raycaster();
-                        r.setFromCamera({x: 0, y: 0}, cameraRef.current);
-                        const intersections = r.intersectObjects(groupRef.current.children);
+                        r.setFromCamera({ x: 0, y: 0 }, cameraRef.current);
+                        const intersections = r.intersectObjects(hitBoxGroupRef.current.children);
                         if (intersections.length > 0) {
                             hasSeenHammer.current = true;
                             console.log("I have seen the hammer!!!");
-                            nextInstructionStep(2);
+                            nextInstructionStep(1);
+                            hitBoxGroupRef.current.clear();
                             activateControllers();
-                            spawnMole();
+                            spawnMole(new THREE.Vector3(0, -3.4, -4));
                         }
                     }
                     moleLookAtPlayer();
@@ -405,14 +476,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 nextInstructionStep(0);
 
                 const handleTap = () => {
-                    if (instructionStepRef.current === 0) {
-                        nextInstructionStep(1);
-                        if (!hasHammerLoaded.current) {
-                            spawnHammer();
-                            hasHammerLoaded.current = true;
-                        }
-                    }
-                    if (instructionStepRef.current === 4) {
+                    if (instructionStepRef.current === 3) {
                         updateGameState();
                         if (!hasHammerLoaded.current) {
                             spawnHammer();
@@ -444,7 +508,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     }
                 };
 
-                
+
 
                 window.addEventListener('click', handleTap);
 
@@ -479,25 +543,20 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}>
             {instructionStep === 0 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Look around
+                    Look around and find the hammer
                 </div>
             )}
             {instructionStep === 1 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Find the hammer
+                    Drag the hammer in front of the salute to hit it
                 </div>
             )}
             {instructionStep === 2 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Drag the hammer in front of the salute to hit it
-                </div>
-            )}
-            {instructionStep === 3 && (
-                <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     Good Job!
                 </div>
             )}
-            {instructionStep === 4 && (
+            {instructionStep === 3 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     <div>You are ready now</div>
                     <div>Tap to start the game</div>
@@ -569,6 +628,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     End Session
                 </button>
             )}
+
         </div>
     );
 };
