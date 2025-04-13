@@ -19,7 +19,7 @@ const FirstScreen = () => {
             console.error("Camera permission denied:", e);
             alert("Camera access is required for AR experiences.");
         }
-    }
+    };
 
     const requestLocationAccess = () => {
         return new Promise((resolve, reject) => {
@@ -41,7 +41,7 @@ const FirstScreen = () => {
                 }
             );
         });
-    }
+    };
 
 
     const grantPermissions = async () => {

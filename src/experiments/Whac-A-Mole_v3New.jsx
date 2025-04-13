@@ -20,6 +20,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
     const groupMoleRef = useRef(null);
     const molesRef = useRef([]);
+    const groupHitBoxMoleRef = useRef(null);
 
     const groupFlowerRef = useRef(null);
     const flowerRef = useRef(null);
@@ -110,45 +111,69 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         const moleMaterial = new THREE.MeshBasicMaterial({ map: imgTexture, transparent: true, side: THREE.DoubleSide });
         const mole = new THREE.Mesh(moleGeometry, moleMaterial);
 
+        const deltaAngle = Math.PI / 5; // 36 degrees
+
         if (v) {
             mole.position.copy(v);
         } else {
             let canPlace = false;
 
-            while (!canPlace) {
-                const radius = THREE.MathUtils.randFloat(3, 5); // Distance from the user (This can be changed to the value needed)
-                const angle = Math.random() * Math.PI * 2; // Random angle for circular placement
+            const radius = THREE.MathUtils.randFloat(3, 5); // Distance from the user (This can be changed to the value needed)
+            let angle;
+            //const deltaAngle = 0.1 * (Math.PI * 2); // Can space out at most 10 moles
 
+            while (!canPlace) {
+                
+                angle = THREE.MathUtils.randFloat(0, Math.PI * 2);
+                let tooClose = false;
+
+                for (let existingMole of groupMoleRef.current.children) {
+                    const existingAngle = existingMole.userData.angle;
+                    const angleDiff = Math.abs(angle - existingAngle);
+                    const minAngle = Math.min(angleDiff, Math.abs((Math.PI * 2) - angleDiff)); // handle wrapping
+                    if (minAngle < deltaAngle) {
+                        tooClose = true;
+                        break;
+                    }
+                }
+
+                if (!tooClose) {
+                    canPlace = true;
+                }
+            }
+            
+            if (canPlace) {
                 const vectorMole = new THREE.Vector3(
                     (Math.sin(angle) * radius),
                     -3.4,
                     (Math.cos(angle) * radius)
                 );
-                if (groupMoleRef.current.children.length > 0) {
-                    for (const mole of groupMoleRef.current.children) {
-                        if (vectorMole.distanceTo(mole.position) > 1) {
-                            canPlace = true;
-                        } else {
-                            canPlace = false;
-                            break;
-                        }
-                    }
-                } else {
-                    canPlace = true;
-                }
-
-                if (canPlace) mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
+                mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
+                mole.userData.angle = angle;
             }
         }
 
         mole.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
 
+        const hitboxMole = new THREE.Mesh(
+            new THREE.PlaneGeometry(1.5, 1.5),
+            new THREE.MeshBasicMaterial({ visible: false })
+        );
+
+        hitboxMole.name = "hitbox";
+
+        hitboxMole.position.copy(mole.position);
+        mole.userData.hitbox = hitboxMole;
+
+        //hitboxMole.add(mole);
         groupMoleRef.current.add(mole);
         molesRef.current.push(mole);
-        animateMoleRise(mole);
+        animateMoleRise(mole, hitboxMole);
+
+        groupHitBoxMoleRef.current.add(hitboxMole);
     };
 
-    const animateMoleRise = (mole, duration = 1) => {
+    const animateMoleRise = (mole, hitbox, duration = 1) => {
         const startY = -3.4;
         const endY = -1.4;
 
@@ -160,6 +185,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             const eased = t * t * (3 - 2 * t);
 
             mole.position.y = THREE.MathUtils.lerp(startY, endY, eased);
+            hitbox.position.y = THREE.MathUtils.lerp(startY, endY, eased);
 
             if (t < 1) requestAnimationFrame(animate);
         };
@@ -176,6 +202,8 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             const planeWorldPos = new THREE.Vector3();
             mole.getWorldPosition(planeWorldPos);
 
+            const hitbox = mole.userData.hitbox;
+
             // Create a horizontal target (same Y as plane)
             const target = new THREE.Vector3(
                 cameraWorldPos.x,
@@ -184,6 +212,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             );
 
             mole.lookAt(target);
+            hitbox.lookAt(target);
         });
     };
 
@@ -200,7 +229,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
         raycaster.setFromXRController(controller);
 
-        return raycaster.intersectObjects(groupMoleRef.current.children);
+        return raycaster.intersectObjects(groupHitBoxMoleRef.current.children);
     };
 
     const onSelectStart = (event) => {
@@ -237,11 +266,21 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
             if (intersections.length > 0) {
                 const intersection = intersections[0];
-                const objectMole = intersection.object;
+                const objectMoleHitbox = intersection.object;
+                let objectMole;
+
+                
 
                 const previousPosition = new THREE.Vector3();
                 previousPosition.copy(object.position);
-                const targetVector = new THREE.Vector3(objectMole.position.x, objectMole.position.y + 0.3, objectMole.position.z);
+                let targetVector = new THREE.Vector3();
+
+                groupMoleRef.current.children.forEach((mole) => {
+                    if (mole.userData.hitbox == objectMoleHitbox) {
+                        targetVector.set(mole.position.x, mole.position.y + 0.3, mole.position.z);
+                        objectMole = mole;
+                    }
+                })
 
                 function updatePosition(target) {
                     const totalSteps = 500 / 16;
@@ -310,6 +349,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                     groupMoleRef.current.remove(objectMole);
                     molesRef.current = molesRef.current.filter(mole => mole !== objectMole);
+                    groupHitBoxMoleRef.current.remove(objectMoleHitbox);
                     if (gameStartedRef.current) setScore((prevScore) => prevScore + 1); // Increase score
 
                     if (instructionStepRef.current === 1) {
@@ -322,6 +362,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                             groupRef.current.clear();
                             groupMoleRef.current.clear();
                             groupFlowerRef.current.clear();
+                            groupHitBoxMoleRef.current.clear();
 
                             // next step (message right before starting game)
                             nextInstructionStep(3);
@@ -409,6 +450,10 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 const groupMole = new THREE.Group();
                 scene.add(groupMole);
                 groupMoleRef.current = groupMole;
+
+                const groupHitBoxMole = new THREE.Group();
+                scene.add(groupHitBoxMole);
+                groupHitBoxMoleRef.current = groupHitBoxMole;
 
                 const groupFlower = new THREE.Group();
                 scene.add(groupFlower);
@@ -547,7 +592,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             )}
             {instructionStep === 1 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Drag the hammer in front of the salute to hit it
+                    Drag the hammer and drop it in front of the salute to hit it
                 </div>
             )}
             {instructionStep === 2 && (
