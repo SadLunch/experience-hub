@@ -21,6 +21,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     const groupMoleRef = useRef(null);
     const molesRef = useRef([]);
     const groupHitBoxMoleRef = useRef(null);
+    const groupMoleBaseRef = useRef(null);
 
     const groupFlowerRef = useRef(null);
     const flowerRef = useRef(null);
@@ -105,11 +106,18 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     const spawnMole = (v = null) => {
         // Add a "Mole" to the scene
         const moleGeometry = new THREE.PlaneGeometry(1, 1);
+
+        moleGeometry.translate(-0.4, 0.5, 0);
         // const moleMaterial = new ChromaKeyMaterial('/bonk_hand.png', 0x81ff8d, 608, 342, 0.2, 0.1, 0);
         const textureLoader = new THREE.TextureLoader();
-        const imgTexture = textureLoader.load('/bonk_hand.png');
+        const imgTexture = textureLoader.load('/saudacao_5_cut.png');
         const moleMaterial = new THREE.MeshBasicMaterial({ map: imgTexture, transparent: true, side: THREE.DoubleSide });
         const mole = new THREE.Mesh(moleGeometry, moleMaterial);
+
+        const ring = new THREE.Mesh(
+            new THREE.RingGeometry(0.15, 0.2, 32).rotateX(-Math.PI / 2),
+            new THREE.MeshBasicMaterial({ color: 0xff0000 })
+        );
 
         const deltaAngle = Math.PI / 5; // 36 degrees
 
@@ -150,32 +158,43 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 );
                 mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
                 mole.userData.angle = angle;
+
+                //mole.add(ring);
             }
         }
+
+        ring.position.set(
+            mole.position.x, // This depends on the model
+            mole.position.y, // A bit below the flower
+            mole.position.z // This depends on the model
+        );
 
         mole.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
 
         const hitboxMole = new THREE.Mesh(
             new THREE.PlaneGeometry(1.5, 1.5),
-            new THREE.MeshBasicMaterial({ visible: false })
+            new THREE.MeshBasicMaterial({ /*wireframe: true, color: 0x00ff00, */visible: false })
         );
 
         hitboxMole.name = "hitbox";
 
         hitboxMole.position.copy(mole.position);
+        hitboxMole.geometry.translate(-0.4, 0.5, 0);
         mole.userData.hitbox = hitboxMole;
+        mole.userData.base = ring;
 
         //hitboxMole.add(mole);
         groupMoleRef.current.add(mole);
         molesRef.current.push(mole);
-        animateMoleRise(mole, hitboxMole);
+        animateMoleRise(mole, hitboxMole, ring);
 
         groupHitBoxMoleRef.current.add(hitboxMole);
+        groupMoleBaseRef.current.add(ring);
     };
 
-    const animateMoleRise = (mole, hitbox, duration = 1) => {
+    const animateMoleRise = (mole, hitbox, base, duration = 1) => {
         const startY = -3.4;
-        const endY = -1.4;
+        const endY = -1.5;
 
         const startTime = performance.now();
 
@@ -186,6 +205,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
             mole.position.y = THREE.MathUtils.lerp(startY, endY, eased);
             hitbox.position.y = THREE.MathUtils.lerp(startY, endY, eased);
+            base.position.y = THREE.MathUtils.lerp(startY, endY, eased);
 
             if (t < 1) requestAnimationFrame(animate);
         };
@@ -282,6 +302,8 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     }
                 })
 
+                const hitMoleBase = objectMole.userData.base;
+
                 function updatePosition(target) {
                     const totalSteps = 500 / 16;
                     let step = 0;
@@ -350,6 +372,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     groupMoleRef.current.remove(objectMole);
                     molesRef.current = molesRef.current.filter(mole => mole !== objectMole);
                     groupHitBoxMoleRef.current.remove(objectMoleHitbox);
+                    groupMoleBaseRef.current.remove(hitMoleBase);
                     if (gameStartedRef.current) setScore((prevScore) => prevScore + 1); // Increase score
 
                     if (instructionStepRef.current === 1) {
@@ -363,6 +386,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                             groupMoleRef.current.clear();
                             groupFlowerRef.current.clear();
                             groupHitBoxMoleRef.current.clear();
+                            groupMoleBaseRef.current.clear();
 
                             // next step (message right before starting game)
                             nextInstructionStep(3);
@@ -430,13 +454,13 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 scene.add(dLight);
 
                 // Add a floor the shadows can be cast upon
-                const floorGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
-                const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.5, blending: THREE.CustomBlending, transparent: false });
-                const floor = new THREE.Mesh(floorGeometry, floorMaterial);
-                floor.position.set(0, -1.6, 0); // Average height the device is from the floor
-                floor.rotateX(-Math.PI / 2);
-                floor.receiveShadow = true;
-                scene.add(floor);
+                // const floorGeometry = new THREE.PlaneGeometry(100, 100, 1, 1);
+                // const floorMaterial = new THREE.ShadowMaterial({ opacity: 0.5, blending: THREE.CustomBlending, transparent: false });
+                // const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+                // floor.position.set(0, -1.6, 0); // Average height the device is from the floor
+                // floor.rotateX(-Math.PI / 2);
+                // floor.receiveShadow = true;
+                // scene.add(floor);
 
                 // Initialize Group (Where movable objects will be put)
                 const group = new THREE.Group();
@@ -454,6 +478,10 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 const groupHitBoxMole = new THREE.Group();
                 scene.add(groupHitBoxMole);
                 groupHitBoxMoleRef.current = groupHitBoxMole;
+
+                const groupMoleBase = new THREE.Group();
+                scene.add(groupMoleBase);
+                groupMoleBaseRef.current = groupMoleBase;
 
                 const groupFlower = new THREE.Group();
                 scene.add(groupFlower);
@@ -601,7 +629,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 </div>
             )}
             {instructionStep === 3 && (
-                <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
+                <div className="absolute w-5/6 bottom-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     <div>You are ready now</div>
                     <div>Tap to start the game</div>
                 </div>
