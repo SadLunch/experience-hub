@@ -405,7 +405,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                         // ring.rotateX(-Math.PI / 2);
 
-                        playSound(listenerRef.current, "hit1", 0.1, false, hitAudioRef);
+                        playSound(listenerRef.current, "hit2", 0.1, false, hitAudioRef);
 
                         function animateFlowerGrowth(flower, duration = 1, targetScale = 6) {
                             const startTime = performance.now();
