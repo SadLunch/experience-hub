@@ -40,7 +40,65 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     const [gameOver, setGameOver] = useState(false);
     const [score, setScore] = useState(0);
 
+    // Music variables
+    const [bgMusicPlaying, setBgMusicPlaying] = useState(true);
+    const bgAudioRef = useRef(null);
+    const hitAudioRef = useRef(null);
+
+    const audioBuffers = {};
+    const listenerRef = useRef(null);
+
+    // Global loaders
+    const audioLoader = new THREE.AudioLoader();
     const loader = new GLTFLoader();
+
+    const loadAudio = (name, url) => {
+        return new Promise((resolve) => {
+            audioLoader.load(url, (buffer) => {
+                audioBuffers[name] = buffer;
+                resolve();
+            })
+        })
+    }
+
+    const playSound = (listener, name, volume = 1, loop = false, refVar = null) => {
+        if (refVar.current) {
+            refVar.current.play();
+        } else {
+            const buffer = audioBuffers[name];
+            if (!buffer) return;
+
+            const sound = new THREE.Audio(listener);
+            sound.setBuffer(buffer);
+            sound.setVolume(volume);
+            sound.setLoop(loop);
+            sound.play();
+            if (refVar) refVar.current = sound;
+        }
+    }
+
+
+
+    const loadBackgroundMusic = () => {
+        if (!listenerRef.current) return;
+
+        playSound(listenerRef.current, "background", 0.5, true, bgAudioRef)
+        setBgMusicPlaying(true);
+    }
+
+    const muteUnmuteAudio = () => {
+        if (!bgAudioRef.current || !hitAudioRef.current) return;
+
+        if (bgMusicPlaying) {
+            bgAudioRef.current.setVolume(0);
+            hitAudioRef.current.setVolume(0);
+            setBgMusicPlaying(false);
+        } else {
+            bgAudioRef.current.setVolume(0.5);
+            hitAudioRef.current.setVolume(1);
+            setBgMusicPlaying(true);
+        }
+    }
 
     const updateGameState = () => {
         hasHammerLoaded.current = false;
@@ -48,6 +106,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         setIntructionStep(null);
         gameStartedRef.current = true;
         setGameStarted(true);
+        loadBackgroundMusic();
     }
 
     const nextInstructionStep = (step) => {
@@ -346,6 +405,8 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
                         // ring.rotateX(-Math.PI / 2);
 
+                        playSound(listenerRef.current, "hit1", 0.1, false, hitAudioRef);
+
                         function animateFlowerGrowth(flower, duration = 1, targetScale = 6) {
                             const startTime = performance.now();
                         
@@ -410,6 +471,11 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         if (!session) return;
 
         let spawnInterval;
+
+        // Load all sounds to be used
+        loadAudio("background", "/sounds/wack-a-mole1-2.mp3");
+        loadAudio("hit1", "/sounds/2-gavels.mp3");
+        loadAudio("hit2", "/sounds/cartoon-hammer.mp3");
 
         const initAR = () => {
             try {
@@ -486,6 +552,11 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 const groupFlower = new THREE.Group();
                 scene.add(groupFlower);
                 groupFlowerRef.current = groupFlower;
+
+                // Initialize the listener and attach it to the camera
+                const listener = new THREE.AudioListener();
+                camera.add(listener);
+                listenerRef.current = listener;
 
                 // Load all models to be used
                 loadModel('/models/white_lilly.glb', flowerRef);
@@ -593,6 +664,11 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             clearInterval(spawnInterval);
             clearInterval(timerRef.current);
 
+            if (bgAudioRef.current && bgAudioRef.current.isPlaying) {
+                bgAudioRef.current.stop();
+                bgAudioRef.current.disconnect(); // Optional: disconnect from AudioContext
+            }
+
             if (sceneRef.current) {
                 sceneRef.current.children.forEach((object) => {
                     if (!object.isLight) {
@@ -633,6 +709,12 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     <div>You are ready now</div>
                     <div>Tap to start the game</div>
                 </div>
+            )}
+
+            {gameStarted && (
+                <button onClick={muteUnmuteAudio} style={{ position: "absolute", top: 20, right: 20, padding: 10 }}>
+                    { bgMusicPlaying ? "Mute" : "Unmute" }
+                </button>
             )}
 
             {gameStarted && (

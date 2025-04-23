@@ -30,6 +30,11 @@ const ExperimentDetailTest = () => {
     //     navigate(experiment.url);
     // }
 
+    const handleEndSession = () => {
+        setSession(null);
+        setIsAR(false);
+    }
+
     const startWebXRSession = async () => {
         if (!navigator.xr) {
             console.warn('WebXR not supported!');
@@ -39,16 +44,14 @@ const ExperimentDetailTest = () => {
         const xrSession = await navigator.xr.requestSession(
             'immersive-ar', experiment.sessionOptions
         );
-
-        const handleEndSession = () => {
-            setSession(null);
-            setIsAR(false);
-        }
-
         xrSession.addEventListener('end', handleEndSession);
 
         setIsAR(true);
         setSession(xrSession);
+    }
+
+    const startARjsSession = () => {
+        setIsAR(true);
     }
 
     const endSession = () => {
@@ -72,7 +75,7 @@ const ExperimentDetailTest = () => {
                     <p className="text-gray-400 mb-4">{experiment.description}</p>
                     {/* Don't forget to add the attributions before launching it on the web */}
 
-                    {!experiment.url && (
+                    {!experiment.url && experiment.sessionOptions && (
                         <button
                             onClick={startWebXRSession}
                             className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow"
@@ -80,12 +83,20 @@ const ExperimentDetailTest = () => {
                             Start Experiment
                         </button>
                     )}
-                    {experiment.url && (
+                    {experiment.url && !experiment.sessionOptions && (
                         <a href={experiment.url}
                             className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow"
                         >
                             Start Experiment
                         </a>
+                    )}
+                    {!experiment.url && !experiment.sessionOptions && (
+                        <button
+                        onClick={startARjsSession}
+                        className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow"
+                    >
+                        Start Experiment
+                    </button>
                     )}
 
 
@@ -103,6 +114,13 @@ const ExperimentDetailTest = () => {
                     <button onClick={endSession} style={{ position: "absolute", top: 20, left: 20, padding: 10 }}>
                         Back
                     </button>
+
+                </div>
+            )}
+            {isAR && !experiment.isWebXR && (
+                <div className="w-screen h-screen relative">
+                    {/* AR component */}
+                    <Component />
 
                 </div>
             )}
