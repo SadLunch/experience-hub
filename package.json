@@ -10,10 +10,13 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@ar-js-org/ar.js": "^3.4.7",
     "@mediapipe/face_mesh": "^0.4.1633559619",
     "@react-three/drei": "^10.0.4",
     "@react-three/fiber": "^9.1.0",
     "@react-three/xr": "^6.6.5",
+    "aframe": "^1.7.1",
+    "cannon-es": "^0.20.0",
     "framer-motion": "^12.4.7",
     "geolib": "^3.3.4",
     "gsap": "^3.12.7",
