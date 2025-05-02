@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import propTypes from "prop-types";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { XRControllerModelFactory } from "three/examples/jsm/Addons.js";
+import { DRACOLoader, XRControllerModelFactory } from "three/examples/jsm/Addons.js";
 // import { ChromaKeyMaterial } from "../components/ChromaKeyShader";
 
 const raycaster = new THREE.Raycaster();
@@ -22,6 +22,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     const molesRef = useRef([]);
     const groupHitBoxMoleRef = useRef(null);
     const groupMoleBaseRef = useRef(null);
+    const moleAnglesRef = useRef([]);
 
     const groupFlowerRef = useRef(null);
     const flowerRef = useRef(null);
@@ -51,6 +52,9 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     // Global loaders
     const audioLoader = new THREE.AudioLoader();
     const loader = new GLTFLoader();
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderConfig({ type: 'js' });
+    loader.setDRACOLoader(dracoLoader);
 
     const loadAudio = (name, url) => {
         return new Promise((resolve) => {
@@ -162,6 +166,28 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         hasHammerLoaded.current = true;
     };
 
+    const getAllAngles = () => {
+        const deltas = [
+            {distance: 5, deltaAngle: Math.PI / 8, offset: 0},
+            {distance: 4, deltaAngle: Math.PI / 4, offset: Math.PI / 16},
+            {distance: 3, deltaAngle: Math.PI / 3, offset: Math.PI / 8},
+        ];
+
+        deltas.map((delta) => {
+            let angle = 0;
+            let angleObject = {
+                distance: delta.distance,
+                angles: [],
+            };
+            for (let i = 0; angle < (2*Math.PI) + delta.offset; i++) {
+                angle = (delta.deltaAngle * i) + delta.offset;
+                angleObject.angles.push(angle);
+            }
+            moleAnglesRef.current.push(angleObject);
+            console.log(angleObject);
+        })
+    };
+
     const spawnMole = (v = null) => {
         // Add a "Mole" to the scene
         const moleGeometry = new THREE.PlaneGeometry(1, 1);
@@ -178,48 +204,31 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             new THREE.MeshBasicMaterial({ color: 0xff0000 })
         );
 
-        const deltaAngle = Math.PI / 5; // 36 degrees
-
         if (v) {
             mole.position.copy(v);
         } else {
-            let canPlace = false;
 
-            const radius = THREE.MathUtils.randFloat(3, 5); // Distance from the user (This can be changed to the value needed)
-            let angle;
-            //const deltaAngle = 0.1 * (Math.PI * 2); // Can space out at most 10 moles
+            var listObject = moleAnglesRef.current[Math.floor(Math.random() * moleAnglesRef.current.length)];
 
-            while (!canPlace) {
-                
-                angle = THREE.MathUtils.randFloat(0, Math.PI * 2);
-                let tooClose = false;
+            const radius = listObject.distance; // Distance from the user (This can be changed to the value needed)
 
-                for (let existingMole of groupMoleRef.current.children) {
-                    const existingAngle = existingMole.userData.angle;
-                    const angleDiff = Math.abs(angle - existingAngle);
-                    const minAngle = Math.min(angleDiff, Math.abs((Math.PI * 2) - angleDiff)); // handle wrapping
-                    if (minAngle < deltaAngle) {
-                        tooClose = true;
-                        break;
-                    }
-                }
+            const angle = listObject.angles[Math.floor(Math.random() * listObject.angles.length)]
 
-                if (!tooClose) {
-                    canPlace = true;
-                }
+            const vectorMole = new THREE.Vector3(
+                (Math.sin(angle) * radius),
+                -3.4,
+                (Math.cos(angle) * radius)
+            );
+            mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
+            mole.userData.angle = angle;
+
+            let idx = listObject.angles.indexOf(angle);
+            if (idx !== -1) {
+                listObject.angles.splice(idx, 1);
             }
+            //console.log("Angles: ", listObject.angles);
             
-            if (canPlace) {
-                const vectorMole = new THREE.Vector3(
-                    (Math.sin(angle) * radius),
-                    -3.4,
-                    (Math.cos(angle) * radius)
-                );
-                mole.position.set(vectorMole.x, vectorMole.y, vectorMole.z);
-                mole.userData.angle = angle;
-
-                //mole.add(ring);
-            }
+            
         }
 
         ring.position.set(
@@ -625,9 +634,10 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                             spawnHammer();
                             hasHammerLoaded.current = true; // Set flag so it doesn't load again
                         }
+                        getAllAngles();
                         spawnMole();
                         spawnInterval = setInterval(() => {
-                            if (molesRef.current.length < 5) {
+                            if (molesRef.current.length < 7) {
                                 spawnMole();
                             }
                         }, 4000);

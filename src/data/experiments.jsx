@@ -15,6 +15,9 @@ import HittestSurfaceNew from "../experiments/HittestSurfaceNew";
 import MoveCubesControllersNew from "../experiments/MoveCubesControllersNew";
 import WhacAMoleV3 from "../experiments/Whac-A-Mole_v3";
 import WhacAMoleV3New from "../experiments/Whac-A-Mole_v3New";
+import AFrameExperiment from "../experiments/AFrameExperiment";
+import MoleSpawnTest from "../experiments/MoleSpawnTest";
+import VirtualExhibition from "../experiments/VirtualExhibition";
 
 export const experiments = [
   {
@@ -193,7 +196,7 @@ export const experiments = [
     title: "Face Tracking",
     description: "A face tracking experiment.",
     isWebXR: false,
-    disabled: true,
+    disabled: false,
     url: "/facetracking.html",
     attributions: [
     ]
@@ -228,6 +231,50 @@ export const experiments = [
     attributions: [
       '"gavel" (https://skfb.ly/owxOK) by rutesh sakpal is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
       '"White Lilly - Metascan" (https://skfb.ly/o9HYz) by Moshe Caine is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
+    ]
+  },
+  {
+    id: "18",
+    title: "AFRAME AR test",
+    description: 'A test for an AFRAME approach that might work on iOS.',
+    component: AFrameExperiment,
+    isWebXR: false,
+    disabled: true,
+  },
+  {
+    id: "19",
+    title: "AFRAME AR test (separate html file)",
+    description: 'A test for an AFRAME approach that might work on iOS.',
+    isWebXR: false,
+    disabled: true,
+    url: '/aframe_test.html'
+  },
+  {
+    id: "20",
+    title: "Mole Spawn Test",
+    description: 'Testing how many moles we can spawn at certainn distances',
+    component: MoleSpawnTest,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: true,
+    attributions: []
+  },
+  {
+    id: "21",
+    title: "Virtual Exhibition Test",
+    description: 'Testing the virtual exhibition experience where you move the objects on a plane',
+    component: VirtualExhibition,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: true,
+    attributions: [
+      "Fish by jeremy [CC-BY] via Poly Pizza",
     ]
   },
 ];
