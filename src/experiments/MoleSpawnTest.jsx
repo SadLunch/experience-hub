@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import propTypes from "prop-types";
-import { GLTFLoader } from "three/examples/jsm/Addons.js";
+import { DRACOLoader, GLTFLoader } from "three/examples/jsm/Addons.js";
 // import { ChromaKeyMaterial } from "../components/ChromaKeyShader";
 
 const MoleSpawnTest = ({ session, endSession }) => {
@@ -17,6 +17,10 @@ const MoleSpawnTest = ({ session, endSession }) => {
 
     const loader = new GLTFLoader();
     const flowerRef = useRef(null);
+
+    const dracoLoader = new DRACOLoader();
+    dracoLoader.setDecoderConfig({ type: 'js' });
+    loader.setDRACOLoader(dracoLoader);
 
     const loadModel = (src, refVar, name = null, onLoad = null) => {
         loader.load(src, (gltf) => {

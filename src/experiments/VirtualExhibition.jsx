@@ -21,6 +21,8 @@ const VirtualExhibition = ({ session, endSession }) => {
     // const fishRef = useRef(null);
     // const fishPlaced = useRef(null);
 
+    const clock = new THREE.Clock();
+
     // const loader = new GLTFLoader();
 
     // const loadModel = (src, refVar, name = null, callback = null) => {
@@ -46,9 +48,8 @@ const VirtualExhibition = ({ session, endSession }) => {
     const initAR = () => {
         const container = containerRef.current;
 
-        const world = new CANNON.World({
-            gravity: new CANNON.Vec3(0, -9.82, 0),
-        });
+        const world = new CANNON.World();
+        world.gravity.set(0, -9.82, 0);
 
         // --- Setup basic scene ---
         const scene = new THREE.Scene();
@@ -70,57 +71,67 @@ const VirtualExhibition = ({ session, endSession }) => {
         if (container) container.appendChild(renderer.domElement);
 
         // --- Floor ---
-        const grid = new THREE.GridHelper(10, 10);
-        grid.position.set(0, -1.6, 0);
-        scene.add(grid);
-
-        const groundBody = new CANNON.Body({
-            type: CANNON.Body.STATIC,
-            shape: new CANNON.Plane(),
-        });
-        groundBody.position.set(0, -1.6, 0);
-        groundBody.quaternion.setFromEuler(-Math.PI / 2, 0, 0);
-        world.addBody(groundBody);
+        const planeGeometry = new THREE.PlaneGeometry(25, 25)
+        const planeMesh = new THREE.Mesh(
+            planeGeometry,
+            new THREE.MeshPhongMaterial()
+        )
+        planeMesh.position.y = -1.61
+        planeMesh.rotateX(-Math.PI / 2)
+        planeMesh.receiveShadow = true
+        scene.add(planeMesh)
+        const planeShape = new CANNON.Plane()
+        const planeBody = new CANNON.Body({
+            mass: 0
+        })
+        planeBody.addShape(planeShape)
+        planeBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
+        world.addBody(planeBody)
 
         // --- Movable Object ---
         const size = 0.3;
-        const draggable = new THREE.Mesh(
-        new THREE.BoxGeometry(size, size, size),
-        new THREE.MeshStandardMaterial({ color: 0xff0000 })
-        );
-        draggable.position.set(0, -1.45, 0);
-        scene.add(draggable);
-
+        const cubeGeometry = new THREE.BoxGeometry(size, size, size)
+        const cubeMesh = new THREE.Mesh(
+            cubeGeometry,
+            new THREE.MeshNormalMaterial()
+        )
+        cubeMesh.position.x = -4
+        cubeMesh.position.y = 1
+        cubeMesh.castShadow = true
+        scene.add(cubeMesh)
+        const cubeShape = new CANNON.Box(new CANNON.Vec3(0.15, 0.15, 0.15))
         const cubeBody = new CANNON.Body({
-            mass: 1,
-            shape: new CANNON.Box(new CANNON.Vec3(size / 2, size / 2, size / 2)),
-            position: new CANNON.Vec3(0, size / 2, 0),
-        });
-        world.addBody(cubeBody);
+            mass: 1
+        })
+        cubeBody.addShape(cubeShape)
+        cubeBody.position.x = cubeMesh.position.x
+        cubeBody.position.y = cubeMesh.position.y
+        cubeBody.position.z = cubeMesh.position.z
+        world.addBody(cubeBody)
 
         // --- Virtual Walls (Collision Objects) ---
-        const wallMaterial = new THREE.MeshStandardMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-        const wall1 = new THREE.Mesh(new THREE.BoxGeometry(5, 2, 0.1), wallMaterial);
+        const wallMaterial = new THREE.MeshNormalMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
+        const wall1 = new THREE.Mesh(
+            new THREE.BoxGeometry(5, 2, 0.1),
+            wallMaterial
+        );
         wall1.position.set(0, -0.6, -2);
         scene.add(wall1);
-
-        const wall2 = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2, 5), wallMaterial);
-        wall2.position.set(2, -0.6, 0);
-        scene.add(wall2);
-
         const wallBody1 = new CANNON.Body({
             type: CANNON.Body.STATIC,
             shape: new CANNON.Box(new CANNON.Vec3(2.5, 1, 0.05)),
-            position: new CANNON.Vec3(0, -0.6, -2),
         });
+        wallBody1.position.x = wall1.position.x;
+        wallBody1.position.y = wall1.position.y;
+        wallBody1.position.z = wall1.position.z;
         world.addBody(wallBody1);
 
-        const wallBody2 = new CANNON.Body({
-            type: CANNON.Body.STATIC,
-            shape: new CANNON.Box(new CANNON.Vec3(0.05, 1, 2.5)),
-            position: new CANNON.Vec3(2, -0.6, 0),
-        });
-        world.addBody(wallBody2);
+        // const wallBody2 = new CANNON.Body({
+        //     type: CANNON.Body.STATIC,
+        //     shape: new CANNON.Box(new CANNON.Vec3(0.05, 1, 2.5)),
+        //     position: new CANNON.Vec3(2, -0.6, 0),
+        // });
+        // world.addBody(wallBody2);
 
         // --- Light ---
         const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
@@ -131,14 +142,14 @@ const VirtualExhibition = ({ session, endSession }) => {
         scene.add(controller);
 
         // Dragging State
-        let isDragging = false;
+        // let isDragging = false;
         let offset = new THREE.Vector3();
 
         // Raycasting
         const tempMatrix = new THREE.Matrix4();
         const raycaster = new THREE.Raycaster();
         const workingPlane = new THREE.Plane(new THREE.Vector3(0, 1, 0), 0);
-        const planeIntersect = new THREE.Vector3();
+        // const planeIntersect = new THREE.Vector3();
 
         controller.addEventListener('selectstart', onSelectStart);
         controller.addEventListener('selectend', onSelectEnd);
@@ -149,12 +160,12 @@ const VirtualExhibition = ({ session, endSession }) => {
         raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
         raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-        const intersects = raycaster.intersectObject(draggable);
+        const intersects = raycaster.intersectObject(cubeMesh);
         if (intersects.length > 0) {
-            isDragging = true;
+            // isDragging = true;
 
             const hitPoint = intersects[0].point;
-            offset.subVectors(draggable.position, hitPoint);
+            offset.subVectors(cubeMesh.position, hitPoint);
 
             // Set plane to pass through object
             workingPlane.setFromNormalAndCoplanarPoint(new THREE.Vector3(0, 1, 0), hitPoint);
@@ -162,29 +173,42 @@ const VirtualExhibition = ({ session, endSession }) => {
         }
 
         function onSelectEnd() {
-        isDragging = false;
+        // isDragging = false;
         }
 
         // Animation Loop
         renderer.setAnimationLoop(() => {
-        if (isDragging) {
-            tempMatrix.identity().extractRotation(controller.matrixWorld);
-            raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
-            raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
+            world.step(clock.getDelta());
 
-            if (raycaster.ray.intersectPlane(workingPlane, planeIntersect)) {
-            const newPos = planeIntersect.clone().add(offset);
-            newPos.y = -1.45; // Keep on ground
-            
-            // Check collision
-            cubeBody.position.copy(newPos);
+            cubeMesh.position.set(
+                cubeBody.position.x,
+                cubeBody.position.y,
+                cubeBody.position.z
+            );
+            cubeMesh.quaternion.set(
+                cubeBody.quaternion.x,
+                cubeBody.quaternion.y,
+                cubeBody.quaternion.z,
+                cubeBody.quaternion.w
+            );
+            // if (isDragging) {
+            //     tempMatrix.identity().extractRotation(controller.matrixWorld);
+            //     raycaster.ray.origin.setFromMatrixPosition(controller.matrixWorld);
+            //     raycaster.ray.direction.set(0, 0, -1).applyMatrix4(tempMatrix);
 
-            draggable.position.copy(cubeBody.position);
-            draggable.quaternion.copy(cubeBody.quaternion);
-            
-            }
-        }
-        renderer.render(scene, camera);
+            //     if (raycaster.ray.intersectPlane(workingPlane, planeIntersect)) {
+            //     const newPos = planeIntersect.clone().add(offset);
+            //     newPos.y = -1.45; // Keep on ground
+                
+            //     // Check collision
+            //     cubeBody.position.copy(newPos);
+
+            //     cubeMesh.position.copy(cubeBody.position);
+            //     cubeMesh.quaternion.copy(cubeBody.quaternion);
+                
+            //     }
+            // }
+            renderer.render(scene, camera);
         });
 
 

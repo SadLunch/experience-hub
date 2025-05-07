@@ -18,6 +18,9 @@ import WhacAMoleV3New from "../experiments/Whac-A-Mole_v3New";
 import AFrameExperiment from "../experiments/AFrameExperiment";
 import MoleSpawnTest from "../experiments/MoleSpawnTest";
 import VirtualExhibition from "../experiments/VirtualExhibition";
+import GremioLiterario from "../experiments/GremioLiterario";
+import TestGetPositions from "../experiments/TestGetPositions";
+import GraffitiWallArt from "../experiments/GraffitiWallArt";
 
 export const experiments = [
   {
@@ -239,7 +242,7 @@ export const experiments = [
     description: 'A test for an AFRAME approach that might work on iOS.',
     component: AFrameExperiment,
     isWebXR: false,
-    disabled: true,
+    disabled: false,
   },
   {
     id: "19",
@@ -272,9 +275,52 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: [
       "Fish by jeremy [CC-BY] via Poly Pizza",
+    ]
+  },
+  {
+    id: "22",
+    title: "Gremio Literario",
+    description: 'Testing experience for Gremio Literario',
+    component: GremioLiterario,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: false,
+    attributions: [
+      "Fish by jeremy [CC-BY] via Poly Pizza",
+    ]
+  },
+  {
+    id: "23",
+    title: "Test Get Positions",
+    description: 'Test for getting the necessary positions for the Gremio Literario experience',
+    component: TestGetPositions,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: true,
+    attributions: [
+    ]
+  },
+  {
+    id: "24",
+    title: "Graffiti test",
+    description: 'Test for graffiti experience',
+    component: GraffitiWallArt,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: false,
+    attributions: [
     ]
   },
 ];
