@@ -62,17 +62,18 @@ const GremioLiterario = ({ session, endSession }) => {
 
         // Paths
         const paths = [
-            {start: new THREE.Vector3(8, -1, -5), end: new THREE.Vector3(-15, -1, -5), orientation: 'h'/* h = horizontal | v = vertical */},
-            {start: new THREE.Vector3(-15, -1, -5), end: new THREE.Vector3(-15, 1, -5), orientation: 'v'},
-            {start: new THREE.Vector3(-15, 1, -5), end: new THREE.Vector3(11, 1, -5), orientation: 'h'},
-            {start: new THREE.Vector3(11, 1, -5), end: new THREE.Vector3(11, 3, -5), orientation: 'v'},
-            {start: new THREE.Vector3(11, 3, -5), end: new THREE.Vector3(-15, 3, -5), orientation: 'h'},
-            {start: new THREE.Vector3(-15, 3, -5), end: new THREE.Vector3(-15, 4, -5), orientation: 'v'},
-            {start: new THREE.Vector3(-15, 4, -5), end: new THREE.Vector3(0, 4, -5), orientation: 'h'},
-            {start: new THREE.Vector3(-13, 3, -5), end: new THREE.Vector3(-13, 2, -5), orientation: 'v'},
-            {start: new THREE.Vector3(0, 3, -5), end: new THREE.Vector3(0, 1.5, -5), orientation: 'v'},
-            {start: new THREE.Vector3(8, 3, -5), end: new THREE.Vector3(8, 3.5, -5), orientation: 'v'},
-            {start: new THREE.Vector3(8, 3.5, -5), end: new THREE.Vector3(9, 3.5, -5), orientation: 'h'},
+            {start: new THREE.Vector3(3, -1, -9), end: new THREE.Vector3(-7, -1, -9), orientation: 'h'/* h = horizontal | v = vertical */},
+            {start: new THREE.Vector3(-7, -1, -9), end: new THREE.Vector3(-7, 1, -9), orientation: 'v'},
+            {start: new THREE.Vector3(-7, 1, -9), end: new THREE.Vector3(5, 1, -9), orientation: 'h'},
+            {start: new THREE.Vector3(5, 1, -9), end: new THREE.Vector3(5, 3, -9), orientation: 'v'},
+            {start: new THREE.Vector3(5, 3, -9), end: new THREE.Vector3(-7, 3, -9), orientation: 'h'},
+            {start: new THREE.Vector3(-7, 3, -9), end: new THREE.Vector3(-7, 4, -9), orientation: 'v'},
+            {start: new THREE.Vector3(-7, 4, -9), end: new THREE.Vector3(0, 4, -9), orientation: 'h'},
+            {start: new THREE.Vector3(0, 4, -9), end: new THREE.Vector3(0, 4.5, -9), orientation: 'v'},
+            {start: new THREE.Vector3(-6, 3, -9), end: new THREE.Vector3(-6, 2, -9), orientation: 'v'},
+            {start: new THREE.Vector3(0, 3, -9), end: new THREE.Vector3(0, 2, -9), orientation: 'v'},
+            {start: new THREE.Vector3(4, 3, -9), end: new THREE.Vector3(4, 4, -9), orientation: 'v'},
+            {start: new THREE.Vector3(4, 4, -9), end: new THREE.Vector3(5, 4, -9), orientation: 'h'},
         ];
 
         for (let p of paths) {
@@ -81,8 +82,8 @@ const GremioLiterario = ({ session, endSession }) => {
             const center = new THREE.Vector3().addVectors(p.start, p.end).multiplyScalar(0.5);
 
             const path = new THREE.Mesh(
-                new THREE.PlaneGeometry(0.4, length+0.25),
-                new THREE.MeshBasicMaterial({ color: 0x8888ff })
+                new THREE.PlaneGeometry(0.6, length+0.6),
+                new THREE.MeshBasicMaterial({ color: 0x8888ff, side: THREE.DoubleSide })
             );
             path.position.copy(center);
             if (p.orientation == 'h') path.rotateZ(Math.PI / 2);
@@ -91,9 +92,9 @@ const GremioLiterario = ({ session, endSession }) => {
 
         const start = new THREE.Mesh(
             new THREE.PlaneGeometry(1.5, 2.5),
-            new THREE.MeshBasicMaterial({ color: 0x8888ff })
+            new THREE.MeshBasicMaterial({ color: 0x8888ff, side: THREE.DoubleSide })
         );
-        start.position.set(8, -1, -5);
+        start.position.set(3.5, -1, -9);
         pathsGroup.add(start);
 
         // Movable slider

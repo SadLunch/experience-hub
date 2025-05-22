@@ -50,13 +50,46 @@ const ExperimentDetailTest = () => {
         setSession(xrSession);
     }
 
-    const startARjsSession = () => {
+    const startARSession = () => {
         setIsAR(true);
     }
 
     const endSession = () => {
         if (session) session.end();
     }
+
+    const endARSession = () => {
+        // 1. Stop camera
+        const video = document.getElementById("webcam");
+        const stream = video?.srcObject;
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+        }
+        video.srcObject = null;
+
+        // 2. Exit fullscreen
+        if (document.exitFullscreen) {
+            document.exitFullscreen();
+        } else if (document.webkitExitFullscreen) { /* Safari */
+            document.webkitExitFullscreen();
+        } else if (document.msExitFullscreen) { /* IE11 */
+            document.msExitFullscreen();
+        }
+
+        // 3. Optional: dispose A-Frame scene
+        const sceneEl = document.querySelector('a-scene');
+        if (sceneEl?.renderer?.dispose) {
+            sceneEl.renderer.dispose();
+        }
+
+        // 4. Reset the flag
+        setIsAR(false);
+    };
+
+    const endMindARSession = () => {
+        setIsAR(false);
+    }
+
 
     // const leaveExperiment = (id) => {
     //   socket.emit("leave_experiment", id);
@@ -92,11 +125,11 @@ const ExperimentDetailTest = () => {
                     )}
                     {!experiment.url && !experiment.sessionOptions && (
                         <button
-                        onClick={startARjsSession}
-                        className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow"
-                    >
-                        Start Experiment
-                    </button>
+                            onClick={startARSession}
+                            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-semibold rounded-lg shadow"
+                        >
+                            Start Experiment
+                        </button>
                     )}
 
 
@@ -121,7 +154,9 @@ const ExperimentDetailTest = () => {
                 <div className="w-screen h-screen relative">
                     {/* AR component */}
                     <Component />
-
+                    <button onClick={!experiment.mindAR ? endARSession : endMindARSession} style={{ position: "absolute", top: 20, left: 20, padding: 10 }}>
+                        Back
+                    </button>
                 </div>
             )}
         </div>

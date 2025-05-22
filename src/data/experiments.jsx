@@ -19,8 +19,12 @@ import AFrameExperiment from "../experiments/AFrameExperiment";
 import MoleSpawnTest from "../experiments/MoleSpawnTest";
 import VirtualExhibition from "../experiments/VirtualExhibition";
 import GremioLiterario from "../experiments/GremioLiterario";
-import TestGetPositions from "../experiments/TestGetPositions";
+import TestGetPositionsV2 from "../experiments/TestGetPositions";
 import GraffitiWallArt from "../experiments/GraffitiWallArt";
+import VirtualExhibitionV2 from "../experiments/VirtualExhibition_v2";
+import GiantJustice from "../experiments/GiantJusticeExperiment";
+import MNACStairsExperiment from "../experiments/MNACStairsExperiment";
+import MindARFaceTracking from "../experiments/MindARFaceTracking";
 
 export const experiments = [
   {
@@ -299,13 +303,13 @@ export const experiments = [
     id: "23",
     title: "Test Get Positions",
     description: 'Test for getting the necessary positions for the Gremio Literario experience',
-    component: TestGetPositions,
+    component: TestGetPositionsV2,
     sessionOptions: {
       requiredFeatures: ["dom-overlay"],
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: [
     ]
   },
@@ -322,6 +326,47 @@ export const experiments = [
     disabled: false,
     attributions: [
     ]
+  },
+  {
+    id: "25",
+    title: "Face Tracking with MindAR",
+    description: "Test for MindAR's face tracking experience",
+    component: MindARFaceTracking,
+    isWebXR: false,
+    disabled: false,
+    mindAR: true,
+    attributions: [
+    ]
+  },
+  {
+    id: "26",
+    title: "Virtual Exhibition Test V2",
+    description: 'Version 2 of the Virtual Exhibition Test',
+    component: VirtualExhibitionV2,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: false,
+    attributions: [
+    ]
+  },
+  {
+    id: "27",
+    title: "Giant Justice",
+    description: 'A test for the Giant Justice roaming the streets experience.',
+    component: GiantJustice,
+    isWebXR: false,
+    disabled: false,
+  },
+  {
+    id: "28",
+    title: "MNAC Stairs Experiment",
+    description: 'A test for the MNAC stairs voice recording experiment.',
+    component: MNACStairsExperiment,
+    isWebXR: false,
+    disabled: false,
   },
 ];
 //
