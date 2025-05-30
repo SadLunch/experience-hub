@@ -25,6 +25,8 @@ import VirtualExhibitionV2 from "../experiments/VirtualExhibition_v2";
 import GiantJustice from "../experiments/GiantJusticeExperiment";
 import MNACStairsExperiment from "../experiments/MNACStairsExperiment";
 import MindARFaceTracking from "../experiments/MindARFaceTracking";
+import GraffitiWallArtV2 from "../experiments/GraffitiWallArtV2";
+import MoveCubesControllers from "../experiments/MoveCubesControllers";
 
 export const experiments = [
   {
@@ -63,6 +65,21 @@ export const experiments = [
     },
     isWebXR: true,
     disabled: false,
+    attributions: []
+  },
+  {
+    id: "3-1",
+    title: "Movable Floating Fishes before",
+    description: "Three.js scene where you can move fishes that are floating around you.",
+    component: MoveCubesControllers,
+    sessionOptions: {
+      optionalFeatures: ["dom-overlay", "depth-sensing"],
+      domOverlay: {root: document.body },
+      depthSensing: { usagePreference: [ 'gpu-optimized' ], dataFormatPreference: [] },
+    },
+    isWebXR: true,
+    disabled: false,
+    before: true,
     attributions: []
   },
   {
@@ -329,17 +346,31 @@ export const experiments = [
   },
   {
     id: "25",
-    title: "Face Tracking with MindAR",
-    description: "Test for MindAR's face tracking experience",
-    component: MindARFaceTracking,
-    isWebXR: false,
+    title: "Graffiti test V2",
+    description: 'Test for graffiti experience',
+    component: GraffitiWallArtV2,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
     disabled: false,
-    mindAR: true,
     attributions: [
     ]
   },
   {
     id: "26",
+    title: "Face Tracking with MindAR",
+    description: "Test for MindAR's face tracking experience",
+    component: MindARFaceTracking,
+    isWebXR: false,
+    disabled: true,
+    mindAR: true,
+    attributions: [
+    ]
+  },
+  {
+    id: "27",
     title: "Virtual Exhibition Test V2",
     description: 'Version 2 of the Virtual Exhibition Test',
     component: VirtualExhibitionV2,
@@ -353,7 +384,7 @@ export const experiments = [
     ]
   },
   {
-    id: "27",
+    id: "28",
     title: "Giant Justice",
     description: 'A test for the Giant Justice roaming the streets experience.',
     component: GiantJustice,
@@ -361,7 +392,7 @@ export const experiments = [
     disabled: false,
   },
   {
-    id: "28",
+    id: "29",
     title: "MNAC Stairs Experiment",
     description: 'A test for the MNAC stairs voice recording experiment.',
     component: MNACStairsExperiment,

@@ -226,7 +226,7 @@ const MNACStairsExperiment = () => {
                     <a-entity ref={answerEntityRef} position="0 1.5 -2">
                         {/* Question */}
                         <a-text
-                            value="What does this scene represent?"
+                            value="O museu é um lugar de Justiça?"
                             align="center"
                             width="3.5"
                             color="white"

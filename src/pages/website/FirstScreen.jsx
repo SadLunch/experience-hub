@@ -1,11 +1,12 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { useState } from "react";
+import { useRef, useState } from "react";
 import BackButton from '../../components/BackButton';
 
 const FirstScreen = () => {
     const [permissionsPage, setPermissionsPage] = useState(false);
     const [startingPage, setStartingPage] = useState(false);
+    const containerRef = useRef(null);
 
     const goToPermissions = () => {
         setPermissionsPage(true);
@@ -43,11 +44,19 @@ const FirstScreen = () => {
         });
     };
 
+    const openWebsiteInFullscreen = () => {
+        if (containerRef.current.requestFullscreen) { containerRef.current.requestFullscreen(); }
+        else if (containerRef.current.webkitRequestFullscreen) { containerRef.current.webkitRequestFullscreen(); }
+        else if (containerRef.current.msRequestFullscreen) { containerRef.current.msRequestFullscreen(); }
+    }
+
 
     const grantPermissions = async () => {
         try {
+            openWebsiteInFullscreen();
             await requestCameraAccess();
             await requestLocationAccess();
+            
 
             // Optional: Check AR support
             if (navigator.xr) {
@@ -64,7 +73,7 @@ const FirstScreen = () => {
     };
 
     return (
-        <div>
+        <div ref={containerRef}>
             <BackButton to='/' />
             {!permissionsPage && !startingPage && (
                 <div className='min-h-screen w-screen bg-gray-900 flex flex-col items-center justify-center p-10'>

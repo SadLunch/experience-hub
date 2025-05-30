@@ -22,7 +22,7 @@ const Hub = () => {
             transition={{ duration: 0.5, delay: index * 0.1 }}
           >
             <Link 
-              to={`/testing/experiment/${exp.id}`} 
+              to={exp.before ? `/testing/before/experiment/${exp.id}` : `/testing/experiment/${exp.id}`} 
               className="block bg-gray-800 p-5 rounded-lg shadow-lg hover:bg-gray-700 transition"
             >
               <h2 className="text-xl font-semibold">{exp.title}</h2>

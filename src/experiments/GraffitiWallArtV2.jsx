@@ -5,7 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 
 const raycaster = new THREE.Raycaster();
 
-const GraffitiWallArt = ({ session, endSession }) => {
+const GraffitiWallArtV2 = ({ session, endSession }) => {
     const containerRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
@@ -16,7 +16,9 @@ const GraffitiWallArt = ({ session, endSession }) => {
     const canModelRef = useRef(null);
 
     const selectedObject = useRef(null);
-    const isDragging = useRef(false);
+    // const isDragging = useRef(false);
+    const isSpraying = useRef(false);
+    const sphereIndicator = useRef(null);
 
     // // groups ref
     // const movableGroupRef = useRef(null);
@@ -122,7 +124,7 @@ const GraffitiWallArt = ({ session, endSession }) => {
                 controller.attach(object);
                 controller.userData.selected = object;
                 selectedObject.current = object;
-                isDragging.current = true;
+                //isDragging.current = true;
             }
             // controllerRef.current.userData.targetRayMode = event.target.targetRayMode
         }
@@ -133,8 +135,20 @@ const GraffitiWallArt = ({ session, endSession }) => {
                 const object = selectedObject.current;
                 movableGroup.attach(object);
                 controller.userData.selected = undefined;
-                // selectedObject.current = null;
-                isDragging.current = false;
+                //selectedObject.current = null;
+                //isDragging.current = false;
+            }
+        }
+
+        const startSpraying = () => {
+            if (selectedObject.current) {
+                isSpraying.current = true;
+            }
+        }
+
+        const stopSpraying = () => {
+            if (isSpraying.current) {
+                isSpraying.current = false;
             }
         }
 
@@ -145,10 +159,25 @@ const GraffitiWallArt = ({ session, endSession }) => {
         scene.add(controller);
         controllerRef.current = controller;
 
+        renderer.domElement.addEventListener('touchstart', (event) => {
+            if (event.touches.length == 2) {
+                startSpraying();
+            }
+        })
+
+        renderer.domElement.addEventListener('touchend', stopSpraying);
+
+        sphereIndicator.current = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 16, 16),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
+        );
+        sphereIndicator.current.visible = false;
+        scene.add(sphereIndicator.current);
+
         // Animation Loop
         renderer.setAnimationLoop(() => {
             // Check if spray can is in scene
-            if (isDragging.current && selectedObject.current && wallPlane && sourceImage.complete) {
+            if (controllerRef.current.userData.selected && wallPlane && sourceImage.complete) {
                 const sprayTip = new THREE.Vector3();
                 // sprayTip.add(selectedObject.current.getObjectByName("Tip").position);
                 selectedObject.current.getWorldPosition(sprayTip);
@@ -165,19 +194,28 @@ const GraffitiWallArt = ({ session, endSession }) => {
 
                         const radius = 30;
 
-                        // Clip drawing to a circle
-                        paintCtx.save();
-                        paintCtx.beginPath();
-                        paintCtx.arc(x, y, radius, 0, Math.PI * 2);
-                        paintCtx.clip();
+                        sphereIndicator.current.visible = true;
+                        sphereIndicator.current.position.copy(intersects[0].point)
 
-                        // Draw that part of the source image
-                        paintCtx.drawImage(sourceImage, 0, 0, textureSize, textureSize);
+                        if (isSpraying.current) {
+                            // Clip drawing to a circle
+                            paintCtx.save();
+                            paintCtx.beginPath();
+                            paintCtx.arc(x, y, radius, 0, Math.PI * 2);
+                            paintCtx.clip();
 
-                        paintCtx.restore();
-                        paintedTexture.needsUpdate = true;
+                            // Draw that part of the source image
+                            paintCtx.drawImage(sourceImage, 0, 0, textureSize, textureSize);
+
+                            paintCtx.restore();
+                            paintedTexture.needsUpdate = true;
+                        }
                     }
+                } else {
+                    sphereIndicator.current.visible = false;
                 }
+            } else {
+                sphereIndicator.current.visible = false;
             }
 
             renderer.render(scene, camera);
@@ -217,9 +255,9 @@ const GraffitiWallArt = ({ session, endSession }) => {
     );
 }
 
-GraffitiWallArt.propTypes = {
+GraffitiWallArtV2.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
 };
 
-export default GraffitiWallArt;
+export default GraffitiWallArtV2;

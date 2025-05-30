@@ -35,19 +35,26 @@ const ExperimentDetailTest = () => {
         setIsAR(false);
     }
 
-    const startWebXRSession = async () => {
+    const startWebXRSession = () => {
         if (!navigator.xr) {
             console.warn('WebXR not supported!');
             return;
         }
 
-        const xrSession = await navigator.xr.requestSession(
-            'immersive-ar', experiment.sessionOptions
-        );
-        xrSession.addEventListener('end', handleEndSession);
+        // let overlay = document.querySelector('.overlay');
 
-        setIsAR(true);
-        setSession(xrSession);
+        // experiment.sessionOptions.domOverlay.root = overlay;
+
+        navigator.xr.requestSession(
+            'immersive-ar', experiment.sessionOptions
+        ).then((xrSession) => {
+            xrSession.addEventListener('end', handleEndSession);
+
+            setIsAR(true);
+            setSession(xrSession);
+        }).catch((err) => {
+            console.log("Failed to start AR:", err)
+        })
     }
 
     const startARSession = () => {
@@ -131,9 +138,6 @@ const ExperimentDetailTest = () => {
                             Start Experiment
                         </button>
                     )}
-
-
-
                     <Link to="/testing/map" /*onClick={() => leaveExperiment(experiment.id)}*/ className="text-white absolute top-5 left-5 bg-blue-500 px-4 py-2 rounded hover:bg-blue-600 transition">
                         Back to Map
                     </Link>
@@ -144,17 +148,16 @@ const ExperimentDetailTest = () => {
                     {/* AR component */}
                     <Component session={session} endSession={endSession} />
                     {/* Back Button */}
-                    <button onClick={endSession} style={{ position: "absolute", top: 20, left: 20, padding: 10 }}>
+                    <button onClick={endSession} style={{ position: "absolute", top: 20, left: 20, padding: 10}}>
                         Back
                     </button>
-
                 </div>
             )}
             {isAR && !experiment.isWebXR && (
                 <div className="w-screen h-screen relative">
                     {/* AR component */}
                     <Component />
-                    <button onClick={!experiment.mindAR ? endARSession : endMindARSession} style={{ position: "absolute", top: 20, left: 20, padding: 10 }}>
+                    <button onClick={!experiment.mindAR ? endARSession : endMindARSession} style={{ position: "absolute", top: 20, left: 20, padding: 10}}>
                         Back
                     </button>
                 </div>
