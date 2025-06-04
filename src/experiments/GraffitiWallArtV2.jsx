@@ -95,7 +95,27 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         wallPlane.position.z = -2;
         scene.add(wallPlane);
 
+        // Initialize audio listener
+        const listener = new THREE.AudioListener();
+        camera.add(listener);
 
+        const spraySound = new THREE.Audio(listener);
+        const rattleSound = new THREE.Audio(listener);
+
+        // Load spray sound
+        const audioLoader = new THREE.AudioLoader();
+        audioLoader.load('/sounds/spray.mp3', (buffer) => {
+            spraySound.setBuffer(buffer);
+            spraySound.setLoop(true);
+            spraySound.setVolume(0.5);
+        });
+
+        // Load rattle sound
+        audioLoader.load('/sounds/rattle.mp3', (buffer) => {
+            rattleSound.setBuffer(buffer);
+            rattleSound.setLoop(false);
+            rattleSound.setVolume(0.5);
+        });
 
         //Groups
         const movableGroup = new THREE.Group();
@@ -125,6 +145,8 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
                 controller.userData.selected = object;
                 selectedObject.current = object;
                 //isDragging.current = true;
+                if (rattleSound.isPlaying) rattleSound.stop();
+                rattleSound.play();
             }
             // controllerRef.current.userData.targetRayMode = event.target.targetRayMode
         }
@@ -143,12 +165,14 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         const startSpraying = () => {
             if (selectedObject.current) {
                 isSpraying.current = true;
+                if (!spraySound.isPlaying) spraySound.play();
             }
         }
 
         const stopSpraying = () => {
             if (isSpraying.current) {
                 isSpraying.current = false;
+                if (spraySound.isPlaying) spraySound.stop();
             }
         }
 

@@ -1,7 +1,7 @@
 import 'aframe';
 import { useEffect, useRef, useState } from 'react'
-import imgOverlay from '../assets/peacock.png'
-import * as dat from 'dat.gui';
+import imgOverlay from '../assets/align_giant_justice.jpg'
+// import * as dat from 'dat.gui';
 
 const getCamera = async () => {
     const video = document.getElementById("webcam");
@@ -54,45 +54,45 @@ const GiantJustice = () => {
         }
     }, []);
 
-    useEffect(() => {
-        if (isAligned && videoEntityRef.current) {
-            const gui = new dat.GUI();
-            const videoPosition = videoEntityRef.current.getDOMAttribute('position');
-            const videoWidth = videoEntityRef.current.getDOMAttribute('width');
-            const videoHeight = videoEntityRef.current.getDOMAttribute('height');
+    // useEffect(() => {
+    //     if (isAligned && videoEntityRef.current) {
+    //         const gui = new dat.GUI();
+    //         const videoPosition = videoEntityRef.current.getDOMAttribute('position');
+    //         const videoWidth = videoEntityRef.current.getDOMAttribute('width');
+    //         const videoHeight = videoEntityRef.current.getDOMAttribute('height');
 
-            const controller = {
-                x: videoPosition.x,
-                y: videoPosition.y,
-                z: videoPosition.z
-            };
+    //         const controller = {
+    //             x: videoPosition.x,
+    //             y: videoPosition.y,
+    //             z: videoPosition.z
+    //         };
 
-            gui.add(controller, 'x', -10, 10).onChange(val => {
-                videoEntityRef.current.setAttribute('position', `${val} ${controller.y} ${controller.z}`);
-            });
-            gui.add(controller, 'y', -10, 10).onChange(val => {
-                videoEntityRef.current.setAttribute('position', `${controller.x} ${val} ${controller.z}`);
-            });
-            gui.add(controller, 'z', -200, 1).onChange(val => {
-                videoEntityRef.current.setAttribute('position', `${controller.x} ${controller.y} ${val}`);
-            });
+    //         gui.add(controller, 'x', -10, 10).onChange(val => {
+    //             videoEntityRef.current.setAttribute('position', `${val} ${controller.y} ${controller.z}`);
+    //         });
+    //         gui.add(controller, 'y', -10, 10).onChange(val => {
+    //             videoEntityRef.current.setAttribute('position', `${controller.x} ${val} ${controller.z}`);
+    //         });
+    //         gui.add(controller, 'z', -200, 1).onChange(val => {
+    //             videoEntityRef.current.setAttribute('position', `${controller.x} ${controller.y} ${val}`);
+    //         });
 
-            const scaleController = {
-                width: videoWidth,
-                height: videoHeight
-            };
+    //         const scaleController = {
+    //             width: videoWidth,
+    //             height: videoHeight
+    //         };
 
-            const scaleGUI = gui.addFolder('Scale');
-            scaleGUI.add(scaleController, 'width', 9, 27).onChange(val => {
-                videoEntityRef.current.setAttribute('width', `${val}`);
-            });
-            scaleGUI.add(scaleController, 'height', 16, 64).onChange(val => {
-                videoEntityRef.current.setAttribute('height', `${val}`);
-            });
+    //         const scaleGUI = gui.addFolder('Scale');
+    //         scaleGUI.add(scaleController, 'width', 9, 27).onChange(val => {
+    //             videoEntityRef.current.setAttribute('width', `${val}`);
+    //         });
+    //         scaleGUI.add(scaleController, 'height', 16, 64).onChange(val => {
+    //             videoEntityRef.current.setAttribute('height', `${val}`);
+    //         });
 
-            return () => gui.destroy(); // Clean up on unmount
-        }
-    }, [isAligned]);
+    //         return () => gui.destroy(); // Clean up on unmount
+    //     }
+    // }, [isAligned]);
 
 
     const alignScene = () => {
@@ -111,8 +111,8 @@ const GiantJustice = () => {
                         top: "50%",
                         left: "50%",
                         transform: "translate(-50%, -50%)",
-                        /*width: "auto",
-                        height: "auto",*/
+                        // width: "auto",
+                        // height: "100%",
                         opacity: 0.5,
                         pointerEvents: "none",
                         zIndex: 999,

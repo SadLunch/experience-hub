@@ -14,9 +14,13 @@ import { locations } from "../../data/locations"; // We'll create this file next
 // Connect to Socket.io server
 // const socket = io("http://localhost:5000");
 
+const geoapify_API_KEY = 'ccf3f7c703ad4e5585e482e30fc0d767';
+const numberOfPpl = (Math.random() * 100).toFixed(0);
+const iconSize = numberOfPpl > 999 ? 64 : numberOfPpl > 99 ? 48 : 42;
+
 const userIcon = L.icon({
-  iconUrl: "../vite.svg", // Custom icon for user's location
-  iconSize: [25, 41],
+  iconUrl: `https://api.geoapify.com/v2/icon/?type=material&color=red&size=${iconSize}&contentSize=15&text=${numberOfPpl}&scaleFactor=2&apiKey=${geoapify_API_KEY}`, // Custom icon for user's location
+  iconSize: [31, 46],
   iconAnchor: [12, 41],
 });
 
