@@ -1,13 +1,51 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import propTypes from 'prop-types';
-// import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 
 const raycaster = new THREE.Raycaster();
 
+const paths = [
+    { start: new THREE.Vector3(3, 1, -9), end: new THREE.Vector3(-10, 1, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'/* h = horizontal | v = vertical */ },
+    { start: new THREE.Vector3(-10, 1, -9), end: new THREE.Vector3(-10, 3, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/ },
+    { start: new THREE.Vector3(-10, 3, -9), end: new THREE.Vector3(4.5, 3, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'*/ },
+    { start: new THREE.Vector3(4.5, 3, -9), end: new THREE.Vector3(4.5, 7, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/ },
+    { start: new THREE.Vector3(4.5, 7, -9), end: new THREE.Vector3(-9.5, 7.5, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'*/ },
+    { start: new THREE.Vector3(-9.5, 7.5, -9), end: new THREE.Vector3(-9.5, 11, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/ },
+    { start: new THREE.Vector3(-9.5, 11, -9), end: new THREE.Vector3(-1, 11, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'*/ },
+    { start: new THREE.Vector3(-1, 11, -9), end: new THREE.Vector3(-1, 11.7, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/ },
+    { start: new THREE.Vector3(2, 7.5, -9), end: new THREE.Vector3(2, 9.6, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/ },
+    { start: new THREE.Vector3(2.6, 9.6, -9), end: new THREE.Vector3(4.6, 9.6, -9), hearts: 0, lightbulbs: 1/*, orientation: 'h'*/ },
+    { start: new THREE.Vector3(-6, 3.6, -9), end: new THREE.Vector3(-6, 6.1, -9), hearts: 1, lightbulbs: 0/*, orientation: 'v'*/ },
+    { start: new THREE.Vector3(5.1, 4, -9), end: new THREE.Vector3(7.1, 4, -9), hearts: 0, lightbulbs: 1/*, orientation: 'h'*/ },
+];
+
+const ghostWaypoints = [
+    new THREE.Vector3(3, 1, -9),
+    new THREE.Vector3(-10, 1, -9),
+    new THREE.Vector3(-10, 3, -9),
+    new THREE.Vector3(-6, 3, -9),
+    new THREE.Vector3(-6, 6.1, -9),
+    new THREE.Vector3(-6, 3, -9),
+    new THREE.Vector3(4.5, 3, -9),
+    new THREE.Vector3(4.5, 4, -9),
+    new THREE.Vector3(7.1, 4, -9),
+    new THREE.Vector3(4.5, 4, -9),
+    new THREE.Vector3(4.5, 7, -9),
+    new THREE.Vector3(2, 7.05, -9),
+    new THREE.Vector3(2, 9.6, -9),
+    new THREE.Vector3(4.6, 9.6, -9),
+    new THREE.Vector3(2, 9.6, -9),
+    new THREE.Vector3(2, 7.05, -9),
+    new THREE.Vector3(-9.5, 7.5, -9),
+    new THREE.Vector3(-9.5, 11, -9),
+    new THREE.Vector3(-1, 11, -9),
+    new THREE.Vector3(-1, 11.7, -9),
+];
+
 const GremioLiterario = ({ session, endSession }) => {
     const containerRef = useRef(null);
-    // const rendererRef = useRef(null);
+    const rendererRef = useRef(null);
     const sceneRef = useRef(null);
     // const cameraRef = useRef(null);
 
@@ -19,15 +57,22 @@ const GremioLiterario = ({ session, endSession }) => {
     const lightbulbGroupRef = useRef(null);
     const movableGroupRef = useRef(null);
     const ghostGroupRef = useRef(null);
+    const floatingObjectsRef = useRef(null);
+    const pathsGroupRef = useRef(null);
 
     // // movable objects refs
-    // const fishRef = useRef(null);
-    // const fishPlaced = useRef(null);
+    const heartTextureRef = useRef(null);
+    const lightbulbTextureRef = useRef(null);
+    const playerTextureRef = useRef(null);
+    const ghostTextureRef = useRef(null);
+    const bubbleModelRef = useRef(null);
+    const bookModelRef = useRef(null);
 
     const isDragging = useRef(false);
     const selectedObject = useRef(null);
     const objectGlowing = useRef(null);
     const pulseTime = useRef(0);
+    const hasCollided = useRef(false);
 
     const [hearts, setHearts] = useState(0);
     const heartsRef = useRef(0);
@@ -36,122 +81,97 @@ const GremioLiterario = ({ session, endSession }) => {
     const lightbulbsRef = useRef(0);
 
     const [gameOver, setGameOver] = useState(false);
+    const gameOverRef = useRef(false);
+
     const [gameWon, setGameWon] = useState(false);
+    const gameWonRef = useRef(false);
+
+    const hasPlaced = useRef(false);
 
     const interval = useRef(null);
 
-    // const loader = new GLTFLoader();
+    const loader = new GLTFLoader();
 
-    // const loadModel = (src, refVar, name = null, callback = null) => {
-    //     loader.load(src, (gltf) => {
-    //         refVar.current = gltf.scene;
-    //         if (name) refVar.current.name = name;
-    //         if (callback) callback();
-    //     });
-    // };
+    const loadModel = (src, refVar, name = null, callback = null) => {
+        loader.load(src, (gltf) => {
+            refVar.current = gltf.scene;
+            if (name) refVar.current.name = name;
+            if (callback) callback();
+        });
+    };
 
-    const ghostWaypoints = [
-        new THREE.Vector3(3, 1, -9),
-        new THREE.Vector3(-10, 1, -9),
-        new THREE.Vector3(-10, 3, -9),
-        new THREE.Vector3(-6, 3, -9),
-        new THREE.Vector3(-6, 6.1, -9),
-        new THREE.Vector3(-6, 3, -9),
-        new THREE.Vector3(4.5, 3, -9),
-        new THREE.Vector3(4.5, 4, -9),
-        new THREE.Vector3(7.1, 4, -9),
-        new THREE.Vector3(4.5, 4, -9),
-        new THREE.Vector3(4.5, 7, -9),
-        new THREE.Vector3(2, 7.05, -9),
-        new THREE.Vector3(2, 9.6, -9),
-        new THREE.Vector3(4.6, 9.6, -9),
-        new THREE.Vector3(2, 9.6, -9),
-        new THREE.Vector3(2, 7.05, -9),
-        new THREE.Vector3(-9.5, 7.5, -9),
-        new THREE.Vector3(-9.5, 11, -9),
-        new THREE.Vector3(-1, 11, -9),
-        new THREE.Vector3(-1, 11.7, -9),
-    ];
-
-    const ghosts = [];
+    let ghosts = [];
 
     function createGhost(texture, speed = 1) {
+        if (gameOverRef.current) return;
+
         const ghost = new THREE.Mesh(
-            new THREE.PlaneGeometry(2, 2), // or use Plane with texture
+            new THREE.PlaneGeometry(2, 2),
             new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, depthWrite: false })
         );
         ghostGroupRef.current.add(ghost);
 
-        let currentSegment = 0;
-        let progress = 0;
-        let hasCollided = false;
         const clock = new THREE.Clock();
-        
 
-        function updateGhost() {
-            if (currentSegment >= ghostWaypoints.length - 1 || hasCollided) return;
+        ghost.userData = {
+            currentSegment: 0,
+            progress: 0,
+            clock,
+            speed,
+            update: function () {
+                const segment = this.currentSegment;
+                const ghost = this.mesh;
 
-            const delta = clock.getDelta() * 2;
+                if (segment >= ghostWaypoints.length - 1 || hasCollided.current) return;
 
-            const start = ghostWaypoints[currentSegment];
-            const end = ghostWaypoints[currentSegment + 1];
-            const segmentLength = start.distanceTo(end);
-            const segmentDuration = segmentLength / speed;
+                const delta = this.clock.getDelta() * 2;
+                const start = ghostWaypoints[segment];
+                const end = ghostWaypoints[segment + 1];
+                const segmentLength = start.distanceTo(end);
+                const segmentDuration = segmentLength / this.speed;
 
-            progress += delta / segmentDuration;
+                this.progress += delta / segmentDuration;
 
-            if (progress >= 1) {
-                progress = 0;
-                currentSegment++;
-                if (currentSegment >= ghostWaypoints.length - 1) {
-                    // ghost finished path — optionally reset:
-                    // currentSegment = 0;
-                    // or: sceneRef.current.remove(ghost);
-                    sceneRef.current.remove(ghost);
-                    return;
-                }
-            }
-            const direction = new THREE.Vector3().subVectors(end, start);
-            const normalizedDir = direction.clone().normalize();
-
-            const position = new THREE.Vector3().lerpVectors(start, end, progress);
-            ghost.position.set(
-                position.x,
-                position.y,
-                position.z + 0.02
-            );
-            
-            const front = new THREE.Vector3(-1, 0, 0);
-            const quaternion = new THREE.Quaternion().setFromUnitVectors(front, normalizedDir);
-
-            ghost.setRotationFromQuaternion(quaternion);
-
-            const playerObj = movableGroupRef.current.children[0];
-
-            if (playerObj) {
-                const distance = ghost.position.distanceTo(playerObj.position);
-                const collisionThreshold = 1;
-
-                if (distance < collisionThreshold && !hasCollided) {
-                    hasCollided = true;
-                    if (heartsRef.current > 0) {
-                        heartsRef.current -= 1;
-                        setHearts(heartsRef.current);
+                if (this.progress >= 1) {
+                    this.progress = 0;
+                    this.currentSegment++;
+                    if (this.currentSegment >= ghostWaypoints.length - 1) {
                         ghostGroupRef.current.remove(ghost);
-                    } else {
-                        setGameOver(true);
-                        setGameWon(false);
-                        ghostGroupRef.current.clear();
-                        clearInterval(interval.current);
-                        interval.current = null;
+                        return;
                     }
                 }
-            }
 
-        }
+                const direction = new THREE.Vector3().subVectors(end, start).normalize();
+                const position = new THREE.Vector3().lerpVectors(start, end, this.progress);
+                ghost.position.set(position.x, position.y, position.z + 0.02);
 
-        // Add to your animation loop:
-        ghosts.push(updateGhost);
+                const front = new THREE.Vector3(-1, 0, 0);
+                const quaternion = new THREE.Quaternion().setFromUnitVectors(front, direction);
+                ghost.setRotationFromQuaternion(quaternion);
+
+                const playerObj = movableGroupRef.current.children[0];
+                if (playerObj) {
+                    const distance = ghost.position.distanceTo(playerObj.position);
+                    if (distance < 1 && !hasCollided.current) {
+                        hasCollided.current = true;
+                        if (heartsRef.current > 0) {
+                            heartsRef.current -= 1;
+                            setHearts(heartsRef.current);
+                            ghostGroupRef.current.remove(ghost);
+                        } else {
+                            setGameOver(true);
+                            setGameWon(false);
+                            ghostGroupRef.current.clear();
+                            clearInterval(interval.current);
+                            interval.current = null;
+                        }
+                    }
+                }
+            },
+            mesh: ghost
+        };
+
+        ghost.userData.mesh = ghost; // make sure update can refer to itself
     }
 
 
@@ -225,52 +245,175 @@ const GremioLiterario = ({ session, endSession }) => {
         material.color.setHSL(hsl.h, hsl.s, hsl.l);
     }
 
+    const wonGame = (nBubbles = 20, nBooks = 10) => {
+        if (hasPlaced.current) return;
 
+        hasPlaced.current = true;
 
+        // Add a Light to the Scene
+        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+        sceneRef.current.add(light);
 
-    const initAR = () => {
-        const container = containerRef.current;
+        const floatingObjects = new THREE.Group();
+        sceneRef.current.add(floatingObjects);
+        floatingObjectsRef.current = floatingObjects;
 
-        // --- Setup basic scene ---
-        const scene = new THREE.Scene();
-        sceneRef.current = scene;
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 100);
-        //camera.position.set(0, 3.6, 3); // typical VR height
+        // const minX = -10, maxX = 10;
+        // const minY = 1.5, maxY = 4;
+        // const minZ = -9, maxZ = 2;
 
-        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-        renderer.setPixelRatio(window.devicePixelRatio);
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.xr.enabled = true;
+        const minScale = 0.5, maxScale = 1.5;
 
-        // Need this to make AR work (DONT FORGET THIS)
-        renderer.xr.setReferenceSpaceType("local");
-        renderer.xr.setSession(session);
+        for (let bubble = 0; bubble < nBubbles; bubble++) {
+            const bubbleClone = bubbleModelRef.current.clone();
+            bubbleClone.position.set(
+                Math.random() * 20 - 10,
+                Math.random() * 2 + 2,
+                THREE.MathUtils.randFloat(-10, 1)
+            );
 
-        if (container) container.appendChild(renderer.domElement);
+            bubbleClone.scale.setScalar(THREE.MathUtils.randFloat(minScale, maxScale));
+            floatingObjectsRef.current.add(bubbleClone)
+        }
 
-        //Groups
+        for (let book = 0; book < nBooks; book++) {
+            const bookClone = bookModelRef.current.clone();
+            bookClone.position.set(
+                Math.random() * 20 - 10,
+                Math.random() * 2 + 2,
+                THREE.MathUtils.randFloat(-10, 1)
+            );
+
+            bookClone.rotation.set(
+                Math.random() * 2 * Math.PI,
+                Math.random() * 2 * Math.PI,
+                Math.random() * 2 * Math.PI
+            )
+
+            bookClone.scale.multiplyScalar(THREE.MathUtils.randFloat(minScale, 1));
+            floatingObjectsRef.current.add(bookClone);
+        }
+    }
+
+    const animateFloating = (object, timeOffset = 0) => {
+        const t = performance.now() * 0.001 + timeOffset;
+        object.position.y += Math.sin(t) * 0.005;
+    }
+
+    const tryAgain = () => {
+        // Reset game references and states
+        gameOverRef.current = false;
+        setGameOver(gameOverRef.current);
+        gameWonRef.current = false;
+        setGameWon(gameWonRef.current);
+
+        // Reset end game scene state
+        hasPlaced.current = false;
+        hasCollided.current = false;
+
+        if (interval.current) {
+            clearInterval(interval.current);
+            interval.current = null;
+        }
+
+        // 🧼 CLEAR ghost update functions
+        ghosts.length = 0;
+
+        // 🧼 CLEAR old ghost meshes
+        if (ghostGroupRef.current) {
+            ghostGroupRef.current.clear();
+        }
+
+        // Clear scene
+        sceneRef.current.clear();
+        // Need to run the setup again after cleaning everything
+        controllerSetup();
+        groupSetup();
+        startGame();
+
+        // setTimeout(() => {
+            
+        // }, 2000);
+        
+    }
+
+    const controllerSetup = () => {
+        const onSelectStart = () => {
+
+            controllerRef.current.updateMatrixWorld();
+
+            raycaster.setFromXRController(controllerRef.current);
+
+            const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
+            if (intersected.length > 0) {
+                isDragging.current = true;
+                selectedObject.current = intersected[0].object;
+            }
+        }
+
+        const onSelectEnd = () => {
+            isDragging.current = false;
+            selectedObject.current = null;
+        }
+
+        // Add controllers to be able to move the fishes
+        const controller = rendererRef.current.xr.getController(0);
+        controller.addEventListener('selectstart', onSelectStart);
+        controller.addEventListener('selectend', onSelectEnd);
+        sceneRef.current.add(controller);
+        controllerRef.current = controller;
+    }
+
+    const groupSetup = () => {
         const movableGroup = new THREE.Group();
-        scene.add(movableGroup);
+        sceneRef.current.add(movableGroup);
         movableGroupRef.current = movableGroup;
 
         const pathsGroup = new THREE.Group();
-        scene.add(pathsGroup);
+        sceneRef.current.add(pathsGroup);
+        pathsGroupRef.current = pathsGroup;
 
         const spheresGroup = new THREE.Group();
-        scene.add(spheresGroup);
+        sceneRef.current.add(spheresGroup);
         spheresGroupRef.current = spheresGroup;
 
         const heartsGroup = new THREE.Group();
-        scene.add(heartsGroup);
+        sceneRef.current.add(heartsGroup);
         heartsGroupRef.current = heartsGroup;
 
         const lightbulbGroup = new THREE.Group();
-        scene.add(lightbulbGroup);
+        sceneRef.current.add(lightbulbGroup);
         lightbulbGroupRef.current = lightbulbGroup;
 
         const ghostGroup = new THREE.Group();
-        scene.add(ghostGroup);
+        sceneRef.current.add(ghostGroup);
         ghostGroupRef.current = ghostGroup;
+    }
+
+    const loadAssets = () => {
+        // Load bubble and book models
+        bubbleModelRef.current = new THREE.Mesh(
+            new THREE.SphereGeometry(1, 64, 32),
+            new THREE.MeshPhysicalMaterial({
+                color: 0xffffff,
+                transparent: true,
+                opacity: 0.3,
+                roughness: 0,
+                metalness: 0,
+                clearcoat: 1,
+                clearcoatRoughness: 0,
+                reflectivity: 0.6,
+                iridescence: 1,
+                iridescenceIOR: 1.2,
+                iridescenceThicknessRange: [100, 500],
+                depthWrite: false
+            })
+        );
+        bubbleModelRef.current.renderOrder = 999;
+
+        loadModel('/models/book_3.glb', bookModelRef, null, () => {
+            bookModelRef.current.scale.setScalar(0.2);
+        });
 
         // Items texture loaders
         const video = document.createElement("video");
@@ -285,10 +428,13 @@ const GremioLiterario = ({ session, endSession }) => {
         heartTexture.minFilter = THREE.LinearFilter;
         heartTexture.magFilter = THREE.LinearFilter;
         heartTexture.format = THREE.RGBAFormat;
+        heartTextureRef.current = heartTexture;
 
         const lightbulbTexture = new THREE.TextureLoader().load('lightbulb.png');
+        lightbulbTextureRef.current = lightbulbTexture;
 
         const playerTexture = new THREE.TextureLoader().load('lady_justice.png');
+        playerTextureRef.current = playerTexture;
 
         const videoGhost = document.createElement("video");
         videoGhost.src = '/videos/skull_chomp_new.mp4';
@@ -302,23 +448,11 @@ const GremioLiterario = ({ session, endSession }) => {
         ghostTexture.minFilter = THREE.LinearFilter;
         ghostTexture.magFilter = THREE.LinearFilter;
         ghostTexture.format = THREE.RGBAFormat;
+        ghostTextureRef.current = ghostTexture;
 
-        // Paths
-        const paths = [
-            {start: new THREE.Vector3(3, 1, -9), end: new THREE.Vector3(-10, 1, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'/* h = horizontal | v = vertical */},
-            {start: new THREE.Vector3(-10, 1, -9), end: new THREE.Vector3(-10, 3, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/},
-            {start: new THREE.Vector3(-10, 3, -9), end: new THREE.Vector3(4.5, 3, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'*/},
-            {start: new THREE.Vector3(4.5, 3, -9), end: new THREE.Vector3(4.5, 7, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/},
-            {start: new THREE.Vector3(4.5, 7, -9), end: new THREE.Vector3(-9.5, 7.5, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'*/},
-            {start: new THREE.Vector3(-9.5, 7.5, -9), end: new THREE.Vector3(-9.5, 11, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/},
-            {start: new THREE.Vector3(-9.5, 11, -9), end: new THREE.Vector3(-1, 11, -9), hearts: 1, lightbulbs: 1/*, orientation: 'h'*/},
-            {start: new THREE.Vector3(-1, 11, -9), end: new THREE.Vector3(-1, 11.7, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/},
-            {start: new THREE.Vector3(2, 7.5, -9), end: new THREE.Vector3(2, 9.6, -9), hearts: 0, lightbulbs: 0/*, orientation: 'v'*/},
-            {start: new THREE.Vector3(2.6, 9.6, -9), end: new THREE.Vector3(4.6, 9.6, -9), hearts: 0, lightbulbs: 1/*, orientation: 'h'*/},
-            {start: new THREE.Vector3(-6, 3.6, -9), end: new THREE.Vector3(-6, 6.1, -9), hearts: 1, lightbulbs: 0/*, orientation: 'v'*/},
-            {start: new THREE.Vector3(5.1, 4, -9), end: new THREE.Vector3(7.1, 4, -9), hearts: 0, lightbulbs: 1/*, orientation: 'h'*/},
-        ];
+    }
 
+    const startGame = () => {
         const placedPoints = []
 
         for (let p of paths) {
@@ -336,9 +470,9 @@ const GremioLiterario = ({ session, endSession }) => {
             const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction.clone().normalize());
 
             path.setRotationFromQuaternion(quaternion);
-            pathsGroup.add(path);
+            pathsGroupRef.current.add(path);
 
-            addMarkersBySpacing(p.start, p.end, 1, p.hearts, heartTexture, p.lightbulbs, lightbulbTexture, placedPoints);
+            addMarkersBySpacing(p.start, p.end, 1, p.hearts, heartTextureRef.current, p.lightbulbs, lightbulbTextureRef.current, placedPoints);
         }
 
         const start = new THREE.Mesh(
@@ -346,10 +480,10 @@ const GremioLiterario = ({ session, endSession }) => {
             new THREE.MeshBasicMaterial({ color: 0x8888ff, side: THREE.DoubleSide })
         );
         start.position.set(3.7, 1, -9);
-        pathsGroup.add(start);
+        pathsGroupRef.current.add(start);
 
         // Movable slider
-        const imageMaterial = new THREE.MeshBasicMaterial({ map: playerTexture, transparent: true, side: THREE.DoubleSide, depthWrite: false });
+        const imageMaterial = new THREE.MeshBasicMaterial({ map: playerTextureRef.current, transparent: true, side: THREE.DoubleSide, depthWrite: false });
         const imagePlane = new THREE.Mesh(
             new THREE.PlaneGeometry(2, 2), // adjust size as needed
             imageMaterial
@@ -358,50 +492,43 @@ const GremioLiterario = ({ session, endSession }) => {
             start.position.x,
             start.position.y,
             start.position.z + 0.02); // or wherever your path starts
-        movableGroup.add(imagePlane);
+        movableGroupRef.current.add(imagePlane);
 
         if (!interval.current) {
             interval.current = setInterval(() => {
-                createGhost(ghostTexture);
+                createGhost(ghostTextureRef.current);
             }, 7000);
             console.log("creating ghosts every 7 seconds!");
         }
-        
-        // const slider = new THREE.Mesh(
-        //     new THREE.SphereGeometry(0.2, 32, 32),
-        //     new THREE.MeshBasicMaterial({ color: 0xff8888 })
-        // );
-        // slider.position.copy(start.position);
-        // movableGroup.add(slider);
+    }
 
-        
-        // let dragging = false;
-        // let selectedObject = null;
+    const initAR = () => {
 
-        const onSelectStart = () => {
+        /////////////////////////////////////////////////////////////////////
+        ////                       Constant Setup                        ////
+        /////////////////////////////////////////////////////////////////////
 
-            controllerRef.current.updateMatrixWorld();
+        const container = containerRef.current;
 
-            raycaster.setFromXRController(controllerRef.current);
+        // --- Setup basic scene ---
+        const scene = new THREE.Scene();
+        sceneRef.current = scene;
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 100);
+        //camera.position.set(0, 3.6, 3); // typical VR height
 
-            const intersected = raycaster.intersectObjects(movableGroup.children)
-            if (intersected.length > 0) {
-                isDragging.current = true;
-                selectedObject.current = intersected[0].object;
-            }
-        }
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.xr.enabled = true;
 
-        const onSelectEnd = () => {
-            isDragging.current = false;
-            selectedObject.current = null;
-        }
+        rendererRef.current = renderer;
 
-        // Add controllers to be able to move the fishes
-        const controller = renderer.xr.getController(0);
-        controller.addEventListener('selectstart', onSelectStart);
-        controller.addEventListener('selectend', onSelectEnd);
-        scene.add(controller);
-        controllerRef.current = controller;
+        // Need this to make AR work (DONT FORGET THIS)
+        renderer.xr.setReferenceSpaceType("local");
+        renderer.xr.setSession(session);
+
+        if (container) container.appendChild(renderer.domElement);
 
         const onResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -412,102 +539,311 @@ const GremioLiterario = ({ session, endSession }) => {
 
         window.addEventListener('resize', onResize);
 
+        /////////////////////////////////////////////////////////////////////
+        ////                     End Constant Setup                      ////
+        /////////////////////////////////////////////////////////////////////
+
+        /////////////////////////////////////////////////////////////////////
+        ////                      Controller Setup                       ////
+        /////////////////////////////////////////////////////////////////////
+
+        controllerSetup();
+
+        // const onSelectStart = () => {
+
+        //     controllerRef.current.updateMatrixWorld();
+
+        //     raycaster.setFromXRController(controllerRef.current);
+
+        //     const intersected = raycaster.intersectObjects(movableGroup.children)
+        //     if (intersected.length > 0) {
+        //         isDragging.current = true;
+        //         selectedObject.current = intersected[0].object;
+        //     }
+        // }
+
+        // const onSelectEnd = () => {
+        //     isDragging.current = false;
+        //     selectedObject.current = null;
+        // }
+
+        // // Add controllers to be able to move the fishes
+        // const controller = renderer.xr.getController(0);
+        // controller.addEventListener('selectstart', onSelectStart);
+        // controller.addEventListener('selectend', onSelectEnd);
+        // scene.add(controller);
+        // controllerRef.current = controller;
+
+        /////////////////////////////////////////////////////////////////////
+        ////                    End Controller Setup                     ////
+        /////////////////////////////////////////////////////////////////////
+
+        /////////////////////////////////////////////////////////////////////
+        ////                        Group Setup                          ////
+        /////////////////////////////////////////////////////////////////////
+
+        groupSetup();
+
+        // const movableGroup = new THREE.Group();
+        // scene.add(movableGroup);
+        // movableGroupRef.current = movableGroup;
+
+        // const pathsGroup = new THREE.Group();
+        // scene.add(pathsGroup);
+        // pathsGroupRef.current = pathsGroup;
+
+        // const spheresGroup = new THREE.Group();
+        // scene.add(spheresGroup);
+        // spheresGroupRef.current = spheresGroup;
+
+        // const heartsGroup = new THREE.Group();
+        // scene.add(heartsGroup);
+        // heartsGroupRef.current = heartsGroup;
+
+        // const lightbulbGroup = new THREE.Group();
+        // scene.add(lightbulbGroup);
+        // lightbulbGroupRef.current = lightbulbGroup;
+
+        // const ghostGroup = new THREE.Group();
+        // scene.add(ghostGroup);
+        // ghostGroupRef.current = ghostGroup;
+
+        // const floatingObjects = new THREE.Group();
+        // scene.add(floatingObjects);
+        // floatingObjectsRef.current = floatingObjects;
+
+        /////////////////////////////////////////////////////////////////////
+        ////                       End Group Setup                       ////
+        /////////////////////////////////////////////////////////////////////
+
+        /////////////////////////////////////////////////////////////////////
+        ////                         Load Assets                         ////
+        /////////////////////////////////////////////////////////////////////
+
+        loadAssets();
+
+        // // Load bubble and book models
+        // bubbleModelRef.current = new THREE.Mesh(
+        //     new THREE.SphereGeometry(1, 64, 32),
+        //     new THREE.MeshPhysicalMaterial({
+        //         color: 0xffffff,
+        //         transparent: true,
+        //         opacity: 0.3,
+        //         roughness: 0,
+        //         metalness: 0,
+        //         clearcoat: 1,
+        //         clearcoatRoughness: 0,
+        //         reflectivity: 0.6,
+        //         iridescence: 1,
+        //         iridescenceIOR: 1.2,
+        //         iridescenceThicknessRange: [100, 500],
+        //         depthWrite: false
+        //     })
+        // );
+        // bubbleModelRef.current.renderOrder = 999;
+
+        // loadModel('/models/book_3.glb', bookModelRef, null, () => {
+        //     bookModelRef.current.scale.setScalar(0.2);
+        // });
+
+        // // Items texture loaders
+        // const video = document.createElement("video");
+        // video.src = '/videos/heartVid.mp4';
+        // video.crossOrigin = "anonymous";
+        // video.loop = true;
+        // video.muted = true;
+        // video.autoplay = true;
+        // video.play();
+
+        // const heartTexture = new THREE.VideoTexture(video);
+        // heartTexture.minFilter = THREE.LinearFilter;
+        // heartTexture.magFilter = THREE.LinearFilter;
+        // heartTexture.format = THREE.RGBAFormat;
+
+        // const lightbulbTexture = new THREE.TextureLoader().load('lightbulb.png');
+
+        // const playerTexture = new THREE.TextureLoader().load('lady_justice.png');
+
+        // const videoGhost = document.createElement("video");
+        // videoGhost.src = '/videos/skull_chomp_new.mp4';
+        // videoGhost.crossOrigin = "anonymous";
+        // videoGhost.loop = true;
+        // videoGhost.muted = true;
+        // videoGhost.autoplay = true;
+        // videoGhost.play();
+
+        // const ghostTexture = new THREE.VideoTexture(videoGhost);
+        // ghostTexture.minFilter = THREE.LinearFilter;
+        // ghostTexture.magFilter = THREE.LinearFilter;
+        // ghostTexture.format = THREE.RGBAFormat;
+
+        /////////////////////////////////////////////////////////////////////
+        ////                       End Load Assets                       ////
+        /////////////////////////////////////////////////////////////////////
+
+        startGame();
+
+        // // Start Game
+        // const placedPoints = []
+
+        // for (let p of paths) {
+        //     const direction = new THREE.Vector3().subVectors(p.end, p.start);
+        //     const length = p.start.distanceTo(p.end);
+        //     const center = new THREE.Vector3().addVectors(p.start, p.end).multiplyScalar(0.5);
+
+        //     const path = new THREE.Mesh(
+        //         new THREE.PlaneGeometry(0.6, length+0.6),
+        //         new THREE.MeshBasicMaterial({ color: 0x8888ff, side: THREE.DoubleSide })
+        //     );
+        //     path.position.copy(center);
+
+        //     const up = new THREE.Vector3(0, 1, 0);
+        //     const quaternion = new THREE.Quaternion().setFromUnitVectors(up, direction.clone().normalize());
+
+        //     path.setRotationFromQuaternion(quaternion);
+        //     pathsGroupRef.current.add(path);
+
+        //     addMarkersBySpacing(p.start, p.end, 1, p.hearts, heartTextureRef.current, p.lightbulbs, lightbulbTextureRef.current, placedPoints);
+        // }
+
+        // const start = new THREE.Mesh(
+        //     new THREE.PlaneGeometry(1.5, 2.5),
+        //     new THREE.MeshBasicMaterial({ color: 0x8888ff, side: THREE.DoubleSide })
+        // );
+        // start.position.set(3.7, 1, -9);
+        // pathsGroupRef.current.add(start);
+
+        // // Movable slider
+        // const imageMaterial = new THREE.MeshBasicMaterial({ map: playerTextureRef.current, transparent: true, side: THREE.DoubleSide, depthWrite: false });
+        // const imagePlane = new THREE.Mesh(
+        //     new THREE.PlaneGeometry(2, 2), // adjust size as needed
+        //     imageMaterial
+        // );
+        // imagePlane.position.set(
+        //     start.position.x,
+        //     start.position.y,
+        //     start.position.z + 0.02); // or wherever your path starts
+        // movableGroupRef.current.add(imagePlane);
+
+        // if (!interval.current) {
+        //     interval.current = setInterval(() => {
+        //         createGhost(ghostTextureRef.current);
+        //     }, 7000);
+        //     console.log("creating ghosts every 7 seconds!");
+        // }
 
         // Animation Loop
         renderer.setAnimationLoop(() => {
-            controllerRef.current.updateMatrixWorld();
+            if (!gameWonRef.current) {
+                controllerRef.current.updateMatrixWorld();
 
-            raycaster.setFromXRController(controllerRef.current);
+                raycaster.setFromXRController(controllerRef.current);
 
-            const intersected = raycaster.intersectObjects(movableGroup.children)
-            if (intersected.length > 0) {
-                isDragging.current = true;
-            } else {
-                isDragging.current = false;
-            }
-            if (isDragging.current && selectedObject.current) {
-                //raycaster.setFromXRController(controllerRef.current);
-                const intersected = raycaster.intersectObjects(pathsGroup.children);
+                const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
                 if (intersected.length > 0) {
-                    const intersection = intersected[0].point;
+                    isDragging.current = true;
+                } else {
+                    isDragging.current = false;
+                }
+                if (isDragging.current && selectedObject.current) {
+                    //raycaster.setFromXRController(controllerRef.current);
+                    const intersected = raycaster.intersectObjects(pathsGroupRef.current.children);
+                    if (intersected.length > 0) {
+                        const intersection = intersected[0].point;
 
-                    // Optional: only move if the controller is roughly centered on the image
-                    const distance = intersection.distanceTo(selectedObject.current.position);
-                    const maxDistance = 1.9; // Tweak based on image size
+                        // Optional: only move if the controller is roughly centered on the image
+                        const distance = intersection.distanceTo(selectedObject.current.position);
+                        const maxDistance = 1.9; // Tweak based on image size
 
-                    if (distance < maxDistance) {
-                        selectedObject.current.position.set(
-                            intersection.x,
-                            intersection.y,
-                            intersection.z + 0.02
-                        );
+                        if (distance < maxDistance) {
+                            selectedObject.current.position.set(
+                                intersection.x,
+                                intersection.y,
+                                intersection.z + 0.02
+                            );
+                        }
+                    }
+                    if (selectedObject.current.position.y >= 11.5 && lightbulbsRef.current >= 3 && heartsRef.current > 0) {
+                        // Win game
+                        console.log("🎉 Won Game 🎉");
+                        // Show win screen
+                        setGameOver(true);
+                        gameOverRef.current = true;
+                        setGameWon(true);
+                        gameWonRef.current = true;
+                        // After 1 or 2 seconds clear scene and place bubbles and books
+                        setTimeout(() => {
+                            sceneRef.current.clear();
+                            wonGame();
+                        }, 2000);
+                        // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
                     }
                 }
-                if (selectedObject.current.position.y >= 11.5 && lightbulbsRef.current >= 3 && heartsRef.current > 0) {
-                    // Win game
-                    console.log("🎉 Won Game 🎉");
-                    // Show win screen
-                    setGameOver(true);
-                    setGameWon(true);
-                    // After 1 or 2 seconds clear scene and place bubbles and books
-                    ghostGroupRef.current.clear();
-                    // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
-                }
-            }
 
-            // Remove dots and items if intersected with movable object
-            if (selectedObject.current && spheresGroupRef.current && heartsGroupRef.current && lightbulbGroupRef.current) {
-                if (spheresGroupRef.current.children.length > 0) {
-                    for (let i = spheresGroupRef.current.children.length - 1; i >= 0; i--) {
-                        const sphere = spheresGroupRef.current.children[i];
-                        const dist = sphere.position.distanceTo(selectedObject.current.position);
+                // Remove dots and items if intersected with movable object
+                if (selectedObject.current && spheresGroupRef.current && heartsGroupRef.current && lightbulbGroupRef.current) {
+                    if (spheresGroupRef.current.children.length > 0) {
+                        for (let i = spheresGroupRef.current.children.length - 1; i >= 0; i--) {
+                            const sphere = spheresGroupRef.current.children[i];
+                            const dist = sphere.position.distanceTo(selectedObject.current.position);
 
-                        if (dist < 0.7) {
-                            // Remove from scene
-                            spheresGroupRef.current.remove(sphere);
+                            if (dist < 0.7) {
+                                // Remove from scene
+                                spheresGroupRef.current.remove(sphere);
+                            }
+                        }
+                    }
+                    if (heartsGroupRef.current.children.length > 0) {
+                        for (let i = heartsGroupRef.current.children.length - 1; i >= 0; i--) {
+                            const heart = heartsGroupRef.current.children[i];
+                            const dist = heart.position.distanceTo(selectedObject.current.position);
+
+                            if (dist < 0.4) {
+                                // Remove from scene
+                                heartsGroupRef.current.remove(heart);
+                                // Add "Shield/Extra Life"
+                                heartsRef.current += 1;
+                                setHearts(heartsRef.current)
+                                objectGlowing.current = selectedObject.current;
+                            }
+                        }
+                    }
+                    if (lightbulbGroupRef.current.children.length > 0) {
+                        for (let i = lightbulbGroupRef.current.children.length - 1; i >= 0; i--) {
+                            const lightbulb = lightbulbGroupRef.current.children[i];
+                            const dist = lightbulb.position.distanceTo(selectedObject.current.position);
+
+                            if (dist < 0.4) {
+                                // Remove from scene
+                                lightbulbGroupRef.current.remove(lightbulb);
+                                // Increase size of player
+                                selectedObject.current.scale.addScalar(0.2);
+                                // Increase number of current lightbulbs
+                                lightbulbsRef.current += 1
+                                setLightbulbs(lightbulbsRef.current);
+                            }
                         }
                     }
                 }
-                if (heartsGroupRef.current.children.length > 0) {
-                    for (let i = heartsGroupRef.current.children.length - 1; i >= 0; i--) {
-                        const heart = heartsGroupRef.current.children[i];
-                        const dist = heart.position.distanceTo(selectedObject.current.position);
-
-                        if (dist < 0.4) {
-                            // Remove from scene
-                            heartsGroupRef.current.remove(heart);
-                            // Add "Shield/Extra Life"
-                            heartsRef.current += 1;
-                            setHearts(heartsRef.current)
-                            objectGlowing.current = selectedObject.current;
-                        }
-                    }
+                if (objectGlowing.current) {
+                    animateColorPulseHSL(objectGlowing.current.material);
                 }
-                if (lightbulbGroupRef.current.children.length > 0) {
-                    for (let i = lightbulbGroupRef.current.children.length - 1; i >= 0; i--) {
-                        const lightbulb = lightbulbGroupRef.current.children[i];
-                        const dist = lightbulb.position.distanceTo(selectedObject.current.position);
 
-                        if (dist < 0.4) {
-                            // Remove from scene
-                            lightbulbGroupRef.current.remove(lightbulb);
-                            // Increase size of player
-                            selectedObject.current.scale.addScalar(0.2);
-                            // Increase number of current lightbulbs
-                            lightbulbsRef.current += 1
-                            setLightbulbs(lightbulbsRef.current);
-                        }
+                // ghosts.forEach(update => update());
+                ghostGroupRef.current.children.forEach((ghost) => {
+                    if (ghost.userData.update) {
+                        ghost.userData.update();
                     }
-                }
-            }
-            if (objectGlowing.current) {
-                animateColorPulseHSL(objectGlowing.current.material);
+                });
+
             }
 
-            ghosts.forEach(update => update());
+            if (gameOverRef.current && gameWonRef.current && hasPlaced.current) {
+                floatingObjectsRef.current.children.forEach((obj, idx) => animateFloating(obj, idx));
+            }
 
             // Logic to end game/decrease size (remove lightbulb) if skulls intersect with player
-            renderer.render(scene, camera);
+            renderer.render(sceneRef.current, camera);
         });
     };
 
@@ -541,31 +877,47 @@ const GremioLiterario = ({ session, endSession }) => {
     return (
         <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}>
             <div style={{
-                    position: "absolute",
-                    bottom: "10px",
-                    right: "20px",
-                    // transform: "translateX(-50%)",
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    fontSize: "18px"
-                }}>
-                    Hearts: {hearts}
+                position: "absolute",
+                bottom: "10px",
+                right: "20px",
+                // background: "rgba(0, 0, 0, 0.7)",
+                color: "white",
+                padding: "10px",
+                borderRadius: "5px",
+                fontSize: "24px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+            }}>
+                <img
+                    src="/heart.gif"
+                    alt="Heart"
+                    style={{ width: "64px", height: "64px", objectFit: "contain" }}
+                />
+                {hearts}
             </div>
+
             <div style={{
-                    position: "absolute",
-                    bottom: "10px",
-                    left: "20px",
-                    // transform: "translateX(-50%)",
-                    background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    fontSize: "18px"
-                }}>
-                Lightbulbs: {lightbulbs}
+                position: "absolute",
+                bottom: "10px",
+                left: "20px",
+                // background: "rgba(0, 0, 0, 0.7)",
+                color: "white",
+                padding: "10px",
+                borderRadius: "5px",
+                fontSize: "24px",
+                display: "flex",
+                alignItems: "center",
+                gap: "8px"
+            }}>
+                <img
+                    src="/lightbulb.png"
+                    alt="Lightbulb"
+                    style={{ width: "64px", height: "64px", objectFit: "contain" }}
+                />
+                {lightbulbs}
             </div>
+
             {gameOver && gameWon && (
                 <div style={{
                     position: "absolute",
@@ -583,17 +935,35 @@ const GremioLiterario = ({ session, endSession }) => {
             )}
             {gameOver && !gameWon && (
                 <div style={{
-                    position: "absolute",
-                    top: "50%",
-                    left: "50%",
-                    transform: "translateX(-50%)",
+                    width: "100%",
+                    height: "100%",
                     background: "rgba(0, 0, 0, 0.7)",
-                    color: "white",
-                    padding: "10px",
-                    borderRadius: "5px",
-                    fontSize: "18px"
+
                 }}>
-                    Game Over!
+                    <div style={{
+                        position: "absolute",
+                        top: "30%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        color: "white",
+                        padding: "10px",
+                        fontSize: "24px"
+                    }}>
+                        Game Over!
+                    </div>
+                    <button onClick={tryAgain} style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        padding: "10px",
+                        color: "white",
+                        borderRadius: "5px",
+                        fontSize: "18px"
+                    }}
+                    >
+                        Try Again
+                    </button>
                 </div>
             )}
             {/* Maybe have a message with instructions here */}

@@ -313,7 +313,7 @@ export const experiments = [
     isWebXR: true,
     disabled: false,
     attributions: [
-      "Fish by jeremy [CC-BY] via Poly Pizza",
+      '"Fallen Book" (https://skfb.ly/6WXT9) by jesseroberts is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
     ]
   },
   {
@@ -356,6 +356,7 @@ export const experiments = [
     isWebXR: true,
     disabled: false,
     attributions: [
+      '"Spray Paint Can" (https://skfb.ly/o8rIG) by Isuk is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).'
     ]
   },
   {
@@ -364,7 +365,7 @@ export const experiments = [
     description: "Test for MindAR's face tracking experience",
     component: MindARFaceTracking,
     isWebXR: false,
-    disabled: true,
+    disabled: false,
     mindAR: true,
     attributions: [
     ]
@@ -377,6 +378,7 @@ export const experiments = [
     sessionOptions: {
       requiredFeatures: ["dom-overlay"],
       domOverlay: { root: document.body },
+      //depthSensing: { usagePreference: [ 'gpu-optimized' ], dataFormatPreference: [] },
     },
     isWebXR: true,
     disabled: false,

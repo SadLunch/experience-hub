@@ -14,6 +14,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
     const controllerRef = useRef(null);
 
     const canModelRef = useRef(null);
+    const hasCanLoaded = useRef(false);
 
     const selectedObject = useRef(null);
     // const isDragging = useRef(false);
@@ -74,7 +75,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
 
         // Load source image to be revealed
         const sourceImage = new Image();
-        sourceImage.src = 'peacock.png';
+        sourceImage.src = 'peacock.png'; // switch to the desired image
         sourceImage.crossOrigin = 'anonymous';
 
         const paintedTexture = new THREE.CanvasTexture(paintCanvas);
@@ -122,13 +123,21 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         scene.add(movableGroup);
 
         // Load model
-        loadModel('/models/spray_can_1.glb', canModelRef, 'spray can', () => {
-            if (canModelRef.current) {
+        loadModel('/models/spray_can_2_1.glb', canModelRef, 'spray can', () => {
+            if (!hasCanLoaded.current) {
                 // Probably will need a separate function for model transformations and stuff
-                canModelRef.current.scale.setScalar(0.05);
+                canModelRef.current.scale.setScalar(1);
                 canModelRef.current.position.set(0, 0, -1);
-                //canModelRef.current.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
+                canModelRef.current.rotation.set(
+                    -Math.PI / 4,
+                    0,
+                    -Math.PI / 2
+                )
+                // canModelRef.current.rotateX(-Math.PI/4);
+                // canModelRef.current.rotateZ(-Math.PI/2);
+                // canModelRef.current.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
                 movableGroup.add(canModelRef.current);
+                hasCanLoaded.current = true;
             }
         })
 
@@ -157,7 +166,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
                 const object = selectedObject.current;
                 movableGroup.attach(object);
                 controller.userData.selected = undefined;
-                //selectedObject.current = null;
+                // selectedObject.current = undefined;
                 //isDragging.current = false;
             }
         }

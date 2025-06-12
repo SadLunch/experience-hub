@@ -1,4 +1,4 @@
-import 'aframe';
+import AFRAME from 'aframe';
 import { useEffect, useRef, useState } from 'react'
 import imgOverlay from '../assets/align_giant_justice.jpg'
 // import * as dat from 'dat.gui';
@@ -27,11 +27,62 @@ const enterFullscreen = (element) => {
     }
 };
 
+AFRAME.registerComponent('apply-camera-orientation', {
+    init: function () {
+        const camera = this.el.sceneEl.camera;
+
+        camera.updateMatrixWorld();
+
+        // Apply rotation
+        this.el.object3D.position.set(0, 0, -70).applyMatrix4(camera.matrixWorld);
+        this.el.object3D.quaternion.setFromRotationMatrix(camera.matrixWorld);
+
+        // const cameraQuat = camera.quaternion.clone();
+        // this.el.object3D.quaternion.copy(cameraQuat);
+    }
+});
+
+AFRAME.registerComponent('move-forward', {
+    schema: {
+        speed: { type: 'number', default: 0.5 },
+        stopDistance: { type: 'number', default: 10 } // distance to stop
+        // minZ: { type: 'number', default: -2 }
+    },
+    init: function () {
+        this.el.object3D.userData.targetPosition = this.el.sceneEl.camera.getWorldPosition(new AFRAME.THREE.Vector3());
+    },
+    tick: function (time, timeDelta) {
+        const el = this.el;
+
+        // Access the custom forward direction
+        const forwardDirection = el.object3D.userData.forwardDirection;
+        const target = el.object3D.userData.targetPosition;
+
+        if (!forwardDirection || !target) return;
+
+        // Compute the new position
+        const position = el.object3D.position;
+        const distance = position.distanceTo(target)
+
+        if (distance <= this.data.stopDistance) return;
+
+        const movement = forwardDirection.clone().multiplyScalar(this.data.speed * (timeDelta / 1000));
+        position.add(movement);
+
+        // // Apply the updated position
+        // el.object3D.position.copy(position);
+    }
+});
+
+
 const GiantJustice = () => {
 
     const [isAligned, setIsAligned] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const videoEntityRef = useRef(null);
+    // const [zValue, setZValue] = useState(-70);
+    // const zValueRef = useRef(-70);
+    // const intervalRef = useRef(null);
 
     useEffect(() => {
         // Auto-enter fullscreen + start camera
@@ -53,6 +104,32 @@ const GiantJustice = () => {
             })
         }
     }, []);
+
+    // useEffect(() => {
+    //     // Move the video forward every second
+    //     intervalRef.current = setInterval(() => {
+    //         // zValueRef.current += 1.5;
+    //         // if (zValueRef.current >= -2) {
+    //         //     clearInterval(intervalRef.current);
+    //         //     zValueRef.current = -2;
+    //         // }
+    //         setZValue(prev => {
+    //             const next = prev + 1.5; // Adjust speed here
+    //             if (next >= -2) {
+    //                 clearInterval(intervalRef.current);
+    //                 return -2; // Stop close to the user
+    //             }
+
+    //             if (videoEntityRef.current) {
+    //                 const pos = videoEntityRef.current.getAttribute('position');
+    //                 videoEntityRef.current.setAttribute('position', { ...pos, z: next });
+    //             }
+
+    //             return next;
+    //         });
+    //     }, 1000);
+    //     return () => clearInterval(intervalRef.current);
+    // }, []);
 
     // useEffect(() => {
     //     if (isAligned && videoEntityRef.current) {
@@ -94,9 +171,33 @@ const GiantJustice = () => {
     //     }
     // }, [isAligned]);
 
-
     const alignScene = () => {
         setIsAligned(true);
+
+        const camera = document.querySelector('a-camera');
+        const cameraDirection = new AFRAME.THREE.Vector3();
+        camera.object3D.getWorldDirection(cameraDirection);
+
+        // Reverse it (so the video moves toward the camera)
+        // const cameraNeg = cameraDirection.negate();
+
+        const avideo = document.createElement('a-video');
+        avideo.setAttribute('apply-camera-orientation', '');
+        avideo.setAttribute('id', 'videoPlane');
+        avideo.setAttribute('src', '#giantJustice');
+        avideo.setAttribute('width', '9');
+        avideo.setAttribute('height', '16');
+        avideo.setAttribute('position', '0 0 -70')
+        avideo.setAttribute('move-forward', {
+            speed: 3,
+            stopDistance: 2
+            // minZ: -2
+        });
+        avideo.object3D.userData.forwardDirection = cameraDirection.clone();
+        videoEntityRef.current = avideo;
+
+        document.querySelector("#scene").appendChild(avideo);
+        // document.querySelector("#videoPlane").setAttribute('apply-camera-orientation', '');
     }
 
     return (
@@ -140,14 +241,15 @@ const GiantJustice = () => {
                     Align Scene
                 </button>
             )}
-            <a-scene xr-mode-ui="enabled: false">
+            <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>
                     <video id="giantJustice" autoPlay src="/videos/fortaleza_cropped.mp4"></video>
                 </a-assets>
                 <a-camera position="0 1.6 0" look-controls="touchEnabled: false; mouseEnabled: false;"></a-camera>
-                {isAligned && (
-                    <a-video ref={videoEntityRef} src="#giantJustice" width="9" height="16" position="0 0 -70"></a-video>
-                )}
+                {/* {isAligned && (
+                    <a-video ref={videoEntityRef} id="videoPlane" src="#giantJustice" width="9" height="16" position={`0 0 ${zValue}`}></a-video>
+                )} */}
+                {/* <a-video ref={videoEntityRef} src="#giantJustice" visible={isAligned} width="9" height="16" position={`0 0 ${zValue}`}></a-video> */}
             </a-scene>
 
             <video id="webcam" autoPlay playsInline muted

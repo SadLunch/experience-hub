@@ -2,6 +2,7 @@
 <html>
 
 <head>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0">
     <script type="importmap">
     {
       "imports": {
@@ -37,12 +38,12 @@
             });
         };
 
-        const backButton = document.querySelector("#backButton");
-        backButton.addEventListener("click", () => {
-            window.location.href = "/#/testing/experiment/15";
-            mindarThree.stop();
-            mindarThree.renderer.setAnimationLoop(null);
-        });
+        // const backButton = document.querySelector("#backButton");
+        // backButton.addEventListener("click", () => {
+        //     window.location.href = "/#/testing/experiment/15";
+        //     mindarThree.stop();
+        //     mindarThree.renderer.setAnimationLoop(null);
+        // });
 
 
         const take_photo = () => {
@@ -125,8 +126,11 @@
 
     </script>
     <style>
-        body {
+        html, body {
             margin: 0;
+            padding: 0;
+            overflow: hidden;
+            height: 100%;
         }
 
         #container {
@@ -136,7 +140,7 @@
             overflow: hidden;
         }
 
-        #backButton {
+        /* #backButton {
             position: absolute;
             display: block;
             top: 2.5rem;
@@ -148,7 +152,7 @@
             font-weight: 500;
             font-size: 3em;
             color: white;
-        }
+        } */
 
         .photo-button {
             background-color: transparent;
@@ -216,7 +220,7 @@
 </head>
 
 <body>
-    <button id="backButton">Back</button>
+    <!-- <button id="backButton">Back</button> -->
     <button id="photo-button" class="photo-button">
         <div class="circle"></div>
         <div class="ring"></div>

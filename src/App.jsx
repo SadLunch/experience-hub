@@ -6,7 +6,7 @@ import ExperimentFull from "./pages/ExperimentFull";
 import MapView from "./pages/testing/MapView";
 import ExperimentDetailTest from "./pages/testing/ExperimentDetailTest";
 import Home from "./pages/Home";
-import FirstScreen from "./pages/website/FirstScreen";
+import FirstScreenV1 from "./pages/website/FirstScreen_v1";
 import MainScreen from "./pages/website/MainScreen";
 
 function App() {
@@ -14,7 +14,7 @@ function App() {
     <HashRouter>
       <Routes>
         <Route path="/" element={<Home />} />
-        <Route path="/website" element={<FirstScreen />} />
+        <Route path="/website" element={<FirstScreenV1 />} />
         <Route path="/website/main" element={<MainScreen />} />
         <Route path="/testing" element={<Hub />} />
         <Route path="/testing/map" element={<MapView />} />

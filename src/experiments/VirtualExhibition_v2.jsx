@@ -1,49 +1,21 @@
 import { useRef, useEffect } from 'react';
 import * as THREE from 'three';
 import propTypes from 'prop-types';
+import { XRControllerModelFactory } from 'three/examples/jsm/Addons.js';
+// import { XRButton } from 'three/examples/jsm/Addons.js';
 // import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 
-// const raycaster = new THREE.Raycaster();
+const raycaster = new THREE.Raycaster();
 
 const VirtualExhibitionV2 = ({ session, endSession }) => {
     const containerRef = useRef(null);
-    // const rendererRef = useRef(null);
+    const rendererRef = useRef(null);
     const sceneRef = useRef(null);
-    // const cameraRef = useRef(null);
+    const cameraRef = useRef(null);
 
-    const controllerRef = useRef(null);
-
-    // groups ref
     const movableGroupRef = useRef(null);
 
-    // // movable objects refs
-    // const fishRef = useRef(null);
-    // const fishPlaced = useRef(null);
-
-    const selectedObject = useRef(null);
-    const isDragging = useRef(false);
-
-    // const loader = new GLTFLoader();
-
-    // const loadModel = (src, refVar, name = null, callback = null) => {
-    //     loader.load(src, (gltf) => {
-    //         refVar.current = gltf.scene;
-    //         if (name) refVar.current.name = name;
-    //         if (callback) callback();
-    //     });
-    // };
-
-    // const placeObjects = (object, position = null) => {
-    //     if (position) {
-    //         object.position.add(position).applyMatrix4(cameraRef.current.matrixWorld);
-    //     } else {
-    //         object.position.set(0, -2, -2).applyMatrix4(cameraRef.current.matrixWorld);
-    //     }
-    //     object.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
-    //     object.scale.setScalar(0.1)
-    //     movableGroupRef.current.add(object);
-    //     fishPlaced.current = true;
-    // }
+    // const selectedObject = useRef(null);
 
     const initAR = () => {
         const container = containerRef.current;
@@ -51,15 +23,16 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
         // --- Setup basic scene ---
         const scene = new THREE.Scene();
         sceneRef.current = scene;
+
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 100);
         //camera.position.set(0, 3.6, 3); // typical VR height
+        cameraRef.current = camera;
 
         const renderer = new THREE.WebGLRenderer({ antialias: true });
         renderer.setPixelRatio(window.devicePixelRatio);
         renderer.setSize(window.innerWidth, window.innerHeight);
         renderer.xr.enabled = true;
-
-        
+        rendererRef.current = renderer;
 
         // Need this to make AR work (DONT FORGET THIS)
         renderer.xr.setReferenceSpaceType("local");
@@ -67,63 +40,51 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
 
         if (container) container.appendChild(renderer.domElement);
 
-        // --- Groups ---
+        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+        scene.add(light);
+
         const movableGroup = new THREE.Group();
         scene.add(movableGroup);
         movableGroupRef.current = movableGroup;
 
-        // --- Floor ---
-        const planeGeometry = new THREE.PlaneGeometry(25, 25)
-        const planeMesh = new THREE.Mesh(
-            planeGeometry,
-            new THREE.MeshPhongMaterial()
-        )
-        planeMesh.position.y = -0.61
-        planeMesh.rotateX(-Math.PI / 2)
-        planeMesh.receiveShadow = true
-        scene.add(planeMesh)
+        // const floor = new THREE.Mesh(
+        //     new THREE.PlaneGeometry(10, 10),
+        //     new THREE.MeshBasicMaterial({ color: 0xc5c5c5, side: THREE.DoubleSide })
+        // );
+        // floor.rotateX(-Math.PI / 2)
+        // floor.position.set(0, -1.6, 0);
 
-        // --- Movable Object ---
-        const size = 0.3;
-        const cubeGeometry = new THREE.BoxGeometry(size, size, size)
-        const cubeMesh = new THREE.Mesh(
-            cubeGeometry,
-            new THREE.MeshNormalMaterial()
-        )
-        cubeMesh.position.z = -0.5
-        cubeMesh.position.y = -0.45
-        movableGroupRef.current.add(cubeMesh)
+        // scene.add(floor);
 
-        // --- Virtual Walls (Collision Objects) ---
-        const wallMaterial = new THREE.MeshNormalMaterial({ color: 0x00ff00, opacity: 0.5, transparent: true });
-        const wall1 = new THREE.Mesh(
-            new THREE.BoxGeometry(5, 2, 0.1),
-            wallMaterial
-        );
-        wall1.position.set(0, -0.6, -2);
-        scene.add(wall1);
+        for (let i = 0; i < 1; i++) {
+            let c = Math.random() * 0xffffff;
+            const geometry = new THREE.BoxGeometry(0.8, 2, 0.5);
+            const material = new THREE.MeshStandardMaterial({
+                color: c,
+            });
 
-        // const wallBody2 = new CANNON.Body({
-        //     type: CANNON.Body.STATIC,
-        //     shape: new CANNON.Box(new CANNON.Vec3(0.05, 1, 2.5)),
-        //     position: new CANNON.Vec3(2, -0.6, 0),
-        // });
-        // world.addBody(wallBody2);
+            const box = new THREE.Mesh(geometry, material);
 
-        // --- Light ---
-        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
-        scene.add(light);
+            box.position.set(0, (-1.6 + 1), -2);
 
-        // --- Controllers ---
+            box.rotation.y = Math.random() * 2 * Math.PI;
+
+            box.userData.initialColor = c;
+
+            movableGroup.add(box);
+        }
+
         const controller = renderer.xr.getController(0);
-        scene.add(controller);
-        controllerRef.current = controller;
-
-        // Raycasting
-        const raycaster = new THREE.Raycaster();
-
         controller.addEventListener('selectstart', onSelectStart);
         controller.addEventListener('selectend', onSelectEnd);
+        // controller.addEventListener('move', onMove);
+        scene.add(controller);
+
+        const controllerModelFactory = new XRControllerModelFactory();
+
+        const controllerGrip = renderer.xr.getControllerGrip(0);
+        controllerGrip.add(controllerModelFactory.createControllerModel(controllerGrip));
+        scene.add(controllerGrip);
 
         function onSelectStart(event) {
             const controller = event.target;
@@ -132,51 +93,107 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
 
             raycaster.setFromXRController(controller);
 
-            const intersected = raycaster.intersectObjects(movableGroupRef.current.children);
+            const intersected = raycaster.intersectObjects(movableGroup.children, false);
+
             if (intersected.length > 0) {
-                selectedObject.current = intersected[0].object;
-                isDragging.current = true;
+                controller.userData.isSelecting = true;
             }
+
+            controller.userData.targetRayMode = event.data.targetRayMode;
+        };
+
+        function onSelectEnd(event) {
+            const controller = event.target;
+
+            controller.userData.isSelecting = false;
         }
 
-        function onSelectEnd() {
-            isDragging.current = false;
-            selectedObject.current = undefined;
-        }
+        // function onMove(event) {
+        //     const controller = event.target;
+
+        //     if (controller.userData.intersection === undefined) return;
+
+        //     const intersected = controller.userData.intersection;
+
+        //     const hitPoint = intersected.point;
+
+        //     const downRay = new THREE.Raycaster(
+        //         hitPoint.clone(),
+        //         new THREE.Vector3(0, -1, 0)
+        //     );
+
+        //     const floorIntersected = downRay.intersectObject(floor);
+
+        //     if (floorIntersected.length > 0) {
+        //         const floorXZ = floorIntersected[0].point;
+
+        //         intersected.object.position.set(
+        //             floorXZ.x,
+        //             intersected.object.position.y,
+        //             floorXZ.z
+        //         )
+        //     }
+
+        // };
 
         // Animation Loop
         renderer.setAnimationLoop(() => {
-            if (isDragging.current && selectedObject.current) {
-                
-                raycaster.setFromXRController(controllerRef.current);
 
-                const movementIntersected = raycaster.intersectObject(planeMesh);
+            if (controller.userData.isSelecting) {
+                controller.updateMatrixWorld();
 
-                if (movementIntersected.length > 0) {
-                    const newPosition = new THREE.Vector3();
-                    newPosition.copy(movementIntersected[0].point);
+                raycaster.setFromXRController(controller);
 
-                    const origin = selectedObject.current.position.clone();
+                const intersected = raycaster.intersectObjects(movableGroup.children, false);
 
-                    const direction = new THREE.Vector3(0, -1, 0).normalize();
+                if (intersected.length > 0) {
 
-                    raycaster.set(origin, direction);
+                    // const hitPoint = intersected[0].point;
+                    // const downRay = new THREE.Raycaster(
+                    //     hitPoint.clone(),
+                    //     new THREE.Vector3(0, -1, 0)
+                    // );
 
-                    const intersected = raycaster.intersectObject(planeMesh);
-                    if (intersected.length > 0) {
-                        selectedObject.current.geometry.computeBoundingBox();
-                        const hit = intersected[0];
+                    // const floorIntersected = downRay.intersectObject(floor);
 
-                        const objectHeight = selectedObject.current.geometry.boundingBox.max.y - selectedObject.current.geometry.boundingBox.min.y;
+                    // if (floorIntersected.length > 0) {
+                    //     const floorXZ = floorIntersected[0].point;
 
-                        selectedObject.current.position.set(
-                            newPosition.x,
-                            hit.point.y + (objectHeight / 2),
-                            newPosition.z
-                        );
-                    }
+                    //     intersected[0].object.position.set(
+                    //         floorXZ.x,
+                    //         intersected[0].object.position.y,
+                    //         floorXZ.z
+                    //     )
+                    // }
+
+                    const minDistance = 2.5;
+
+                    const direction = raycaster.ray.direction;
+
+                    const currentPosition = raycaster.ray.origin;
+
+                    const targetPosition = currentPosition.clone().add(direction.multiplyScalar(minDistance));
+
+                    intersected[0].object.position.set(
+                        targetPosition.x,
+                        intersected[0].object.position.y,
+                        targetPosition.z
+                    );
+
+                    const targetLook = new THREE.Vector3(
+                        camera.position.x,
+                        intersected[0].object.getWorldPosition(new THREE.Vector3()).y,
+                        camera.position.z
+                    );
+
+                    intersected[0].object.lookAt(targetLook)
+
+                    
                 }
+
+                
             }
+
             renderer.render(scene, camera);
         });
 
