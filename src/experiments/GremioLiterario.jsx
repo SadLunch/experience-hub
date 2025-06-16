@@ -430,10 +430,10 @@ const GremioLiterario = ({ session, endSession }) => {
         heartTexture.format = THREE.RGBAFormat;
         heartTextureRef.current = heartTexture;
 
-        const lightbulbTexture = new THREE.TextureLoader().load('lightbulb.png');
+        const lightbulbTexture = new THREE.TextureLoader().load('/images/lightbulb.png');
         lightbulbTextureRef.current = lightbulbTexture;
 
-        const playerTexture = new THREE.TextureLoader().load('lady_justice.png');
+        const playerTexture = new THREE.TextureLoader().load('/images/lady_justice.png');
         playerTextureRef.current = playerTexture;
 
         const videoGhost = document.createElement("video");
@@ -890,7 +890,7 @@ const GremioLiterario = ({ session, endSession }) => {
                 gap: "8px"
             }}>
                 <img
-                    src="/heart.gif"
+                    src="/images/heart.gif"
                     alt="Heart"
                     style={{ width: "64px", height: "64px", objectFit: "contain" }}
                 />
@@ -911,7 +911,7 @@ const GremioLiterario = ({ session, endSession }) => {
                 gap: "8px"
             }}>
                 <img
-                    src="/lightbulb.png"
+                    src="/images/lightbulb.png"
                     alt="Lightbulb"
                     style={{ width: "64px", height: "64px", objectFit: "contain" }}
                 />

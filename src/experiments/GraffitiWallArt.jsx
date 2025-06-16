@@ -72,7 +72,7 @@ const GraffitiWallArt = ({ session, endSession }) => {
 
         // Load source image to be revealed
         const sourceImage = new Image();
-        sourceImage.src = 'peacock.png';
+        sourceImage.src = '/images/peacock.png';
         sourceImage.crossOrigin = 'anonymous';
 
         const paintedTexture = new THREE.CanvasTexture(paintCanvas);

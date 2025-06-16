@@ -8,12 +8,18 @@ import ExperimentDetailTest from "./pages/testing/ExperimentDetailTest";
 import Home from "./pages/Home";
 import FirstScreenV1 from "./pages/website/FirstScreen_v1";
 import MainScreen from "./pages/website/MainScreen";
+import FirstScreen from "./pages/website/FirstScreen";
+import HomeScreen from "./pages/website/HomeScreen";
+import ExperiencesScreen from "./pages/website/ExperiencesScreen";
 
 function App() {
   return (
     <HashRouter>
       <Routes>
         <Route path="/" element={<Home />} />
+        <Route path="/hidden/website" element={<FirstScreen />} />
+        <Route path="/hidden/website/home" element={<HomeScreen />} />
+        <Route path="/hidden/website/experiences" element={<ExperiencesScreen />} />
         <Route path="/website" element={<FirstScreenV1 />} />
         <Route path="/website/main" element={<MainScreen />} />
         <Route path="/testing" element={<Hub />} />

@@ -4,6 +4,41 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'FontTitle';
+  font-weight: bold;
+  font-style: normal;
+  src: url('/fonts/GoodTimingRg-Bold.ttf') format('truetype'),
+       url('/fonts/GoodTimingRg-Bold.woff') format('woff'),
+       url('/fonts/GoodTimingRg-Bold.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'FontBtnMenus';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/fonts/PressStart2P-Regular.ttf') format('truetype'),
+       url('/fonts/PressStart2P-Regular.woff') format('woff'),
+       url('/fonts/PressStart2P-Regular.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'OpenSans';
+  font-weight: 500;
+  font-style: normal;
+  src: url('/fonts/OpenSans-VariableFont_wdth,wght.ttf') format('truetype');
+}
+
+@font-face {
+  font-family: 'OpenSans';
+  font-weight: 500;
+  font-style: italic;
+  src: url('/fonts/OpenSans-Italic-VariableFont_wdth,wght.ttf') format('truetype');
+}
+text {
+  font-family: 'FontBtnMenus';
+}
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;

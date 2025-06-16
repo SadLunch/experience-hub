@@ -26,6 +26,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
 
     const loader = new GLTFLoader();
 
+
     const loadModel = (src, refVar, name = null, callback = null) => {
         loader.load(src, (gltf) => {
             refVar.current = gltf.scene;
@@ -75,7 +76,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
 
         // Load source image to be revealed
         const sourceImage = new Image();
-        sourceImage.src = 'peacock.png'; // switch to the desired image
+        sourceImage.src = '/images/femmy.png'; // switch to the desired image
         sourceImage.crossOrigin = 'anonymous';
 
         const paintedTexture = new THREE.CanvasTexture(paintCanvas);
@@ -90,7 +91,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         });
 
         const wallPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(1, 1),
+            new THREE.PlaneGeometry(2, 1),
             revealMaterial
         );
         wallPlane.position.z = -2;
@@ -284,7 +285,8 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
     }, [session, endSession])
 
     return (
-        <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}></div>
+        <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}>
+        </div>
     );
 }
 

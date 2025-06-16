@@ -22,6 +22,7 @@ const userIcon = L.icon({
   iconUrl: `https://api.geoapify.com/v2/icon/?type=material&color=red&size=${iconSize}&contentSize=15&text=${numberOfPpl}&scaleFactor=2&apiKey=${geoapify_API_KEY}`, // Custom icon for user's location
   iconSize: [31, 46],
   iconAnchor: [12, 41],
+  className: 'font-FontBtnMenus'
 });
 
 const MapView = () => {

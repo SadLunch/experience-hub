@@ -16,6 +16,7 @@
     "@react-three/xr": "^6.6.5",
     "aframe": "^1.7.1",
     "aframe-textarea-component": "^0.3.0",
+    "beautifymarker": "^1.0.9",
     "cannon-es": "^0.20.0",
     "dat.gui": "^0.7.9",
     "framer-motion": "^12.4.7",
