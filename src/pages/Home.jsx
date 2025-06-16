@@ -14,7 +14,7 @@ const Home = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0}}
                 >
-                    <Link to="/website" className='block bg-gray-800 p-5 rounded-lg shadow-lg hover:bg-gray-700 transition'>
+                    <Link to="/hidden/website" className='block bg-gray-800 p-5 rounded-lg shadow-lg hover:bg-gray-700 transition'>
                         <h2 className='text-xl font-semibold'>Prototype Final Website</h2>
                     </Link>
                 </motion.div>
