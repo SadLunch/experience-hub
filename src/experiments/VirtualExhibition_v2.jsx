@@ -56,6 +56,8 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
 
         // scene.add(floor);
 
+        const bbox = new THREE.Box3();
+
         for (let i = 0; i < 1; i++) {
             let c = Math.random() * 0xffffff;
             const geometry = new THREE.BoxGeometry(0.8, 2, 0.5);
@@ -71,8 +73,29 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
 
             box.userData.initialColor = c;
 
+            box.geometry.computeBoundingBox();
+
+            bbox.copy(box.geometry.boundingBox).applyMatrix4(box.matrixWorld);
+
             movableGroup.add(box);
         }
+
+        const wallGeometry = new THREE.PlaneGeometry(5, 3);
+        const wallMaterial = new THREE.MeshBasicMaterial({
+            opacity: 0,
+            transparent: true,
+            color: 0xffffff,
+            side: THREE.DoubleSide
+        });
+
+        const wall = new THREE.Mesh(wallGeometry, wallMaterial);
+
+        wall.position.set(0.5, 0, 0);
+        wall.rotateY(-Math.PI/2);
+
+        const wallBox = new THREE.Box3().setFromObject(wall);
+
+        scene.add(wall);
 
         const controller = renderer.xr.getController(0);
         controller.addEventListener('selectstart', onSelectStart);
@@ -138,7 +161,6 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
 
         // Animation Loop
         renderer.setAnimationLoop(() => {
-
             if (controller.userData.isSelecting) {
                 controller.updateMatrixWorld();
 
@@ -147,55 +169,62 @@ const VirtualExhibitionV2 = ({ session, endSession }) => {
                 const intersected = raycaster.intersectObjects(movableGroup.children, false);
 
                 if (intersected.length > 0) {
+                    const selectedObject = intersected[0].object;
 
-                    // const hitPoint = intersected[0].point;
-                    // const downRay = new THREE.Raycaster(
-                    //     hitPoint.clone(),
-                    //     new THREE.Vector3(0, -1, 0)
-                    // );
-
-                    // const floorIntersected = downRay.intersectObject(floor);
-
-                    // if (floorIntersected.length > 0) {
-                    //     const floorXZ = floorIntersected[0].point;
-
-                    //     intersected[0].object.position.set(
-                    //         floorXZ.x,
-                    //         intersected[0].object.position.y,
-                    //         floorXZ.z
-                    //     )
-                    // }
-
+                    // Compute movement direction
+                    const direction = raycaster.ray.direction.clone();
+                    const currentPosition = raycaster.ray.origin.clone();
                     const minDistance = 2.5;
 
-                    const direction = raycaster.ray.direction;
-
-                    const currentPosition = raycaster.ray.origin;
-
                     const targetPosition = currentPosition.clone().add(direction.multiplyScalar(minDistance));
+                    const currentY = selectedObject.position.y;
 
-                    intersected[0].object.position.set(
-                        targetPosition.x,
-                        intersected[0].object.position.y,
-                        targetPosition.z
-                    );
+                    // Clone dummy object and move it to the proposed new position
+                    const dummy = selectedObject.clone();
+                    dummy.position.set(targetPosition.x, currentY, targetPosition.z);
+                    dummy.geometry.computeBoundingBox();
 
-                    const targetLook = new THREE.Vector3(
+                    const dummyBbox = dummy.geometry.boundingBox.clone().applyMatrix4(dummy.matrixWorld);
+
+                    // Create wall box for collision detection
+                    //const wallBox = new THREE.Box3().setFromObject(wall);
+
+                    if (dummyBbox.intersectsBox(wallBox)) {
+                        // Collision detected — determine if it's moving away from wall
+                        const wallCenter = new THREE.Vector3();
+                        wallBox.getCenter(wallCenter);
+
+                        const dummyCenter = new THREE.Vector3();
+                        dummyBbox.getCenter(dummyCenter);
+
+                        const movement = targetPosition.clone().sub(selectedObject.position).setY(0).normalize();
+                        const wallToDummy = dummyCenter.clone().sub(wallCenter).normalize();
+
+                        const dot = movement.dot(wallToDummy);
+
+                        if (dot > 0) {
+                            // Moving away from wall — allow it
+                            selectedObject.position.set(targetPosition.x, currentY, targetPosition.z);
+                        }
+                        // else: movement is into the wall — block it
+                    } else {
+                        // No collision — normal movement
+                        selectedObject.position.set(targetPosition.x, currentY, targetPosition.z);
+                    }
+
+                    // Always make it look at the camera (XZ plane only)
+                    const lookAtTarget = new THREE.Vector3(
                         camera.position.x,
-                        intersected[0].object.getWorldPosition(new THREE.Vector3()).y,
+                        selectedObject.getWorldPosition(new THREE.Vector3()).y,
                         camera.position.z
                     );
-
-                    intersected[0].object.lookAt(targetLook)
-
-                    
+                    selectedObject.lookAt(lookAtTarget);
                 }
-
-                
             }
 
             renderer.render(scene, camera);
         });
+
 
 
     };

@@ -18,15 +18,15 @@ const getCamera = async () => {
     }
 };
 
-const enterFullscreen = (element) => {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
-    }
-};
+// const enterFullscreen = (element) => {
+//     if (element.requestFullscreen) {
+//         element.requestFullscreen();
+//     } else if (element.webkitRequestFullscreen) {
+//         element.webkitRequestFullscreen();
+//     } else if (element.msRequestFullscreen) {
+//         element.msRequestFullscreen();
+//     }
+// };
 
 AFRAME.registerComponent('click-to-edit', {
     init: function () {
@@ -131,9 +131,9 @@ const MNACStairsExperiment = () => {
             await getCamera();
 
             // Slight timeout to ensure DOM is mounted
-            setTimeout(() => {
-                enterFullscreen(document.documentElement);
-            }, 100);
+            // setTimeout(() => {
+            //     enterFullscreen(document.documentElement);
+            // }, 100);
         };
 
         run();

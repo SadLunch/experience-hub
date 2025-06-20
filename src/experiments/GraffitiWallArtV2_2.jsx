@@ -5,9 +5,8 @@ import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 
 const raycaster = new THREE.Raycaster();
 
-const GraffitiWallArtV2 = ({ session, endSession }) => {
+const GraffitiWallArtV2_2 = ({ session, endSession }) => {
     const containerRef = useRef(null);
-
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
     const cameraRef = useRef(null);
@@ -17,9 +16,12 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
     const canModelRef = useRef(null);
     const hasCanLoaded = useRef(false);
 
-    const selectedObject = useRef(null);
-    // const isDragging = useRef(false);
+    const hasPickedUpCan = useRef(false);
     const isSpraying = useRef(false);
+
+    const selectedObject = useRef(null);
+
+
     const sphereIndicator = useRef(null);
 
     // // groups ref
@@ -31,6 +33,7 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
     const loadModel = (src, refVar, name = null, callback = null) => {
         loader.load(src, (gltf) => {
             refVar.current = gltf.scene;
+            refVar.current.userData.isPickable = true;
             if (name) refVar.current.name = name;
             if (callback) callback();
         });
@@ -45,21 +48,6 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
         cameraRef.current = camera;
         //camera.position.set(0, 3.6, 3); // typical VR height
-        
-        if (!rendererRef.current) {
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true});
-            renderer.setPixelRatio(window.devicePixelRatio);
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.autoClearColor = false;
-            renderer.xr.enabled = true;
-            rendererRef.current = renderer;
-        }
-
-        // Need this to make AR work (DONT FORGET THIS)
-        rendererRef.current.xr.setReferenceSpaceType("local");
-        rendererRef.current.xr.setSession(session);
-
-        if (container) container.appendChild(rendererRef.current.domElement);
 
         // Add a Light to the Scene
         const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
@@ -124,86 +112,96 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         });
 
         //Groups
-        const movableGroup = new THREE.Group();
-        scene.add(movableGroup);
+        // const movableGroup = new THREE.Group();
+        // scene.add(movableGroup);
+        // movableGroupRef.current = movableGroup;
+
+        // Renderer
+        const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+        renderer.setPixelRatio(window.devicePixelRatio);
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.xr.enabled = true;
+        rendererRef.current = renderer;
+
+        // Need this to make AR work (DONT FORGET THIS)
+        rendererRef.current.xr.setReferenceSpaceType("local");
+        rendererRef.current.xr.setSession(session);
+
+        if (container) container.appendChild(renderer.domElement);
+
+        let model;
 
         // Load model
-        loadModel('/models/spray_can_2_1.glb', canModelRef, 'spray can', () => {
+        loadModel('/models/spray_can_2_2.glb', canModelRef, 'spray can', () => {
             if (!hasCanLoaded.current) {
+                model = canModelRef.current
                 // Probably will need a separate function for model transformations and stuff
-                canModelRef.current.scale.setScalar(1);
-                canModelRef.current.position.set(0, 0, -1);
-                canModelRef.current.rotation.set(
-                    -Math.PI / 4,
-                    0,
-                    -Math.PI / 2
-                )
+                model.scale.setScalar(1);
+                model.position.set(0, 0, -1);
+                // canModelRef.current.rotation.set(
+                //     -Math.PI / 4,
+                //     0,
+                //     -Math.PI / 2
+                // )
                 // canModelRef.current.rotateX(-Math.PI/4);
                 // canModelRef.current.rotateZ(-Math.PI/2);
                 // canModelRef.current.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
-                movableGroup.add(canModelRef.current);
+                sceneRef.current.add(model);
                 hasCanLoaded.current = true;
             }
         })
 
         const onSelectStart = (event) => {
+            if (!hasCanLoaded.current) return;
+
             const controller = event.target;
-            controllerRef.current.updateMatrixWorld();
 
-            raycaster.setFromXRController(controller);
 
-            const intersected = raycaster.intersectObjects(movableGroup.children)
-            if (intersected.length > 0) {
-                const object = intersected[0].object.parent.parent;
-                controller.attach(object);
-                controller.userData.selected = object;
-                selectedObject.current = object;
-                //isDragging.current = true;
-                if (rattleSound.isPlaying) rattleSound.stop();
-                rattleSound.play();
+            if (!hasPickedUpCan.current) {
+                controller.updateMatrixWorld();
+
+                raycaster.setFromXRController(controller);
+
+                const intersected = raycaster.intersectObject(model);
+
+                if (intersected.length > 0) {
+                    let picked = intersected[0].object;
+
+                    while (picked && !picked.userData.isPickable) {
+                        picked = picked.parent;
+                    }
+                    if (picked && picked.userData.isPickable) {
+                        selectedObject.current = picked;
+                        hasPickedUpCan.current = true;
+                        if (rattleSound.isPlaying) rattleSound.stop();
+                        rattleSound.play();
+                        return;
+                    }
+                }
             }
-            // controllerRef.current.userData.targetRayMode = event.target.targetRayMode
-        }
 
-        const onSelectEnd = (event) => {
-            const controller = event.target;
-            if (selectedObject.current !== null) {
-                const object = selectedObject.current;
-                movableGroup.attach(object);
-                controller.userData.selected = undefined;
-                // selectedObject.current = undefined;
-                //isDragging.current = false;
-            }
-        }
-
-        const startSpraying = () => {
-            if (selectedObject.current) {
+            
+            if (!isSpraying.current && hasPickedUpCan.current && selectedObject.current) {
                 isSpraying.current = true;
                 if (!spraySound.isPlaying) spraySound.play();
             }
         }
 
-        const stopSpraying = () => {
+        const onSelectEnd = () => {
             if (isSpraying.current) {
                 isSpraying.current = false;
                 if (spraySound.isPlaying) spraySound.stop();
             }
         }
 
-        // Add controllers to be able to move the fishes
-        const controller = rendererRef.current.xr.getController(0);
-        controller.addEventListener('selectstart', onSelectStart);
-        controller.addEventListener('selectend', onSelectEnd);
-        scene.add(controller);
-        controllerRef.current = controller;
-
-        rendererRef.current.domElement.addEventListener('touchstart', (event) => {
-            if (event.touches.length == 2) {
-                startSpraying();
-            }
-        })
-
-        rendererRef.current.domElement.addEventListener('touchend', stopSpraying);
+        if (!controllerRef.current) {
+            const controller = renderer.xr.getController(0);
+            controller.addEventListener('selectstart', onSelectStart);
+            controller.addEventListener('selectend', onSelectEnd);
+            scene.add(controller);
+            controllerRef.current = controller;
+        }
+        
 
         sphereIndicator.current = new THREE.Mesh(
             new THREE.SphereGeometry(0.1, 16, 16),
@@ -212,15 +210,31 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
         sphereIndicator.current.visible = false;
         scene.add(sphereIndicator.current);
 
+        // let time = 0;
+
         // Animation Loop
-        rendererRef.current.setAnimationLoop(() => {
+        renderer.setAnimationLoop(() => {
+            if (hasPickedUpCan.current) {
+                selectedObject.current.position.copy(cameraRef.current.position);
+                selectedObject.current.quaternion.copy(cameraRef.current.quaternion);
+
+                selectedObject.current.translateZ(-0.5);
+                selectedObject.current.translateY(-0.2);
+                // time += 0.01; // Increment time
+
+                // if (selectedObject.current) {
+                //     const x = Math.sin(time) * 1; // moves from -1 to 1
+                //     selectedObject.current.position.set(x, 0, -1); // 1m in front of user
+                // }
+            }
+
             // Check if spray can is in scene
-            if (controllerRef.current.userData.selected && wallPlane && sourceImage.complete) {
+            if (selectedObject.current && wallPlane && sourceImage.complete) {
                 const sprayTip = new THREE.Vector3();
                 // sprayTip.add(selectedObject.current.getObjectByName("Tip").position);
                 selectedObject.current.getWorldPosition(sprayTip);
 
-                raycaster.set(sprayTip, new THREE.Vector3(0, 0, -1)/*.applyQuaternion(cameraRef.current.quaternion)*/);
+                raycaster.set(sprayTip, new THREE.Vector3(0, 0, -1).applyQuaternion(cameraRef.current.quaternion));
 
                 const intersects = raycaster.intersectObject(wallPlane);
                 if (intersects.length > 0) {
@@ -256,53 +270,55 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
                 sphereIndicator.current.visible = false;
             }
 
-            rendererRef.current.render(scene, camera);
+            if (!isSpraying.current) {
+                if (spraySound.isPlaying) spraySound.stop();
+            }
 
+            renderer.render(scene, camera);
         });
 
 
+
+
     };
-
-    // const takeScreenshot = async () => {
-    //     const container = document.getElementsByTagName('canvas')[0];
-    //     if (!container) return;
-
-    //     try {
-    //         const canvas = await html2canvas(container, {
-    //             useCORS: true,
-    //             logging: false,
-    //             allowTaint: true,
-    //             backgroundColor: null,
-    //         });
-
-    //         const dataUrl = canvas.toDataURL('image/png');
-
-    //         const link = document.createElement('a');
-    //         link.href = dataUrl;
-    //         link.download = 'graffiti_screenshot.png';
-    //         link.click();
-    //     } catch (err) {
-    //         console.error('Screenshot failed:', err);
-    //     }
-    // };
-
-
 
     useEffect(() => {
         if (!session) return;
 
         const cleanupScene = () => {
+            if (rendererRef.current) {
+                rendererRef.current.setAnimationLoop(null);
+                rendererRef.current.dispose();
+                rendererRef.current = null;
+            }
 
             if (sceneRef.current) {
-                sceneRef.current.children.forEach((object) => {
+                sceneRef.current.traverse((object) => {
                     if (!object.isLight) {
                         if (object.geometry) object.geometry.dispose();
-                        if (object.material) object.material.dispose();
-                        sceneRef.current.remove(object);
+                        if (object.material) {
+                            if (Array.isArray(object.material)) {
+                                object.material.forEach((m) => m.dispose());
+                            } else {
+                                object.material.dispose();
+                            }
+                        }
                     }
                 });
+
+                sceneRef.current.clear();
+                sceneRef.current = null;
             }
+
+            cameraRef.current = null;
+            canModelRef.current = null;
+            hasCanLoaded.current = false;
+            controllerRef.current = null;
+            selectedObject.current = null;
+            isSpraying.current = false;
+            // movableGroupRef.current = null;
         };
+
 
         initAR();
 
@@ -329,9 +345,9 @@ const GraffitiWallArtV2 = ({ session, endSession }) => {
     );
 }
 
-GraffitiWallArtV2.propTypes = {
+GraffitiWallArtV2_2.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
 };
 
-export default GraffitiWallArtV2;
+export default GraffitiWallArtV2_2;

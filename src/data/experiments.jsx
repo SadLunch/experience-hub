@@ -27,6 +27,7 @@ import MNACStairsExperiment from "../experiments/MNACStairsExperiment";
 import MindARFaceTracking from "../experiments/MindARFaceTracking";
 import GraffitiWallArtV2 from "../experiments/GraffitiWallArtV2";
 import MoveCubesControllers from "../experiments/MoveCubesControllers";
+import GraffitiWallArtV2_2 from "../experiments/GraffitiWallArtV2_2";
 
 export const experiments = [
   {
@@ -345,10 +346,25 @@ export const experiments = [
     ]
   },
   {
-    id: "25",
+    id: "25-1",
     title: "Graffiti test V2",
-    description: 'Test for graffiti experience',
+    description: 'Graffiti Wall art experience with first image',
     component: GraffitiWallArtV2,
+    sessionOptions: {
+      requiredFeatures: ["dom-overlay"],
+      domOverlay: { root: document.body },
+    },
+    isWebXR: true,
+    disabled: false,
+    attributions: [
+      '"Spray Paint Can" (https://skfb.ly/o8rIG) by Isuk is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).'
+    ]
+  },
+  {
+    id: "25-2",
+    title: "Graffiti test V2",
+    description: 'Graffiti Wall art experience with second image',
+    component: GraffitiWallArtV2_2,
     sessionOptions: {
       requiredFeatures: ["dom-overlay"],
       domOverlay: { root: document.body },

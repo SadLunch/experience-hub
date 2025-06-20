@@ -2,7 +2,7 @@
 <html>
 
 <head>
-    <meta name="viewport" content="width=device-width; initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <script type="importmap">
     {
       "imports": {
@@ -20,6 +20,12 @@
             container: document.querySelector("#container"),
         });
         const { renderer, scene, camera } = mindarThree;
+        // document.querySelector("#container").removeChild(renderer.domElement);
+        // renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
+        // renderer.outputEncoding = THREE.sRGBEncoding;
+        // renderer.setPixelRatio(window.devicePixelRatio);
+        // document.querySelector("#container").appendChild(renderer.domElement);
+
         const anchor = mindarThree.addAnchor(10); // value 10 is to place the object on the forehead
         const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
         scene.add(light);
@@ -45,16 +51,15 @@
         //     mindarThree.renderer.setAnimationLoop(null);
         // });
 
-
         const take_photo = () => {
             const video = document.querySelector("video");
-            const circle = document.querySelector(".circle");
+            // const circle = document.querySelector(".circle");
 
-            circle.classList.add("active");
+            // circle.classList.add("active");
 
-            setTimeout(() => {
-                circle.classList.remove("active");
-            }, 300); // match the duration of the CSS transition
+            // setTimeout(() => {
+            //     circle.classList.remove("active");
+            // }, 300); // match the duration of the CSS transition
 
 
             // Your existing photo-taking logic
@@ -119,8 +124,14 @@
             link.click();
         };
 
-        const photoButton = document.querySelector("#photo-button");
-        photoButton.addEventListener("click", take_photo);
+        window.addEventListener('message', (event) => {
+            if (event.data.type === 'TAKE_PHOTO') {
+                take_photo();
+            }
+        });
+
+    //     const photoButton = document.querySelector("#photo-button");
+    //     photoButton.addEventListener("click", take_photo);
 
         start();
 
@@ -221,10 +232,10 @@
 
 <body>
     <!-- <button id="backButton">Back</button> -->
-    <button id="photo-button" class="photo-button">
+    <!-- <button id="photo-button" class="photo-button">
         <div class="circle"></div>
         <div class="ring"></div>
-    </button>
+    </button> -->
     <div id="container"></div>
 </body>
 

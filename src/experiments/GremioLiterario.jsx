@@ -72,7 +72,7 @@ const GremioLiterario = ({ session, endSession }) => {
     const selectedObject = useRef(null);
     const objectGlowing = useRef(null);
     const pulseTime = useRef(0);
-    const hasCollided = useRef(false);
+    // const hasCollided = useRef(false);
 
     const [hearts, setHearts] = useState(0);
     const heartsRef = useRef(0);
@@ -90,7 +90,33 @@ const GremioLiterario = ({ session, endSession }) => {
 
     const interval = useRef(null);
 
+    const [step, setStep] = useState(1);
+    const stepRef = useRef(1);
+    const [gameStarted, setGameStarted] = useState(false);
+    const gameStartedRef = useRef(false);
+
     const loader = new GLTFLoader();
+
+    const nextStep = () => {
+        stepRef.current += 1;
+        setStep(stepRef.current);
+        if (stepRef.current > 5) {
+            controllerSetup();
+            stepRef.current = null;
+            gameStartedRef.current = true
+            setGameStarted(true);
+            spawnGhosts();
+        }
+    }
+
+    const spawnGhosts = () => {
+        if (!interval.current) {
+            interval.current = setInterval(() => {
+                createGhost(ghostTextureRef.current);
+            }, 7000);
+            console.log("creating ghosts every 7 seconds!");
+        }
+    }
 
     const loadModel = (src, refVar, name = null, callback = null) => {
         loader.load(src, (gltf) => {
@@ -109,6 +135,7 @@ const GremioLiterario = ({ session, endSession }) => {
             new THREE.PlaneGeometry(2, 2),
             new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide, depthWrite: false })
         );
+        ghost.position.set(0, 1000, 0);
         ghostGroupRef.current.add(ghost);
 
         const clock = new THREE.Clock();
@@ -116,13 +143,14 @@ const GremioLiterario = ({ session, endSession }) => {
         ghost.userData = {
             currentSegment: 0,
             progress: 0,
+            hasCollided: false,
             clock,
             speed,
             update: function () {
                 const segment = this.currentSegment;
                 const ghost = this.mesh;
 
-                if (segment >= ghostWaypoints.length - 1 || hasCollided.current) return;
+                if (segment >= ghostWaypoints.length - 1 || this.hasCollided) return;
 
                 const delta = this.clock.getDelta() * 2;
                 const start = ghostWaypoints[segment];
@@ -152,8 +180,8 @@ const GremioLiterario = ({ session, endSession }) => {
                 const playerObj = movableGroupRef.current.children[0];
                 if (playerObj) {
                     const distance = ghost.position.distanceTo(playerObj.position);
-                    if (distance < 1 && !hasCollided.current) {
-                        hasCollided.current = true;
+                    if (distance < 1 && !this.hasCollided) {
+                        this.hasCollided = true;
                         if (heartsRef.current > 0) {
                             heartsRef.current -= 1;
                             setHearts(heartsRef.current);
@@ -307,9 +335,15 @@ const GremioLiterario = ({ session, endSession }) => {
         gameWonRef.current = false;
         setGameWon(gameWonRef.current);
 
+        // Reset score
+        lightbulbsRef.current = 0;
+        setLightbulbs(0);
+        heartsRef.current = 0;
+        setHearts(0);
+
         // Reset end game scene state
         hasPlaced.current = false;
-        hasCollided.current = false;
+        // hasCollided.current = false;
 
         if (interval.current) {
             clearInterval(interval.current);
@@ -330,7 +364,7 @@ const GremioLiterario = ({ session, endSession }) => {
         controllerSetup();
         groupSetup();
         startGame();
-
+        spawnGhosts();
         // setTimeout(() => {
             
         // }, 2000);
@@ -494,12 +528,7 @@ const GremioLiterario = ({ session, endSession }) => {
             start.position.z + 0.02); // or wherever your path starts
         movableGroupRef.current.add(imagePlane);
 
-        if (!interval.current) {
-            interval.current = setInterval(() => {
-                createGhost(ghostTextureRef.current);
-            }, 7000);
-            console.log("creating ghosts every 7 seconds!");
-        }
+        
     }
 
     const initAR = () => {
@@ -547,7 +576,7 @@ const GremioLiterario = ({ session, endSession }) => {
         ////                      Controller Setup                       ////
         /////////////////////////////////////////////////////////////////////
 
-        controllerSetup();
+        // controllerSetup();
 
         // const onSelectStart = () => {
 
@@ -734,112 +763,114 @@ const GremioLiterario = ({ session, endSession }) => {
 
         // Animation Loop
         renderer.setAnimationLoop(() => {
-            if (!gameWonRef.current) {
-                controllerRef.current.updateMatrixWorld();
+            if (gameStartedRef.current) {
+                if (!gameWonRef.current) {
+                    controllerRef.current.updateMatrixWorld();
 
-                raycaster.setFromXRController(controllerRef.current);
+                    raycaster.setFromXRController(controllerRef.current);
 
-                const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
-                if (intersected.length > 0) {
-                    isDragging.current = true;
-                } else {
-                    isDragging.current = false;
-                }
-                if (isDragging.current && selectedObject.current) {
-                    //raycaster.setFromXRController(controllerRef.current);
-                    const intersected = raycaster.intersectObjects(pathsGroupRef.current.children);
+                    const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
                     if (intersected.length > 0) {
-                        const intersection = intersected[0].point;
+                        isDragging.current = true;
+                    } else {
+                        isDragging.current = false;
+                    }
+                    if (isDragging.current && selectedObject.current) {
+                        //raycaster.setFromXRController(controllerRef.current);
+                        const intersected = raycaster.intersectObjects(pathsGroupRef.current.children);
+                        if (intersected.length > 0) {
+                            const intersection = intersected[0].point;
 
-                        // Optional: only move if the controller is roughly centered on the image
-                        const distance = intersection.distanceTo(selectedObject.current.position);
-                        const maxDistance = 1.9; // Tweak based on image size
+                            // Optional: only move if the controller is roughly centered on the image
+                            const distance = intersection.distanceTo(selectedObject.current.position);
+                            const maxDistance = 1.9; // Tweak based on image size
 
-                        if (distance < maxDistance) {
-                            selectedObject.current.position.set(
-                                intersection.x,
-                                intersection.y,
-                                intersection.z + 0.02
-                            );
+                            if (distance < maxDistance) {
+                                selectedObject.current.position.set(
+                                    intersection.x,
+                                    intersection.y,
+                                    intersection.z + 0.02
+                                );
+                            }
+                        }
+                        if (selectedObject.current.position.y >= 11.5 && lightbulbsRef.current >= 3 && heartsRef.current > 0) {
+                            // Win game
+                            console.log("🎉 Won Game 🎉");
+                            // Show win screen
+                            setGameOver(true);
+                            gameOverRef.current = true;
+                            setGameWon(true);
+                            gameWonRef.current = true;
+                            // After 1 or 2 seconds clear scene and place bubbles and books
+                            setTimeout(() => {
+                                sceneRef.current.clear();
+                                wonGame();
+                            }, 2000);
+                            // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
                         }
                     }
-                    if (selectedObject.current.position.y >= 11.5 && lightbulbsRef.current >= 3 && heartsRef.current > 0) {
-                        // Win game
-                        console.log("🎉 Won Game 🎉");
-                        // Show win screen
-                        setGameOver(true);
-                        gameOverRef.current = true;
-                        setGameWon(true);
-                        gameWonRef.current = true;
-                        // After 1 or 2 seconds clear scene and place bubbles and books
-                        setTimeout(() => {
-                            sceneRef.current.clear();
-                            wonGame();
-                        }, 2000);
-                        // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
-                    }
-                }
 
-                // Remove dots and items if intersected with movable object
-                if (selectedObject.current && spheresGroupRef.current && heartsGroupRef.current && lightbulbGroupRef.current) {
-                    if (spheresGroupRef.current.children.length > 0) {
-                        for (let i = spheresGroupRef.current.children.length - 1; i >= 0; i--) {
-                            const sphere = spheresGroupRef.current.children[i];
-                            const dist = sphere.position.distanceTo(selectedObject.current.position);
+                    // Remove dots and items if intersected with movable object
+                    if (selectedObject.current && spheresGroupRef.current && heartsGroupRef.current && lightbulbGroupRef.current) {
+                        if (spheresGroupRef.current.children.length > 0) {
+                            for (let i = spheresGroupRef.current.children.length - 1; i >= 0; i--) {
+                                const sphere = spheresGroupRef.current.children[i];
+                                const dist = sphere.position.distanceTo(selectedObject.current.position);
 
-                            if (dist < 0.7) {
-                                // Remove from scene
-                                spheresGroupRef.current.remove(sphere);
+                                if (dist < 0.7) {
+                                    // Remove from scene
+                                    spheresGroupRef.current.remove(sphere);
+                                }
+                            }
+                        }
+                        if (heartsGroupRef.current.children.length > 0) {
+                            for (let i = heartsGroupRef.current.children.length - 1; i >= 0; i--) {
+                                const heart = heartsGroupRef.current.children[i];
+                                const dist = heart.position.distanceTo(selectedObject.current.position);
+
+                                if (dist < 0.4) {
+                                    // Remove from scene
+                                    heartsGroupRef.current.remove(heart);
+                                    // Add "Shield/Extra Life"
+                                    heartsRef.current += 1;
+                                    setHearts(heartsRef.current)
+                                    objectGlowing.current = selectedObject.current;
+                                }
+                            }
+                        }
+                        if (lightbulbGroupRef.current.children.length > 0) {
+                            for (let i = lightbulbGroupRef.current.children.length - 1; i >= 0; i--) {
+                                const lightbulb = lightbulbGroupRef.current.children[i];
+                                const dist = lightbulb.position.distanceTo(selectedObject.current.position);
+
+                                if (dist < 0.4) {
+                                    // Remove from scene
+                                    lightbulbGroupRef.current.remove(lightbulb);
+                                    // Increase size of player
+                                    selectedObject.current.scale.addScalar(0.2);
+                                    // Increase number of current lightbulbs
+                                    lightbulbsRef.current += 1
+                                    setLightbulbs(lightbulbsRef.current);
+                                }
                             }
                         }
                     }
-                    if (heartsGroupRef.current.children.length > 0) {
-                        for (let i = heartsGroupRef.current.children.length - 1; i >= 0; i--) {
-                            const heart = heartsGroupRef.current.children[i];
-                            const dist = heart.position.distanceTo(selectedObject.current.position);
-
-                            if (dist < 0.4) {
-                                // Remove from scene
-                                heartsGroupRef.current.remove(heart);
-                                // Add "Shield/Extra Life"
-                                heartsRef.current += 1;
-                                setHearts(heartsRef.current)
-                                objectGlowing.current = selectedObject.current;
-                            }
-                        }
+                    if (objectGlowing.current) {
+                        animateColorPulseHSL(objectGlowing.current.material);
                     }
-                    if (lightbulbGroupRef.current.children.length > 0) {
-                        for (let i = lightbulbGroupRef.current.children.length - 1; i >= 0; i--) {
-                            const lightbulb = lightbulbGroupRef.current.children[i];
-                            const dist = lightbulb.position.distanceTo(selectedObject.current.position);
 
-                            if (dist < 0.4) {
-                                // Remove from scene
-                                lightbulbGroupRef.current.remove(lightbulb);
-                                // Increase size of player
-                                selectedObject.current.scale.addScalar(0.2);
-                                // Increase number of current lightbulbs
-                                lightbulbsRef.current += 1
-                                setLightbulbs(lightbulbsRef.current);
-                            }
+                    // ghosts.forEach(update => update());
+                    ghostGroupRef.current.children.forEach((ghost) => {
+                        if (ghost.userData.update) {
+                            ghost.userData.update();
                         }
-                    }
-                }
-                if (objectGlowing.current) {
-                    animateColorPulseHSL(objectGlowing.current.material);
+                    });
+
                 }
 
-                // ghosts.forEach(update => update());
-                ghostGroupRef.current.children.forEach((ghost) => {
-                    if (ghost.userData.update) {
-                        ghost.userData.update();
-                    }
-                });
-
-            }
-
-            if (gameOverRef.current && gameWonRef.current && hasPlaced.current) {
-                floatingObjectsRef.current.children.forEach((obj, idx) => animateFloating(obj, idx));
+                if (gameOverRef.current && gameWonRef.current && hasPlaced.current) {
+                    floatingObjectsRef.current.children.forEach((obj, idx) => animateFloating(obj, idx));
+                }
             }
 
             // Logic to end game/decrease size (remove lightbulb) if skulls intersect with player
@@ -874,49 +905,83 @@ const GremioLiterario = ({ session, endSession }) => {
         }
     }, [session, endSession])
 
+    // const handleTap = () => {
+    //     if (stepRef.current) {
+    //         if (stepRef.current == 1) {
+    //             stepRef.current = 2;
+    //             setStep(2);
+    //         } else if (stepRef.current == 2) {
+    //             stepRef.current = 3;
+    //             setStep(3);
+    //         } else if (stepRef.current == 3) {
+    //             stepRef.current = 4;
+    //             setStep(4);
+    //         } else if (stepRef.current == 4) {
+    //             stepRef.current = 5;
+    //             setStep(5);
+    //         } else if (stepRef.current == 5) {
+    //             stepRef.current = 6;
+    //             setStep(6);
+    //         }
+
+    //         if (stepRef.current > 5) {
+    //             controllerSetup();
+    //             stepRef.current = null;
+    //             gameStartedRef.current = true
+    //             setGameStarted(true);
+    //         }
+    //     }
+    // }
+
+    // window.addEventListener('touchstart', handleTap);
+
     return (
         <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}>
-            <div style={{
-                position: "absolute",
-                bottom: "10px",
-                right: "20px",
-                // background: "rgba(0, 0, 0, 0.7)",
-                color: "white",
-                padding: "10px",
-                borderRadius: "5px",
-                fontSize: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px"
-            }}>
-                <img
-                    src="/images/heart.gif"
-                    alt="Heart"
-                    style={{ width: "64px", height: "64px", objectFit: "contain" }}
-                />
-                {hearts}
-            </div>
+            {gameStarted && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10px",
+                    right: "20px",
+                    // background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                }}>
+                    <img
+                        src="/images/heart.gif"
+                        alt="Heart"
+                        style={{ width: "64px", height: "64px", objectFit: "contain" }}
+                    />
+                    {hearts}
+                </div>
+            )}
 
-            <div style={{
-                position: "absolute",
-                bottom: "10px",
-                left: "20px",
-                // background: "rgba(0, 0, 0, 0.7)",
-                color: "white",
-                padding: "10px",
-                borderRadius: "5px",
-                fontSize: "24px",
-                display: "flex",
-                alignItems: "center",
-                gap: "8px"
-            }}>
-                <img
-                    src="/images/lightbulb.png"
-                    alt="Lightbulb"
-                    style={{ width: "64px", height: "64px", objectFit: "contain" }}
-                />
-                {lightbulbs}
-            </div>
+            {gameStarted && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10px",
+                    left: "20px",
+                    // background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "24px",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: "8px"
+                }}>
+                    <img
+                        src="/images/lightbulb.png"
+                        alt="Lightbulb"
+                        style={{ width: "64px", height: "64px", objectFit: "contain" }}
+                    />
+                    {lightbulbs}
+                </div>
+            )}
 
             {gameOver && gameWon && (
                 <div style={{
@@ -966,6 +1031,97 @@ const GremioLiterario = ({ session, endSession }) => {
                     </button>
                 </div>
             )}
+
+            {step < 6 && (
+                <div className="absolute bottom-2 max-w-9/10 bg-black bg-opacity-90 text-white p-4 z-[1000] rounded-2xl m-2 shadow-2xl">
+                    <p>{
+                        step === 1 ? 'Olha em volta e encontra a estatua.' : step === 2 ? 'Arrasta a estatua pelo caminho azul até ao topo.' : step === 3 ? 'Para ganhares tens de obter ideais (lâmpadas) e emoções (corações).' : step === 4 ? 'Tem cuidado com as caveiras. Elas tiram-te emoções. Se as caveiras te acertarem quando não tens emoções, perdes o jogo.' : step === 5 ? 'Boa sorte!' : ''}</p>
+                    <div className='right-0'>
+                        <span className="mt-2 text-sm" onClick={nextStep}>Avançar {'>'}</span>
+
+                    </div>
+                </div>
+            )}
+
+            {/* {step === 1 && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    Olha em volta e encontra a estatua.
+                </div>
+            )}
+
+            {step === 2 && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    Arrasta a estatua pelo caminho azul até ao topo.
+                </div>
+            )}
+
+            {step === 3 && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    Para ganhares tens de obter ideais (lâmpadas) e emoções (corações).
+                </div>
+            )}
+
+            {step === 4 && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    Tem cuidado com as caveiras. Elas tiram-te emoções. Se as caveiras te acertarem quando não tens emoções, perdes o jogo.
+                </div>
+            )}
+
+            {step === 5 && (
+                <div style={{
+                    position: "absolute",
+                    bottom: "10%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    Boa sorte!
+                </div>
+            )} */}
             {/* Maybe have a message with instructions here */}
             {/* Message: Drag the lady justice statue across the [insert color] path */}
             {/* Say that lightbulbs increse your size */}

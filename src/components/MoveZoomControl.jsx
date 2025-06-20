@@ -4,7 +4,7 @@ import { useMap } from "react-leaflet";
 const MoveZoomControl = () => {
     const map = useMap();
     useEffect(() => {
-        map.zoomControl.setPosition("bottomright");
+        map.zoomControl.setPosition("topright");
     }, [map]);
     return null;
 }

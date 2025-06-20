@@ -60,6 +60,8 @@ const userIcon = L.icon({
 const ExperiencesScreen = () => {
     const [isMap, setIsMap] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
+    const [selectedExperience, setSelectedExperience] = useState(null);
+
 
     useEffect(() => {
         navigator.geolocation.getCurrentPosition(
@@ -109,21 +111,44 @@ const ExperiencesScreen = () => {
                                     iconSize: [25, 41],
                                     iconAnchor: [12, 41],
                                 })}
+                                eventHandlers={{
+                                    click: () => {
+                                        setSelectedExperience(loc);
+                                    },
+                                }}
                             >
-                                <Popup>
+                                {/* <Popup>
                                     <h3>{loc.experiment.title}</h3>
                                     <p>Participants: {loc.participants}</p>
-                                    <Link to={!loc.experiment.disabled ? `/experiment/${loc.experiment.id}` : '#'} /*onClick={() => {
-                if (!loc.experiment.disabled) joinExperiment(loc.experiment.id)
-              }}*/>
+                                    <Link to={!loc.experiment.disabled ? `/experiment/${loc.experiment.id}` : '#'}>
                                         <button>Go to Experiment</button>
                                     </Link>
-                                </Popup>
+                                </Popup> */}
                             </Marker>
                         ))}
                         <MoveZoomControl />
                         <MapResizer />
                     </MapContainer>
+                    {selectedExperience && (
+                        <div className="fixed bottom-0 max-w-9/10 bg-black bg-opacity-90 text-white p-4 z-[1000] rounded-2xl m-2 shadow-2xl">
+                            <div className="flex justify-between items-center mb-2">
+                                <h2 className="text-xl font-bold font-fontBtnMenus">{selectedExperience.experiment.title}</h2>
+                                <button onClick={() => setSelectedExperience(null)} className="text-sm text-red-400">Close</button>
+                            </div>
+                            <p>{selectedExperience.experiment.description}</p>
+                            <div className='flex justify-between items-center'>
+                                <Link
+                                    to={`/experiment/${selectedExperience.experiment.id}`}
+                                    className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                                >
+                                    Go to Experiment
+                                </Link>
+                                <p className="mt-2 text-sm">Participants: {selectedExperience.participants}</p>
+                                
+                            </div>
+                        </div>
+                    )}
+
                 </div>
             )}
             {isMap == false && (
@@ -131,7 +156,7 @@ const ExperiencesScreen = () => {
                     <h1 className="text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontTitle">J-U-S-T-I-Ç-A À CHIADO</h1>
                     <div className='grid grid-cols-1 gap-4 p-4'>
                         {locations.map((loc) => (
-                            <AccordionItem key={loc.id} title={loc.experiment.title} finished={true} >
+                            <AccordionItem key={loc.id} expId={loc.experiment.id} title={loc.experiment.title} finished={true} >
                                 {loc.experiment.description}
                             </AccordionItem>
                         ))}

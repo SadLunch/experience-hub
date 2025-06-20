@@ -3,7 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 // import * as THREE from "three";
 import { experiments } from "../../data/experiments";
-import { useState } from "react";
+import { useRef, useState } from "react";
 // import { io } from "socket.io-client";
 
 // Connect to Socket.io server
@@ -14,6 +14,7 @@ const ExperimentDetailTest = () => {
     const navigate = useNavigate();
     const [isAR, setIsAR] = useState(false);
     const [session, setSession] = useState(null);
+    const container = useRef(null);
 
     // Find the experiment by ID
     const experiment = experiments.find((exp) => exp.id === id);
@@ -29,6 +30,28 @@ const ExperimentDetailTest = () => {
     //     setIsAR(true);
     //     navigate(experiment.url);
     // }
+
+    const enterFullscreen = () => {
+        if (!container.current) return;
+
+        if (container.current.requestFullscreen) {
+            container.current.requestFullscreen();
+        } else if (container.current.webkitRequestFullscreen) {
+            container.current.webkitRequestFullscreen();
+        } else if (container.current.msRequestFullscreen) {
+            container.current.msRequestFullscreen();
+        }
+    };
+
+    const exitFullscreen = () => {
+    if (document.exitFullscreen) {
+        document.exitFullscreen();
+    } else if (document.webkitExitFullscreen) { // Safari
+        document.webkitExitFullscreen();
+    } else if (document.msExitFullscreen) { // IE11
+        document.msExitFullscreen();
+    }
+};
 
     const handleEndSession = () => {
         setSession(null);
@@ -59,6 +82,7 @@ const ExperimentDetailTest = () => {
 
     const startARSession = () => {
         setIsAR(true);
+        enterFullscreen();
     }
 
     const endSession = () => {
@@ -95,6 +119,7 @@ const ExperimentDetailTest = () => {
 
     const endMindARSession = () => {
         setIsAR(false);
+        exitFullscreen();
     }
 
 
@@ -103,7 +128,7 @@ const ExperimentDetailTest = () => {
     // };
 
     return (
-        <div>
+        <div ref={container}>
             {!isAR && (
                 <motion.div
                     className="min-h-screen w-screen bg-gray-900 text-white flex flex-col items-center justify-center overflow-hidden"
@@ -157,7 +182,7 @@ const ExperimentDetailTest = () => {
                 <div className="w-screen h-screen relative">
                     {/* AR component */}
                     <Component />
-                    <button onClick={!experiment.mindAR ? endARSession : endMindARSession} style={{ position: "absolute", top: 20, left: 20, padding: 10}}>
+                    <button onClick={!experiment.mindAR ? endARSession : endMindARSession} style={{ position: "absolute", top: 20, left: 20, padding: 10, zIndex: 9999}}>
                         Back
                     </button>
                 </div>
