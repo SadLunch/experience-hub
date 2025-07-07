@@ -1,6 +1,6 @@
 import { useState } from "react";
-import check from '../assets/check.png';
-import play from '../assets/play.png';
+import check_correct_color from '../assets/check_correct_color.png';
+import play_correct_color from '../assets/play_correct_color.png';
 import propTypes from 'prop-types';
 import { Link } from "react-router-dom";
 
@@ -15,11 +15,11 @@ const AccordionItem = ({ title, expId, children, finished }) => {
                 {/* icon of checkmark if experience concluded */}
                 {/* icon of play if item is open and not concluded */}
                 {finished && (
-                    <img src={check} className="h-[64px] max-w-[64px]" />
+                    <img src={check_correct_color} className="h-[64px] max-w-[64px]" />
                 )}
                 {isOpen && (
                     <Link to={`/hidden/experiement/${expId}`}>
-                        <img src={play} className="h-[64px] max-w-[64px]" />
+                        <img src={play_correct_color} className="h-[64px] max-w-[64px]" />
                     </Link>
                 )}
             </div>

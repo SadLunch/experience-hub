@@ -1,19 +1,29 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useMap } from "react-leaflet";
+import L from 'leaflet';
 import propTypes from "prop-types";
 
-const MapCenter = ({ position }) => {
+const MapCenter = ({ positions }) => {
     const map = useMap();
+    const [fitDone, setFitDone] = useState(false);
+
     useEffect(() => {
-        if (position) {
-            map.setView(position, 14); // Zoom to user location
+        if (positions && positions.length > 0 && !fitDone) {
+            const bounds = L.latLngBounds(positions);
+            map.fitBounds(bounds, {
+                padding: [50, 50],
+                maxZoom: 15,
+            });
+            setFitDone(true);
         }
-    }, [position, map]);
+    }, [positions, map, fitDone]);
+
     return null;
 };
 
+
 MapCenter.propTypes = {
-    position: propTypes.func.isRequired,
+    positions: propTypes.func.isRequired,
 }
 
 export default MapCenter;

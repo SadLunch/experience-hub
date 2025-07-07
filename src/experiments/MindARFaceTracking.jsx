@@ -1,34 +1,43 @@
 // import html2canvas from 'html2canvas';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import download from '../assets/download_icon.png';
+import photo from '../assets/photo_take.png';
 
 const MindARFaceTracking = () => {
     const containerRef = useRef(null);
     const iframeRef = useRef(null);
-
-    const enterFullscreen = () => {
-        if (!containerRef.current) return;
-
-        if (containerRef.current.requestFullscreen) {
-            containerRef.current.requestFullscreen();
-        } else if (containerRef.current.webkitRequestFullscreen) {
-            containerRef.current.webkitRequestFullscreen();
-        } else if (containerRef.current.msRequestFullscreen) {
-            containerRef.current.msRequestFullscreen();
-        }
-    };
+    const [imageURL, setImageURL] = useState(null);
 
     useEffect(() => {
-        enterFullscreen();
+        const handleImage = (event) => {
+            if (event.data?.type === 'canvasImage') {
+                setImageURL(event.data.dataURL)
+            }
+        };
+
+        window.addEventListener('message', handleImage);
+        return () => window.removeEventListener('message', handleImage);
     }, [])
+
+    const downloadImage = () => {
+        const link = document.createElement("a");
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/[:.]/g, '-');
+        link.download = `screenshot_${timestamp}.png`;
+        link.href = imageURL;
+        link.click();
+    }
 
     const triggerIframePhoto = () => {
         iframeRef.current.contentWindow.postMessage({ type: 'TAKE_PHOTO' }, '*');
     };
 
+
+
     return (
-        <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}>
+        <div ref={containerRef} className='w-screen min-h-screen'>
             <iframe
-            ref={iframeRef}
+                ref={iframeRef}
                 src='/facetracking.html'
                 title='AR Face Tracking with MindAR'
                 className='w-screen min-h-screen m-0 '
@@ -37,20 +46,37 @@ const MindARFaceTracking = () => {
                 style={{ border: 'none' }}
                 allow='camera; fullscreen; autoplay'
                 allowFullScreen />
-            <button
-                onClick={triggerIframePhoto}
-                style={{
-                    position: 'absolute',
-                    bottom: '20px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 9999,
-                    padding: '10px 20px',
-                    fontSize: '16px'
-                }}
-            >
-                📸 Take Screenshot
-            </button>
+            {!imageURL && (
+                <div className='absolute bottom-20 left-1/2 -translate-x-1/2 z-9998 py-4 inline-flex flex-col items-center'>
+                    <span className='text-xl'>Clique para fotografar</span>
+                    <img src={photo} alt='Take Photo' width={96} height={96}
+                        onClick={triggerIframePhoto}
+                        className='' />
+                </div>
+            )}
+            {imageURL && (
+                <div className="fixed inset-0 flex items-center justify-center">
+                    <div className='relative animate-scale-in'>
+                        {/* Close Button */}
+                        <span className="absolute top-2 right-2 w-10 h-10 rounded-full border-2 border-white bg-black cursor-pointer text-white flex items-center justify-center shadow-md" onClick={() => {
+                            setImageURL(null);
+                        }}>
+                            ✕
+                        </span>
+                        <div className="border-2 rounded-xl border-white bg-black overflow-hidden">
+
+                            <img src={imageURL} alt="Picture taken" className="block max-w-[99vw] max-h-[90vh]" />
+                            {/* Your content here */}
+                        </div>
+                        <span className="absolute -bottom-12 left-1/2 -translate-x-1/2 w-10 h-10 rounded-full cursor-pointer text-white flex items-center justify-center" onClick={() => {
+                            downloadImage();
+                        }}>
+                            <img src={download} alt="Download Icon" width={32} height={32} />
+                            <span className='ml-2 text-[#E6E518] font-fontBtnMenus'>Download</span>
+                        </span>
+                    </div>
+                </div>
+            )}
         </div>
     );
 }

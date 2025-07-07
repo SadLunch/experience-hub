@@ -1,0 +1,21 @@
+<html>
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-face-aframe.prod.js"></script>
+</head>
+
+<body>
+    <a-scene mindar-face embedded vr-mode-ui="enabled: false" device-orientation-permission-ui="enabled: false">
+        <a-assets>
+            <a-asset-item id="scaleModel" src="/public/models/scaleModel.glb"></a-asset-item>
+        </a-assets>
+        <a-camera active="false" look-controls="touchEnabled: false; mouseEnabled: false;" position="0 0 0"></a-camera>
+        <a-entity mindar-face-target="anchorIndex: 151">
+            <a-gltf-model position="0 0 0" src="#scaleModel"></a-obj-model>
+        </a-entity>
+    </a-scene>
+</body>
+
+</html>

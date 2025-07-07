@@ -5,7 +5,7 @@ import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
 // import ReactDOMServer from 'react-dom/server';
 import L from 'leaflet';
 import MapCenter from '../../components/MapCenter';
-import { locations } from '../../data/locations';
+import { locations } from '../../data/locations_final';
 import iconUser from '../../assets/peacock.png';
 // import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
@@ -61,10 +61,12 @@ const ExperiencesScreen = () => {
     const [isMap, setIsMap] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
     const [selectedExperience, setSelectedExperience] = useState(null);
+    const [uniqueKey] = useState(() => Date.now());
 
 
     useEffect(() => {
-        navigator.geolocation.getCurrentPosition(
+        // console.log('Mounting component:', Date.now())
+        const watch = navigator.geolocation.watchPosition(
             (position) => {
                 setUserLocation([position.coords.latitude, position.coords.longitude]);
                 setIsMap(true);
@@ -72,79 +74,98 @@ const ExperiencesScreen = () => {
             (error) => {
                 console.error("Error getting location:", error);
                 setIsMap(false);
-            }
+            }, { maximumAge: 30000, enableHighAccuracy: false }
         )
+
+        return () => {
+            // console.log('Unmounting component:', Date.now())
+            navigator.geolocation.clearWatch(watch)
+        }
     }, []);
 
     // if (isMap === null) {
     //     return <div>Placeholder</div>
     // }
 
+    if (isMap === null || !uniqueKey) return <div>Loading map...</div>;
+
     return (
         <div>
             {isMap === true && (
                 <div style={{ position: "relative" }}>
-                    <MapContainer
-                        center={userLocation} // Default to New York City
-                        zoom={13}
-                        style={{ width: "100vw", height: "100vh" }}
-                    >
-                        <TileLayer
-                            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-                        />
+                    {userLocation && (
+                        <MapContainer
+                            key={uniqueKey}
+                            center={userLocation} // Default to New York City
+                            zoom={13}
+                            style={{ width: "100vw", height: "100vh" }}
+                        >
+                            <TileLayer
+                                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                            />
 
-                        {userLocation && <MapCenter position={userLocation} />}
+                            {userLocation && (
+                                <MapCenter
+                                    positions={[
+                                        userLocation,
+                                        ...locations.map(loc => loc.coordinates)
+                                    ]}
+                                />
+                            )}
 
-                        {userLocation && (
-                            <Marker position={userLocation} icon={userIcon}>
-                                <Popup>You are here!</Popup>
-                            </Marker>
-                        )}
+                            {userLocation && (
+                                <Marker position={userLocation} icon={userIcon}>
+                                    <Popup>You are here!</Popup>
+                                </Marker>
+                            )}
 
-                        {locations.map((loc) => (
-                            <Marker
-                                key={loc.id}
-                                position={loc.coordinates}
-                                icon={L.icon({
-                                    iconUrl: generateMarkerSVG({ text: loc.participants, fill: loc.color, textColor: '#000000', fontSize: 100, fontBase64: fontMap }), // Custom marker icon (optional)
-                                    shadowUrl: iconShadow,
-                                    iconSize: [25, 41],
-                                    iconAnchor: [12, 41],
-                                })}
-                                eventHandlers={{
-                                    click: () => {
-                                        setSelectedExperience(loc);
-                                    },
-                                }}
-                            >
-                                {/* <Popup>
+                            {locations.map((loc) => (
+                                <Marker
+                                    key={loc.id}
+                                    position={loc.coordinates}
+                                    icon={L.icon({
+                                        iconUrl: generateMarkerSVG({ text: loc.participants, fill: loc.color, textColor: '#000000', fontSize: 100, fontBase64: fontMap }), // Custom marker icon (optional)
+                                        shadowUrl: iconShadow,
+                                        iconSize: [25, 41],
+                                        iconAnchor: [12, 41],
+                                    })}
+                                    eventHandlers={{
+                                        click: () => {
+                                            setSelectedExperience(loc);
+                                        },
+                                    }}
+                                >
+                                    {/* <Popup>
                                     <h3>{loc.experiment.title}</h3>
                                     <p>Participants: {loc.participants}</p>
                                     <Link to={!loc.experiment.disabled ? `/experiment/${loc.experiment.id}` : '#'}>
                                         <button>Go to Experiment</button>
                                     </Link>
                                 </Popup> */}
-                            </Marker>
-                        ))}
-                        <MoveZoomControl />
-                        <MapResizer />
-                    </MapContainer>
+                                </Marker>
+                            ))}
+                            <MoveZoomControl />
+                            <MapResizer />
+                        </MapContainer>
+                    )}
                     {selectedExperience && (
-                        <div className="fixed bottom-0 max-w-9/10 bg-black bg-opacity-90 text-white p-4 z-[1000] rounded-2xl m-2 shadow-2xl">
-                            <div className="flex justify-between items-center mb-2">
-                                <h2 className="text-xl font-bold font-fontBtnMenus">{selectedExperience.experiment.title}</h2>
-                                <button onClick={() => setSelectedExperience(null)} className="text-sm text-red-400">Close</button>
-                            </div>
-                            <p>{selectedExperience.experiment.description}</p>
-                            <div className='flex justify-between items-center'>
-                                <Link
-                                    to={`/experiment/${selectedExperience.experiment.id}`}
-                                    className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
-                                >
-                                    Go to Experiment
-                                </Link>
-                                <p className="mt-2 text-sm">Participants: {selectedExperience.participants}</p>
-                                
+                        <div className='fixed bottom-0 w-full p-2 z-[1000]'>
+                            <div className="w-full bg-black bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl">
+                                <div className="flex justify-between items-center mb-2">
+                                    <h2 className="font-bold font-fontBtnMenus">{selectedExperience.experiment.title}</h2>
+                                    <button onClick={() => setSelectedExperience(null)} className="text-sm text-red-400">Close</button>
+                                </div>
+                                <p className='text-sm font-fontSans'>{selectedExperience.experiment.description}</p>
+                                <div className='flex justify-between items-center'>
+                                    <Link
+                                        to={`/hidden/website/experience/${selectedExperience.experiment.id}`}
+                                        className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                                    >
+                                        Entrar na Experiência
+                                    </Link>
+                                    <p className="mt-2 text-sm">Participantes: {selectedExperience.participants}</p>
+
+                                </div>
                             </div>
                         </div>
                     )}

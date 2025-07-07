@@ -25,9 +25,9 @@ import VirtualExhibitionV2 from "../experiments/VirtualExhibition_v2";
 import GiantJustice from "../experiments/GiantJusticeExperiment";
 import MNACStairsExperiment from "../experiments/MNACStairsExperiment";
 import MindARFaceTracking from "../experiments/MindARFaceTracking";
-import GraffitiWallArtV2 from "../experiments/GraffitiWallArtV2";
+import Graffiti_2FM_Image1 from "../experiments/Graffiti_2FM_Image1";
 import MoveCubesControllers from "../experiments/MoveCubesControllers";
-import GraffitiWallArtV2_2 from "../experiments/GraffitiWallArtV2_2";
+import Graffiti_1FM_Image1 from "../experiments/Graffiti_1FM_Image1";
 
 export const experiments = [
   {
@@ -349,7 +349,7 @@ export const experiments = [
     id: "25-1",
     title: "Graffiti test V2",
     description: 'Graffiti Wall art experience with first image',
-    component: GraffitiWallArtV2,
+    component: Graffiti_2FM_Image1,
     sessionOptions: {
       requiredFeatures: ["dom-overlay"],
       domOverlay: { root: document.body },
@@ -364,7 +364,7 @@ export const experiments = [
     id: "25-2",
     title: "Graffiti test V2",
     description: 'Graffiti Wall art experience with second image',
-    component: GraffitiWallArtV2_2,
+    component: Graffiti_1FM_Image1,
     sessionOptions: {
       requiredFeatures: ["dom-overlay"],
       domOverlay: { root: document.body },
@@ -372,7 +372,8 @@ export const experiments = [
     isWebXR: true,
     disabled: false,
     attributions: [
-      '"Spray Paint Can" (https://skfb.ly/o8rIG) by Isuk is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).'
+      '"Spray Paint Can" (https://skfb.ly/o8rIG) by Isuk is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
+      '<a href="https://www.vecteezy.com/free-vector/graffiti-background">Graffiti Background Vectors by Vecteezy</a>'
     ]
   },
   {

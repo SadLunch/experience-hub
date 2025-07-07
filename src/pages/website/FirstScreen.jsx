@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
-import image from '../../assets/peacock.png';
+import image from '../../assets/logo.png';
+import BackButton from '../../components/BackButton';
 
 const FirstScreen = () => {
 
@@ -14,6 +15,7 @@ const FirstScreen = () => {
                 </Link>
                 <h2 className='text-lg text-[#5690CC] font-bold font-fontBtnMenus'>NO</h2>
             </div>
+            <BackButton to='/' />
         </div>
     )
 }

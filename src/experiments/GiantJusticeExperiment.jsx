@@ -1,31 +1,10 @@
 import AFRAME from 'aframe';
 import { useEffect, useRef, useState } from 'react'
 import imgOverlay from '../assets/align_giant_justice.jpg'
+// import { VERTEX_SHADER, FRAGMENT_SHADER } from '../components/shaders';
+import { ChromaKeyMaterial } from '../components/ChromaKeyShader';
 // import * as dat from 'dat.gui';
 
-const getCamera = async () => {
-    const video = document.getElementById("webcam");
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-            video: {
-                facingMode: { exact: "environment" } // <-- This tries to get the rear camera
-            }
-        });
-        video.srcObject = stream;
-    } catch (err) {
-        console.error("Error accessing webcam: ", err);
-    }
-};
-
-const enterFullscreen = (element) => {
-    if (element.requestFullscreen) {
-        element.requestFullscreen();
-    } else if (element.webkitRequestFullscreen) {
-        element.webkitRequestFullscreen();
-    } else if (element.msRequestFullscreen) {
-        element.msRequestFullscreen();
-    }
-};
 
 AFRAME.registerComponent('apply-camera-orientation', {
     init: function () {
@@ -48,30 +27,26 @@ AFRAME.registerComponent('move-forward', {
         stopDistance: { type: 'number', default: 10 } // distance to stop
         // minZ: { type: 'number', default: -2 }
     },
-    init: function () {
-        this.el.object3D.userData.targetPosition = this.el.sceneEl.camera.getWorldPosition(new AFRAME.THREE.Vector3());
-    },
+    // init: function () {
+    //     this.el.object3D.userData.targetPosition = this.el.sceneEl.camera.getWorldPosition(new AFRAME.THREE.Vector3()).addVectors(new AFRAME.THREE.Vector3(-1, 0, 0));
+    // },
     tick: function (time, timeDelta) {
         const el = this.el;
+        const position = el.object3D.getWorldPosition(new AFRAME.THREE.Vector3());
 
-        // Access the custom forward direction
-        const forwardDirection = el.object3D.userData.forwardDirection;
-        const target = el.object3D.userData.targetPosition;
+        const camera = el.sceneEl.camera;
+        const cameraPosition = new AFRAME.THREE.Vector3();
+        camera.getWorldPosition(cameraPosition);
 
-        if (!forwardDirection || !target) return;
-
-        // Compute the new position
-        const position = el.object3D.position;
-        const distance = position.distanceTo(target)
+        const directionToCamera = cameraPosition.clone().sub(position).normalize();
+        const distance = position.distanceTo(cameraPosition);
 
         if (distance <= this.data.stopDistance) return;
 
-        const movement = forwardDirection.clone().multiplyScalar(this.data.speed * (timeDelta / 1000));
-        position.add(movement);
-
-        // // Apply the updated position
-        // el.object3D.position.copy(position);
+        const movement = directionToCamera.multiplyScalar(this.data.speed * (timeDelta / 1000));
+        el.object3D.position.add(movement);
     }
+
 });
 
 
@@ -80,9 +55,25 @@ const GiantJustice = () => {
     const [isAligned, setIsAligned] = useState(false);
     const [loaded, setLoaded] = useState(false);
     const videoEntityRef = useRef(null);
+    const streamRef = useRef(null);
     // const [zValue, setZValue] = useState(-70);
     // const zValueRef = useRef(-70);
     // const intervalRef = useRef(null);
+
+    const getCamera = async () => {
+        const video = document.getElementById("webcam");
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+                video: {
+                    facingMode: { exact: "environment" } // <-- This tries to get the rear camera
+                }
+            });
+            streamRef.current = stream;
+            video.srcObject = stream;
+        } catch (err) {
+            console.error("Error accessing webcam: ", err);
+        }
+    };
 
     useEffect(() => {
         // Auto-enter fullscreen + start camera
@@ -90,9 +81,9 @@ const GiantJustice = () => {
             await getCamera();
 
             // Slight timeout to ensure DOM is mounted
-            setTimeout(() => {
-                enterFullscreen(document.documentElement);
-            }, 100);
+            // setTimeout(() => {
+            //     enterFullscreen(document.documentElement);
+            // }, 100);
         };
 
         run();
@@ -102,6 +93,17 @@ const GiantJustice = () => {
             scene.addEventListener('loaded', () => {
                 setLoaded(true);
             })
+        }
+
+        return () => {
+            if (streamRef.current) {
+                streamRef.current.getTracks().forEach(track => track.stop());
+            }
+
+            const sceneEl = document.querySelector('a-scene');
+            if (sceneEl?.renderer?.dispose) {
+                sceneEl.renderer.dispose();
+            }
         }
     }, []);
 
@@ -178,27 +180,42 @@ const GiantJustice = () => {
         const cameraDirection = new AFRAME.THREE.Vector3();
         camera.object3D.getWorldDirection(cameraDirection);
 
-        // Reverse it (so the video moves toward the camera)
-        // const cameraNeg = cameraDirection.negate();
-
-        const avideo = document.createElement('a-video');
-        avideo.setAttribute('apply-camera-orientation', '');
-        avideo.setAttribute('id', 'videoPlane');
-        avideo.setAttribute('src', '#giantJustice');
-        avideo.setAttribute('width', '9');
-        avideo.setAttribute('height', '16');
-        avideo.setAttribute('position', '0 0 -70')
-        avideo.setAttribute('move-forward', {
+        // Create entity
+        const aentityVideo = document.createElement('a-entity');
+        aentityVideo.setAttribute('id', 'videoPlane');
+        aentityVideo.setAttribute('apply-camera-orientation', '');
+        aentityVideo.setAttribute('geometry', 'primitive: plane; height: 16; width: 9');
+        aentityVideo.setAttribute('position', '0 0 -70');
+        aentityVideo.setAttribute('move-forward', {
             speed: 3,
-            stopDistance: 2
-            // minZ: -2
+            stopDistance: 5
         });
-        avideo.object3D.userData.forwardDirection = cameraDirection.clone();
-        videoEntityRef.current = avideo;
 
-        document.querySelector("#scene").appendChild(avideo);
-        // document.querySelector("#videoPlane").setAttribute('apply-camera-orientation', '');
-    }
+        aentityVideo.object3D.userData.forwardDirection = cameraDirection.clone();
+        videoEntityRef.current = aentityVideo;
+
+        document.querySelector('#scene').appendChild(aentityVideo);
+
+        // Wait until the entity's mesh is available (1 tick delay)
+        setTimeout(() => {
+            const mesh = videoEntityRef.current.getObject3D('mesh');
+            if (mesh) {
+                const chromaMaterial = new ChromaKeyMaterial(
+                    '/videos/fortaleza_cropped.mp4', // your video path
+                    '#63b757',                       // key color
+                    1920,                            // width (can be video width)
+                    1080,                            // height
+                    0.149,                           // similarity
+                    0.02,                            // smoothness
+                    0                                // spill (optional)
+                );
+
+                mesh.material = chromaMaterial;
+            } else {
+                console.warn('Mesh not ready yet');
+            }
+        }, 0);
+    };
 
     return (
         <div>

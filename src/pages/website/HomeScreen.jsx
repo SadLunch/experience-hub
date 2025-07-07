@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import BackButton from '../../components/BackButton';
 
 const HomeScreen = () => {
 
@@ -19,6 +20,7 @@ const HomeScreen = () => {
                     <h2 className='text-xl text-white text-center font-bold font-fontBtnMenus'>Sobre Nós</h2>
                 </Link>
             </div>
+            <BackButton to='/hidden/website' />
         </div>
     )
 }

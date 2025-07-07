@@ -2,6 +2,7 @@ import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import propTypes from 'prop-types';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import imgOverlay from '../assets/align_gremio_lit.jpg';
 
 const raycaster = new THREE.Raycaster();
 
@@ -95,6 +96,8 @@ const GremioLiterario = ({ session, endSession }) => {
     const [gameStarted, setGameStarted] = useState(false);
     const gameStartedRef = useRef(false);
 
+    const [alignedScene, setAlignedScene] = useState(false);
+
     const loader = new GLTFLoader();
 
     const nextStep = () => {
@@ -109,12 +112,19 @@ const GremioLiterario = ({ session, endSession }) => {
         }
     }
 
+    const alignScene = () => {
+        setAlignedScene(true);
+        groupSetup();
+        loadAssets();
+        startGame();
+    }
+
     const spawnGhosts = () => {
         if (!interval.current) {
             interval.current = setInterval(() => {
                 createGhost(ghostTextureRef.current);
-            }, 7000);
-            console.log("creating ghosts every 7 seconds!");
+            }, THREE.MathUtils.randFloat(7, 10) * 1000);
+            console.log("creating ghosts every 7 to 10 seconds!");
         }
     }
 
@@ -260,7 +270,11 @@ const GremioLiterario = ({ session, endSession }) => {
     }
 
     function animateColorPulseHSL(material, baseColor = new THREE.Color(0xff66cc), amplitude = 0.1, speed = 2) {
-        if (heartsRef.current < 1) return;
+        if (heartsRef.current < 1) {
+            material.color.setHSL(0, 0, 0.5);
+            objectGlowing.current = false;
+            return;
+        } 
 
         pulseTime.current += 0.016 * speed;
 
@@ -611,7 +625,7 @@ const GremioLiterario = ({ session, endSession }) => {
         ////                        Group Setup                          ////
         /////////////////////////////////////////////////////////////////////
 
-        groupSetup();
+        // groupSetup();
 
         // const movableGroup = new THREE.Group();
         // scene.add(movableGroup);
@@ -649,7 +663,7 @@ const GremioLiterario = ({ session, endSession }) => {
         ////                         Load Assets                         ////
         /////////////////////////////////////////////////////////////////////
 
-        loadAssets();
+        // loadAssets();
 
         // // Load bubble and book models
         // bubbleModelRef.current = new THREE.Mesh(
@@ -710,7 +724,7 @@ const GremioLiterario = ({ session, endSession }) => {
         ////                       End Load Assets                       ////
         /////////////////////////////////////////////////////////////////////
 
-        startGame();
+        // startGame();
 
         // // Start Game
         // const placedPoints = []
@@ -937,7 +951,45 @@ const GremioLiterario = ({ session, endSession }) => {
 
     return (
         <div ref={containerRef} style={{ width: '100vw', height: '100vh' }}>
-            {gameStarted && (
+            {!alignedScene && (
+                <img
+                    src={imgOverlay}
+                    alt="AR Guide Overlay"
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        // width: "auto",
+                        // height: "100%",
+                        opacity: 0.5,
+                        pointerEvents: "none",
+                        zIndex: 999,
+                    }}
+                />
+            )}
+            {!alignedScene && (
+                <button
+                    onClick={alignScene}
+                    style={{
+                        position: "absolute",
+                        bottom: "20px",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        padding: "10px 20px",
+                        fontSize: "16px",
+                        background: "blue",
+                        color: "white",
+                        border: "none",
+                        borderRadius: "5px",
+                        cursor: "pointer",
+                        zIndex: 1000, // Ensure it's above the AR scene
+                    }}
+                >
+                    Align Scene
+                </button>
+            )}
+            {gameStarted && alignedScene && (
                 <div style={{
                     position: "absolute",
                     bottom: "10px",
@@ -960,7 +1012,7 @@ const GremioLiterario = ({ session, endSession }) => {
                 </div>
             )}
 
-            {gameStarted && (
+            {gameStarted && alignedScene && (
                 <div style={{
                     position: "absolute",
                     bottom: "10px",
@@ -1032,7 +1084,7 @@ const GremioLiterario = ({ session, endSession }) => {
                 </div>
             )}
 
-            {step < 6 && (
+            {step < 6 && alignedScene && (
                 <div className="absolute bottom-2 max-w-9/10 bg-black bg-opacity-90 text-white p-4 z-[1000] rounded-2xl m-2 shadow-2xl">
                     <p>{
                         step === 1 ? 'Olha em volta e encontra a estatua.' : step === 2 ? 'Arrasta a estatua pelo caminho azul até ao topo.' : step === 3 ? 'Para ganhares tens de obter ideais (lâmpadas) e emoções (corações).' : step === 4 ? 'Tem cuidado com as caveiras. Elas tiram-te emoções. Se as caveiras te acertarem quando não tens emoções, perdes o jogo.' : step === 5 ? 'Boa sorte!' : ''}</p>

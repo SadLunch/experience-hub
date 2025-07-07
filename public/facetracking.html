@@ -16,15 +16,11 @@
         import * as THREE from 'three';
         import { OBJLoader } from 'three/addons/loaders/OBJLoader.js';
         import { MindARThree } from 'mindar-face-three';
+
         const mindarThree = new MindARThree({
             container: document.querySelector("#container"),
         });
         const { renderer, scene, camera } = mindarThree;
-        // document.querySelector("#container").removeChild(renderer.domElement);
-        // renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true, preserveDrawingBuffer: true });
-        // renderer.outputEncoding = THREE.sRGBEncoding;
-        // renderer.setPixelRatio(window.devicePixelRatio);
-        // document.querySelector("#container").appendChild(renderer.domElement);
 
         const anchor = mindarThree.addAnchor(10); // value 10 is to place the object on the forehead
         const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
@@ -32,8 +28,10 @@
 
         const loader = new OBJLoader();
         loader.load("/models/16812_Balance_Scale_v1_NEW.obj", (obj) => {
-            obj.scale.setScalar(0.05);
+            obj.scale.setScalar(0.06);
             obj.rotateX(-Math.PI / 2); // Rotate object to face the front
+            obj.position.setY(0.3);
+            obj.position.setZ(-0.2);
             anchor.group.add(obj);
         });
 
@@ -44,14 +42,86 @@
             });
         };
 
-        // const backButton = document.querySelector("#backButton");
-        // backButton.addEventListener("click", () => {
-        //     window.location.href = "/#/testing/experiment/15";
-        //     mindarThree.stop();
-        //     mindarThree.renderer.setAnimationLoop(null);
-        // });
+        const capture = () => {
+            //const { video, renderer, scene, camera } = mindarThree;
+            const video = document.querySelector('video');
+            const renderCanvas = renderer.domElement;
 
-        const take_photo = () => {
+            // output canvas
+            const canvas = document.createElement("canvas");
+            const context = canvas.getContext("2d");
+            canvas.width = renderCanvas.width;
+            canvas.height = renderCanvas.height;
+
+            // const sx =
+            //     (((video.clientWidth - renderCanvas.clientWidth) / 2) * video.videoWidth) /
+            //     video.clientWidth;
+            // const sy =
+            //     (((video.clientHeight - renderCanvas.clientHeight) / 2) *
+            //         video.videoHeight) /
+            //     video.clientHeight;
+            const sx = video.clientLeft;
+            const sy = video.clientTop;
+            const sw = video.videoWidth - sx * 2;
+            const sh = video.videoHeight - sy * 2;
+
+            context.save();
+            context.translate(canvas.width, 0);
+            context.scale(-1, 1);
+            context.drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+            context.restore();
+
+
+            renderer.preserveDrawingBuffer = true;
+            renderer.render(scene, camera); // empty if not run
+            context.drawImage(renderCanvas, sx, sy, canvas.width, canvas.height, 0, 0, canvas.width, canvas.height);
+            renderer.preserveDrawingBuffer = false;
+
+            const titleText = "Je suis Justice";
+            const subtitleText = "#theanafonseca #j-u-s-t-i-c-a";
+            const padding = 40;
+
+            // Bottom of the canvas
+            const bottomY = canvas.height - padding;
+
+            context.save();
+
+            // === Subtitle (smaller, below the title) ===
+            const subtitleFontSize = 60;
+            context.font = `bold ${subtitleFontSize}px sans-serif`;
+            context.fillStyle = "white";
+            context.textAlign = "center";
+            context.textBaseline = "bottom";
+
+            const subtitleY = bottomY;
+            // context.strokeText(subtitleText, canvas.width / 2, subtitleY);
+            context.fillText(subtitleText, canvas.width / 2, subtitleY);
+
+            // === Title (larger, above the subtitle) ===
+            const titleFontSize = 170;
+            context.font = `bold ${titleFontSize}px sans-serif`;
+
+            const titleY = subtitleY - subtitleFontSize - 20; // Add some spacing
+            // context.strokeText(titleText, canvas.width / 2, titleY);
+            context.fillText(titleText, canvas.width / 2, titleY);
+
+            context.restore();
+
+
+
+            const dataURL = canvas.toDataURL("image/png");
+
+            window.parent.postMessage({ type: 'canvasImage', dataURL }, '*');
+
+            // const link = document.createElement("a");
+            // const now = new Date();
+            // const timestamp = now.toISOString().replace(/[:.]/g, '-');
+            // link.download = `screenshot_${timestamp}.png`;
+            // link.href = data;
+            // link.click();
+        };
+
+        const take_photo_old = () => {
             const video = document.querySelector("video");
             // const circle = document.querySelector(".circle");
 
@@ -85,11 +155,11 @@
             ctx.save();
             ctx.translate(canvas.width, 0);
             ctx.scale(-1, 1);
-            ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(video, video.clientLeft, video.clientTop, video.clientWidth, video.clientHeight);
             ctx.restore();
 
             renderer.render(scene, camera);
-            ctx.drawImage(renderer.domElement, drawLeft, drawTop, drawWidth, drawHeight);
+            ctx.drawImage(renderer.domElement, canvas.clientLeft, canvas.clientTop, canvas.clientWidth, canvas.clientHeight);
 
             video.play();
 
@@ -126,18 +196,19 @@
 
         window.addEventListener('message', (event) => {
             if (event.data.type === 'TAKE_PHOTO') {
-                take_photo();
+                capture();
             }
         });
 
-    //     const photoButton = document.querySelector("#photo-button");
-    //     photoButton.addEventListener("click", take_photo);
+        //     const photoButton = document.querySelector("#photo-button");
+        //     photoButton.addEventListener("click", take_photo);
 
         start();
 
     </script>
     <style>
-        html, body {
+        html,
+        body {
             margin: 0;
             padding: 0;
             overflow: hidden;
