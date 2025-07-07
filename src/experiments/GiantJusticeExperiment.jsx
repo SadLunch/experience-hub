@@ -188,7 +188,7 @@ const GiantJustice = () => {
         aentityVideo.setAttribute('position', '0 0 -70');
         aentityVideo.setAttribute('move-forward', {
             speed: 3,
-            stopDistance: 5
+            stopDistance: 10
         });
 
         aentityVideo.object3D.userData.forwardDirection = cameraDirection.clone();
@@ -260,7 +260,7 @@ const GiantJustice = () => {
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>
-                    <video id="giantJustice" autoPlay src="/videos/fortaleza_cropped.mp4"></video>
+                    <video id="giantJustice" src="/videos/fortaleza_cropped.mp4"></video>
                 </a-assets>
                 <a-camera position="0 1.6 0" look-controls="touchEnabled: false; mouseEnabled: false;"></a-camera>
                 {/* {isAligned && (

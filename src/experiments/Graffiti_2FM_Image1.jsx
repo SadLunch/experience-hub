@@ -37,6 +37,8 @@ const Graffiti_2FM_Image1 = ({ session, endSession }) => {
 
     const progressInterval = useRef(null);
 
+    const [error, setError] = useState(null);
+
 
     // // groups ref
     // const movableGroupRef = useRef(null);
@@ -443,6 +445,11 @@ const Graffiti_2FM_Image1 = ({ session, endSession }) => {
                 <div>If you see a semi-transparent ball that means you found a &quot;sprayable&quot; area</div>
                 <div>Touch anywhere on the screen to spray.</div>
             </div> */}
+            {error && (
+                <div className='absolute top-20 p-4 rounded-lg left-1/2 -translate-x-1/2 bg-gray-500 text-white z-9999'>
+                    {`${error.name}: ${error.message}`}
+                </div>
+            )}
             {!imageURL && (
                 <div className="absolute w-screen bottom-5 left-1/2 -translate-x-1/2 px-4">
                     <div onClick={async () => {
@@ -450,7 +457,11 @@ const Graffiti_2FM_Image1 = ({ session, endSession }) => {
                             isTakingScreenshot.current = true;
                             sphereIndicator.current.visible = false;
 
-                            setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current));
+                            try {
+                                setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current));
+                            } catch (err) {
+                                setError(err);
+                            }
 
                             isTakingScreenshot.current = false;
                             sphereIndicator.current.visible = true;

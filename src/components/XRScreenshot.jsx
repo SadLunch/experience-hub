@@ -19,20 +19,30 @@ export const takeXRScreenshot = async (renderer, scene, camera) => {
     video.width = window.innerWidth;
     video.height = window.innerHeight;
 
-    try {
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
-        video.srcObject = stream;
+    const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    video.srcObject = stream;
 
-        await new Promise((resolve) => {
-            video.onloadedmetadata = () => {
-                video.play();
-                resolve();
-            };
-        });
-    } catch (e) {
-        console.error('Failed to access camera:', e);
-        return;
-    }
+    await new Promise((resolve) => {
+        video.onloadedmetadata = () => {
+            video.play();
+            resolve();
+        };
+    });
+
+    // try {
+    //     const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' }, audio: false });
+    //     video.srcObject = stream;
+
+    //     await new Promise((resolve) => {
+    //         video.onloadedmetadata = () => {
+    //             video.play();
+    //             resolve();
+    //         };
+    //     });
+    // } catch (e) {
+    //     console.error('Failed to access camera:', e);
+    //     return;
+    // }
 
     // Use the actual video dimensions
     const videoWidth = video.videoWidth;
