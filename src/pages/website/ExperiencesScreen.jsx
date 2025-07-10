@@ -15,6 +15,7 @@ import { Link } from 'react-router-dom';
 import BackButton from '../../components/BackButton';
 import { fontMap } from '../../components/MapMarkerFont';
 import AccordionItem from '../../components/AccordionItem';
+import Routing from '../../components/Routing';
 
 function generateMarkerSVG({
     text = '1',
@@ -146,6 +147,12 @@ const ExperiencesScreen = () => {
                             ))}
                             <MoveZoomControl />
                             <MapResizer />
+                            {/* {userLocation && selectedExperience && (
+                                <Routing from={userLocation} to={selectedExperience.coordinates} />
+                            )} */}
+                            {locations && (
+                                <Routing locations={locations.map(loc => loc.coordinates)} />
+                            )}
                         </MapContainer>
                     )}
                     {selectedExperience && (

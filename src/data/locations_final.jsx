@@ -124,7 +124,7 @@ export const locations = [
     },
     {
         id: 'loc6' /* Text */,
-        coordinates: [38.710766994598266, -9.14120260671832] /* list of two floats Ex.: [12.345, 67.890] */,
+        coordinates: [38.70998333587751, -9.141947737269943] /* list of two floats Ex.: [12.345, 67.890] */,
         participants: 0 /* Number */,
         color: '#ED3A95' /* Color code */,
         experiment: {

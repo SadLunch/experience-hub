@@ -5,6 +5,7 @@ import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 import { takeXRScreenshot } from '../components/XRScreenshot';
 import progress1 from '../assets/progress-bg-1.jpg';
 import download from '../assets/download_icon.png';
+import { FaChevronRight } from 'react-icons/fa';
 
 const raycaster = new THREE.Raycaster();
 
@@ -37,10 +38,26 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
     const revealedMap = useRef(new Uint8Array(512 * 512)); // initialize for 512x512 canvas
 
     const [error, setError] = useState(null);
+
+    const [step, setStep] = useState(1);
+    const stepRef = useRef(1);
+    const [gameStarted, setGameStarted] = useState(false);
+    const gameStartedRef = useRef(false);
+
     // // groups ref
     // const movableGroupRef = useRef(null);
 
     const loader = new GLTFLoader();
+
+    const nextStep = () => {
+        stepRef.current += 1;
+        setStep(stepRef.current);
+        if (stepRef.current > 5) {
+            stepRef.current = null;
+            gameStartedRef.current = true
+            setGameStarted(true);
+        }
+    }
 
     const downloadImage = () => {
         const link = document.createElement("a");
@@ -278,82 +295,84 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
 
         // Animation Loop
         renderer.setAnimationLoop(() => {
-            if (hasPickedUpCan.current) {
-                selectedObject.current.position.copy(cameraRef.current.position);
-                selectedObject.current.quaternion.copy(cameraRef.current.quaternion);
+            if (gameStartedRef.current) {
+                if (hasPickedUpCan.current) {
+                    selectedObject.current.position.copy(cameraRef.current.position);
+                    selectedObject.current.quaternion.copy(cameraRef.current.quaternion);
 
-                selectedObject.current.translateZ(-0.5);
-                selectedObject.current.translateY(-0.2);
-                // time += 0.01; // Increment time
+                    selectedObject.current.translateZ(-0.5);
+                    selectedObject.current.translateY(-0.2);
+                    // time += 0.01; // Increment time
 
-                // if (selectedObject.current) {
-                //     const x = Math.sin(time) * 1; // moves from -1 to 1
-                //     selectedObject.current.position.set(x, 0, -1); // 1m in front of user
-                // }
-            }
+                    // if (selectedObject.current) {
+                    //     const x = Math.sin(time) * 1; // moves from -1 to 1
+                    //     selectedObject.current.position.set(x, 0, -1); // 1m in front of user
+                    // }
+                }
 
-            // Check if spray can is in scene
-            if (selectedObject.current && wallPlane && sourceImage.complete) {
-                const sprayTip = new THREE.Vector3();
-                // sprayTip.add(selectedObject.current.getObjectByName("Tip").position);
-                selectedObject.current.getWorldPosition(sprayTip);
+                // Check if spray can is in scene
+                if (selectedObject.current && wallPlane && sourceImage.complete) {
+                    const sprayTip = new THREE.Vector3();
+                    // sprayTip.add(selectedObject.current.getObjectByName("Tip").position);
+                    selectedObject.current.getWorldPosition(sprayTip);
 
-                raycaster.set(sprayTip, new THREE.Vector3(0, 0, -1).applyQuaternion(cameraRef.current.quaternion));
+                    raycaster.set(sprayTip, new THREE.Vector3(0, 0, -1).applyQuaternion(cameraRef.current.quaternion));
 
-                const intersects = raycaster.intersectObject(wallPlane);
-                if (intersects.length > 0) {
-                    const uv = intersects[0].uv;
+                    const intersects = raycaster.intersectObject(wallPlane);
+                    if (intersects.length > 0) {
+                        const uv = intersects[0].uv;
 
-                    if (uv) {
-                        const x = Math.floor(uv.x * textureSize);
-                        const y = Math.floor((1 - uv.y) * textureSize); // flip Y
+                        if (uv) {
+                            const x = Math.floor(uv.x * textureSize);
+                            const y = Math.floor((1 - uv.y) * textureSize); // flip Y
 
-                        const radius = 30;
+                            const radius = 30;
 
-                        sphereIndicator.current.visible = !isTakingScreenshot.current;
-                        sphereIndicator.current.position.copy(intersects[0].point)
+                            sphereIndicator.current.visible = !isTakingScreenshot.current;
+                            sphereIndicator.current.position.copy(intersects[0].point)
 
-                        if (isSpraying.current) {
-                            // Clip drawing to a circle
-                            paintCtx.save();
-                            paintCtx.beginPath();
-                            paintCtx.arc(x, y, radius, 0, Math.PI * 2);
-                            paintCtx.clip();
+                            if (isSpraying.current) {
+                                // Clip drawing to a circle
+                                paintCtx.save();
+                                paintCtx.beginPath();
+                                paintCtx.arc(x, y, radius, 0, Math.PI * 2);
+                                paintCtx.clip();
 
-                            // Draw that part of the source image
-                            paintCtx.drawImage(sourceImage, 0, 0, textureSize, textureSize);
+                                // Draw that part of the source image
+                                paintCtx.drawImage(sourceImage, 0, 0, textureSize, textureSize);
 
-                            paintCtx.restore();
-                            paintedTexture.needsUpdate = true;
+                                paintCtx.restore();
+                                paintedTexture.needsUpdate = true;
 
-                            // Count revealed pixels within brush area
-                            const imageData = paintCtx.getImageData(x - radius, y - radius, radius * 2, radius * 2);
-                            const data = imageData.data;
+                                // Count revealed pixels within brush area
+                                const imageData = paintCtx.getImageData(x - radius, y - radius, radius * 2, radius * 2);
+                                const data = imageData.data;
 
-                            for (let j = 0; j < data.length; j += 4) {
-                                const pxIndex = (y - radius + Math.floor(j / 4 / (radius * 2))) * textureSize + (x - radius + (j / 4) % (radius * 2));
+                                for (let j = 0; j < data.length; j += 4) {
+                                    const pxIndex = (y - radius + Math.floor(j / 4 / (radius * 2))) * textureSize + (x - radius + (j / 4) % (radius * 2));
 
-                                if (pxIndex >= 0 && pxIndex < revealedMap.current.length && revealedMap.current[pxIndex] === 0) {
-                                    const alpha = data[j + 3];
-                                    if (alpha > 0) {
-                                        revealedMap.current[pxIndex] = 1;
-                                        revealedPixelCount.current++;
+                                    if (pxIndex >= 0 && pxIndex < revealedMap.current.length && revealedMap.current[pxIndex] === 0) {
+                                        const alpha = data[j + 3];
+                                        if (alpha > 0) {
+                                            revealedMap.current[pxIndex] = 1;
+                                            revealedPixelCount.current++;
+                                        }
                                     }
                                 }
-                            }
 
-                            calculateRevealPercentage();
+                                calculateRevealPercentage();
+                            }
                         }
+                    } else {
+                        sphereIndicator.current.visible = false;
                     }
                 } else {
                     sphereIndicator.current.visible = false;
                 }
-            } else {
-                sphereIndicator.current.visible = false;
-            }
 
-            if (!isSpraying.current) {
-                if (spraySound.isPlaying) spraySound.stop();
+                if (!isSpraying.current) {
+                    if (spraySound.isPlaying) spraySound.stop();
+                }
             }
 
             renderer.render(scene, camera);
@@ -423,12 +442,21 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
                 <div>If you see a semi-transparent ball that means you found a &quot;sprayable&quot; area</div>
                 <div>Touch anywhere on the screen to spray.</div>
             </div> */}
-            {error && (
+            {!gameStarted && step < 7 && (
+                <div className='fixed bottom-2 w-full p-2 z-1000'>
+                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
+                        <p className='text-lg'>{
+                            step === 1 ? 'Olha em volta e encontra a lata de tinta spray.' : step === 2 ? 'Toca e segura com um dedo para agarrares a lata de tinta spray. Quando olhares em volta, ela vai apontar na direção do teu olhar.' : step === 3 ? 'Quando vires uma bola semi-transparente, toca no ecrã com outro dedo para começares a pintar com tinta spray.' : step === 4 ? 'Enquanto pintas o graffiti, a barra de progresso em baixo vai-se preenchendo.' : step === 5 ? 'Quando tiveres pintado a maior parte do graffiti, podes clicar na barra de progresso para tirar uma foto do teu trabalho.' : step === 6 ? 'Diverte-te!' : ''}</p>
+                        <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
+                    </div>
+                </div>
+            )}
+            {gameStarted && error && (
                 <div className='absolute top-20 p-4 rounded-lg left-1/2 -translate-x-1/2 bg-gray-500 text-white z-9999'>
                     {`${error.name}: ${error.message}`}
                 </div>
             )}
-            {!imageURL && (
+            {gameStarted && !imageURL && (
                 <div className="absolute w-screen bottom-5 left-1/2 -translate-x-1/2 px-4">
                     <div onClick={async () => {
                         if (revealed >= 90) {
@@ -462,7 +490,7 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
                     </div>
                 </div>
             )}
-            {imageURL && (
+            {gameStarted && imageURL && (
                 <div className="fixed inset-0 flex items-center justify-center z-9998">
                     <div className='relative animate-scale-in'>
                         {/* Close Button */}

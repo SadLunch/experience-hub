@@ -32,7 +32,7 @@ class ChromaKeyMaterial extends THREE.ShaderMaterial {
       this.video = document.createElement('video')
       this.video.src = url
       this.video.muted = true
-      this.video.loop = true
+      //this.video.loop = true
       this.video.setAttribute('playsinline', '')
       this.video.load()
       this.video.play()

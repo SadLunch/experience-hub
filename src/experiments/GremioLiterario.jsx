@@ -3,6 +3,7 @@ import * as THREE from 'three';
 import propTypes from 'prop-types';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 import imgOverlay from '../assets/align_gremio_lit.jpg';
+import { FaChevronRight } from 'react-icons/fa'
 
 const raycaster = new THREE.Raycaster();
 
@@ -1085,12 +1086,11 @@ const GremioLiterario = ({ session, endSession }) => {
             )}
 
             {step < 6 && alignedScene && (
-                <div className="absolute bottom-2 max-w-9/10 bg-black bg-opacity-90 text-white p-4 z-[1000] rounded-2xl m-2 shadow-2xl">
-                    <p>{
-                        step === 1 ? 'Olha em volta e encontra a estatua.' : step === 2 ? 'Arrasta a estatua pelo caminho azul até ao topo.' : step === 3 ? 'Para ganhares tens de obter ideais (lâmpadas) e emoções (corações).' : step === 4 ? 'Tem cuidado com as caveiras. Elas tiram-te emoções. Se as caveiras te acertarem quando não tens emoções, perdes o jogo.' : step === 5 ? 'Boa sorte!' : ''}</p>
-                    <div className='right-0'>
-                        <span className="mt-2 text-sm" onClick={nextStep}>Avançar {'>'}</span>
-
+                <div className='fixed bottom-2 w-full p-2 z-1000'>
+                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
+                        <p className='text-lg'>{
+                            step === 1 ? 'Olha em volta e encontra a estatua.' : step === 2 ? 'Arrasta a estatua pelo caminho azul até ao topo.' : step === 3 ? 'Para ganhares tens de obter ideais (lâmpadas) e emoções (corações).' : step === 4 ? 'Tem cuidado com as caveiras. Elas tiram-te emoções. Se as caveiras te acertarem quando não tens emoções, perdes o jogo.' : step === 5 ? 'Boa sorte!' : ''}</p>
+                            <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
                     </div>
                 </div>
             )}

@@ -28,7 +28,15 @@ AFRAME.registerComponent('move-forward', {
         // minZ: { type: 'number', default: -2 }
     },
     // init: function () {
-    //     this.el.object3D.userData.targetPosition = this.el.sceneEl.camera.getWorldPosition(new AFRAME.THREE.Vector3()).addVectors(new AFRAME.THREE.Vector3(-1, 0, 0));
+    //     const video = document.querySelector('#giantJustice');
+    //     if (video) {
+    //         video.loop = false;
+    //         video.pause();
+    //         video.currentTime = 0;
+    //         video.play().catch(err => {
+    //             console.warn("Video play failed:", err);
+    //         });
+    //     }
     // },
     tick: function (time, timeDelta) {
         const el = this.el;
@@ -187,8 +195,8 @@ const GiantJustice = () => {
         aentityVideo.setAttribute('geometry', 'primitive: plane; height: 16; width: 9');
         aentityVideo.setAttribute('position', '0 0 -70');
         aentityVideo.setAttribute('move-forward', {
-            speed: 3,
-            stopDistance: 10
+            speed: 1.5,
+            stopDistance: 7
         });
 
         aentityVideo.object3D.userData.forwardDirection = cameraDirection.clone();
@@ -260,7 +268,7 @@ const GiantJustice = () => {
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>
-                    <video id="giantJustice" src="/videos/fortaleza_cropped.mp4"></video>
+                    <video id="giantJustice" muted src="/videos/fortaleza_cropped.mp4"></video>
                 </a-assets>
                 <a-camera position="0 1.6 0" look-controls="touchEnabled: false; mouseEnabled: false;"></a-camera>
                 {/* {isAligned && (

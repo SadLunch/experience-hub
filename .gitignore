@@ -24,5 +24,3 @@ dist-ssr
 *.sw?
 
 # Temporary files I don't want to send because the feature isn't finished
-
-src/components/Routing.jsx
