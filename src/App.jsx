@@ -12,6 +12,7 @@ import FirstScreen from "./pages/website/FirstScreen";
 import HomeScreen from "./pages/website/HomeScreen";
 import ExperiencesScreen from "./pages/website/ExperiencesScreen";
 import DetailScreen from "./pages/website/DetailScreen";
+import FirstScreenV2 from "./pages/website/FirstScreen_v2";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/hidden/website" element={<FirstScreen />} />
+        <Route path="/hidden/website/v2" element={<FirstScreenV2 />} />
         <Route path="/hidden/website/home" element={<HomeScreen />} />
         <Route path="/hidden/website/experiences" element={<ExperiencesScreen />} />
         <Route path="/hidden/website/experience/:id" element={<DetailScreen />} />

@@ -3,6 +3,7 @@ import { locations } from "../../data/locations_final";
 import BackButton from "../../components/BackButton";
 import { useRef, useState } from "react";
 import play from '../../assets/play_correct_color.png';
+import text from "../../data/localization";
 
 const DetailScreen = () => {
     const { id } = useParams();
@@ -82,8 +83,8 @@ const DetailScreen = () => {
         <div ref={container}>
             {!ar && (
                 <div className="min-h-screen w-screen bg-black flex flex-col items-center py-10 top-0">
-                    <h1 className="text-2xl sm:text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontBtnMenus">{experiment.experiment.title}</h1>
-                    <p className="font-fontSans text-justify px-10">{experiment.experiment.description}</p>
+                    <h1 className="text-2xl sm:text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontBtnMenus">{ text["pt"].experiences[experiment.experiment.id].title }</h1>
+                    <p className="font-fontSans text-justify px-10">{ text["pt"].experiences[experiment.experiment.id].description }</p>
 
                     {hasModes && (
                         <div className="flex items-center justify-center my-5">
@@ -99,14 +100,14 @@ const DetailScreen = () => {
                     )}
 
                     <button className="my-10 flex items-center border-2 border-[#E6E518] py-2 px-4 rounded-xl bg-black" onClick={startAR}>
-                        <span className="font-fontBtnMenus text-sm">Começar</span>
+                        <span className="font-fontBtnMenus text-sm">{ text["pt"].detailScreen.experienceStartExp }</span>
                         <img src={play} className="h-[24px] max-w-[24px]" />
                     </button>
 
                     <div className="flex-grow" /> {/* Use this to separate the bottom content from the top content */}
 
                     <div className="px-10">
-                        <h2 className="font-fontSans mt-4 font-semibold">Créditos:</h2>
+                        <h2 className="font-fontSans mt-4 font-semibold">{ text["pt"].detailScreen.attributions }:</h2>
                         <ul className="font-fontSans list-disc list-inside">
                             {experiment.experiment.attributions.map((attr, i) => (
                                 <li key={i} dangerouslySetInnerHTML={{ __html: attr }} />

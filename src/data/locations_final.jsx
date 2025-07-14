@@ -15,8 +15,6 @@ export const locations = [
         color: '#EE1D37' /* Color code */,
         experiment: {
             id: 'whac-a-mole' /* Text */,
-            title: 'Whac-a-Mole' /* Text */,
-            description: 'Placeholder description' /* Text // This will later be put in the localizations dictionary and the id will be the key of the key-value pair that contains the description text */,
             component: WhacAMoleV3New /*Placeholder*/,
             sessionOptions: {
                 requiredFeatures: ['dom-overlay'] /*Placeholder*/,
@@ -37,8 +35,6 @@ export const locations = [
         color: '#F26621' /* Color code */,
         experiment: {
             id: 'gremio-lit' /* Text */,
-            title: 'Grémio Literário' /* Text */,
-            description: 'Placeholder description' /* Text // This will later be put in the localizations dictionary and the id will be the key of the key-value pair that contains the description text */,
             component: GremioLiterario /*Placeholder*/,
             sessionOptions: {
                 requiredFeatures: ['dom-overlay'] /*Placeholder*/,
@@ -55,13 +51,11 @@ export const locations = [
     },
     {
         id: 'loc3' /* Text */,
-        coordinates: [38.70968962677283, -9.141498662795618] /* list of two floats Ex.: [12.345, 67.890] */,
+        coordinates: [38.70968531334263, -9.141464462160384] /* list of two floats Ex.: [12.345, 67.890] */,
         participants: 0 /* Number */,
         color: '#5690CC' /* Color code */,
         experiment: {
             id: 'graffiti-1' /* Text */,
-            title: 'Graffiti 1' /* Text */,
-            description: 'Placeholder description' /* Text // This will later be put in the localizations dictionary and the id will be the key of the key-value pair that contains the description text */,
             component: {
                 'easy': Graffiti_1FM_Image1,
                 'hard': Graffiti_2FM_Image1
@@ -82,13 +76,11 @@ export const locations = [
     },
     {
         id: 'loc4' /* Text */,
-        coordinates: [38.708760496769706, -9.141368623401348] /* list of two floats Ex.: [12.345, 67.890] */,
+        coordinates: [38.70872353140405, -9.141419528428177] /* list of two floats Ex.: [12.345, 67.890] */,
         participants: 0 /* Number */,
         color: '#B0D351' /* Color code */,
         experiment: {
             id: 'graffiti-2' /* Text */,
-            title: 'Graffiti 2' /* Text */,
-            description: "So I started to walk into the water. I won't lie to you boys, I was terrified. But I pressed on, and as I made my way past the breakers a strange calm came over me. I don't know if it was divine intervention or the kinship of all living things but I tell you Jerry at that moment, I was a marine biologist." /* Text // This will later be put in the localizations dictionary and the id will be the key of the key-value pair that contains the description text */,
             component: {
                 'easy': Graffiti_1FM_Image2,
                 'hard': Graffiti_2FM_Image2
@@ -114,8 +106,6 @@ export const locations = [
         color: '#7161AB' /* Color code */,
         experiment: {
             id: 'justica-monstro' /* Text */,
-            title: 'Justiça Monstro' /* Text */,
-            description: 'Placeholder description' /* Text // This will later be put in the localizations dictionary and the id will be the key of the key-value pair that contains the description text */,
             component: GiantJustice /*Placeholder*/,
             isWebXR: false /* true or false */,
             disabled: false /* true or false (don't know if needed) */,
@@ -124,13 +114,11 @@ export const locations = [
     },
     {
         id: 'loc6' /* Text */,
-        coordinates: [38.70998333587751, -9.141947737269943] /* list of two floats Ex.: [12.345, 67.890] */,
+        coordinates: [38.709802105698756, -9.139374915593871] /* list of two floats Ex.: [12.345, 67.890] */,
         participants: 0 /* Number */,
         color: '#ED3A95' /* Color code */,
         experiment: {
             id: 'selfie' /* Text */,
-            title: 'Je suis Justice' /* Text */,
-            description: 'Placeholder description' /* Text // This will later be put in the localizations dictionary and the id will be the key of the key-value pair that contains the description text */,
             component: MindARFaceTracking /*Placeholder*/,
             isWebXR: false /* true or false */,
             disabled: false /* true or false (don't know if needed) */,
@@ -146,8 +134,6 @@ export const locations = [
     //     color: '#2A2E7F' /* Color code */,
     //     experiment: {
     //         id: '' /* Text */,
-    //         title: '' /* Text */,
-    //         description: '' /* Text */,
     //         component: ''/*Placeholder*/,
     //         sessionOptions: {
     //             requiredFeatures: '' /*Placeholder*/,
@@ -165,8 +151,6 @@ export const locations = [
     //     color: '#5690CC' /* Color code */,
     //     experiment: {
     //         id: '' /* Text */,
-    //         title: '' /* Text */,
-    //         description: '' /* Text */,
     //         component: ''/*Placeholder*/,
     //         sessionOptions: {
     //             requiredFeatures: '' /*Placeholder*/,

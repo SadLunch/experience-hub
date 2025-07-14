@@ -463,7 +463,7 @@ const Graffiti_2FM_Image2 = ({ session, endSession }) => {
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
                     <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
                         <p className='text-lg'>{
-                            step === 1 ? 'Olha em volta e encontra a lata de tinta spray.' : step === 2 ? 'Toca e segura com um dedo para agarrares a lata de tinta spray. Quando olhares em volta, ela vai apontar na direção do teu olhar.' : step === 3 ? 'Quando vires uma bola semi-transparente, toca no ecrã com outro dedo para começares a pintar com tinta spray.' : step === 4 ? 'Enquanto pintas o graffiti, a barra de progresso em baixo vai-se preenchendo.' : step === 5 ? 'Quando tiveres pintado a maior parte do graffiti, podes clicar na barra de progresso para tirar uma foto do teu trabalho.' : step === 6 ? 'Diverte-te!' : ''}</p>
+                            step === 1 ? 'Olha em volta e encontra a lata de tinta spray.' : step === 2 ? 'Toca e segura com um dedo para agarrares a lata de tinta spray. Quando olhares em volta, ela vai apontar na direção do teu olhar.' : step === 3 ? 'Quando vires uma esfera semi-transparente, toca no ecrã com outro dedo para começares a pintar com tinta spray.' : step === 4 ? 'Enquanto pintas o graffiti, a barra de progresso em baixo vai-se preenchendo.' : step === 5 ? 'Quando tiveres pintado a maior parte do graffiti, podes clicar na barra de progresso para tirar uma foto do teu trabalho.' : step === 6 ? 'Diverte-te!' : ''}</p>
                         <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
                     </div>
                 </div>
@@ -481,7 +481,7 @@ const Graffiti_2FM_Image2 = ({ session, endSession }) => {
                             sphereIndicator.current.visible = false;
 
                             try {
-                                setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current));
+                                setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Ana de Castro Osório", "#sufragistas"));
                             } catch (err) {
                                 setError(err);
                             }

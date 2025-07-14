@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 
-export const takeXRScreenshot = async (renderer, scene, camera) => {
+export const takeXRScreenshot = async (renderer, scene, camera, title = null, subtitle = null) => {
     if (!renderer || !scene || !camera) return;
 
     // const renderer = rendererRef.current;
@@ -10,6 +10,12 @@ export const takeXRScreenshot = async (renderer, scene, camera) => {
     const pixelRatio = window.devicePixelRatio || 1;
     const width = window.innerWidth * pixelRatio;
     const height = window.innerHeight * pixelRatio;
+
+    const wasXREnabled = renderer.xr.enabled;
+    const currentXRSession = renderer.xr.getSession();
+    const oldRenderTarget = renderer.getRenderTarget();
+
+    renderer.xr.enabled = false;
 
     // --- STEP 1: Capture camera frame from getUserMedia ---
     const video = document.createElement('video');
@@ -97,11 +103,7 @@ export const takeXRScreenshot = async (renderer, scene, camera) => {
         colorSpace: THREE.SRGBColorSpace,
     });
 
-    const wasXREnabled = renderer.xr.enabled;
-    const currentXRSession = renderer.xr.getSession();
-    const oldRenderTarget = renderer.getRenderTarget();
-
-    renderer.xr.enabled = false;
+    
     renderer.setRenderTarget(renderTarget);
     renderer.render(scene, camera);
     // renderer.setRenderTarget(null);
@@ -147,6 +149,39 @@ export const takeXRScreenshot = async (renderer, scene, camera) => {
 
     finalCtx.drawImage(bgCanvas, 0, 0, width, height); // Camera feed
     finalCtx.drawImage(vrCanvas, 0, 0, width, height); // Virtual content
+
+    // Draw text on the photo
+    if (title || subtitle) {
+        const padding = 40;
+        const subtitleFontSize = 50;
+        const titleFontSize = 100;
+
+        // Bottom of the canvas
+        const bottomY = finalCanvas.height - padding;
+
+        finalCtx.save();
+
+        if (subtitle) {
+            // === Subtitle (smaller, below the title) ===
+            finalCtx.font = `bold ${subtitleFontSize}px sans-serif`;
+            finalCtx.fillStyle = "white";
+            finalCtx.textAlign = "center";
+            finalCtx.textBaseline = "bottom";
+
+            finalCtx.fillText(subtitle, finalCanvas.width / 2, bottomY);
+        }
+
+        if (title) {
+            // === Title (larger, above the subtitle) ===
+            finalCtx.font = `bold ${titleFontSize}px sans-serif`;
+
+            const titleY = bottomY - subtitleFontSize - 20; // Add some spacing
+            // context.strokeText(titleText, canvas.width / 2, titleY);
+            finalCtx.fillText(title, finalCanvas.width / 2, titleY);
+        }
+
+        finalCtx.restore();
+    }
 
     const dataURL = finalCanvas.toDataURL('image/png');
 

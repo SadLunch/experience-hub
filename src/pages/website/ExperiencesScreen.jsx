@@ -1,13 +1,11 @@
 import { useEffect, useState } from 'react';
 // import { Link } from 'react-router-dom';
 
-import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker } from 'react-leaflet';
 // import ReactDOMServer from 'react-dom/server';
 import L from 'leaflet';
 import MapCenter from '../../components/MapCenter';
 import { locations } from '../../data/locations_final';
-import iconUser from '../../assets/peacock.png';
-// import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
 import MoveZoomControl from '../../components/MoveZoomControl';
 import MapResizer from '../../components/MapResizer';
@@ -16,6 +14,7 @@ import BackButton from '../../components/BackButton';
 import { fontMap } from '../../components/MapMarkerFont';
 import AccordionItem from '../../components/AccordionItem';
 import Routing from '../../components/Routing';
+import text from '../../data/localization';
 
 function generateMarkerSVG({
     text = '1',
@@ -50,17 +49,36 @@ function generateMarkerSVG({
     return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 
+const createUserIcon = (heading) =>
+    L.divIcon({
+    className: "",
+    iconSize: [30, 30],
+    html: `
+      <div style="
+        width: 40x;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+      ">
+        <img src="/images/userIcon_1.png"
+             style="
+               width: 100%;
+               height: auto;
+               transform: rotate(${heading}deg);
+               transition: transform 0.2s ease;
+             "
+             alt="direction" />
+      </div>
+    `,
+  });
 
-const userIcon = L.icon({
-    iconUrl: iconUser,
-    shadowUrl: iconShadow,
-    iconSize: [41, 41],
-    iconAnchor: [12, 41]
-})
 
 const ExperiencesScreen = () => {
     const [isMap, setIsMap] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
+    const [heading, setHeading] = useState(0);
     const [selectedExperience, setSelectedExperience] = useState(null);
     const [uniqueKey] = useState(() => Date.now());
 
@@ -82,6 +100,21 @@ const ExperiencesScreen = () => {
             // console.log('Unmounting component:', Date.now())
             navigator.geolocation.clearWatch(watch)
         }
+    }, []);
+
+    useEffect(() => {
+        const handleOrientation = (e) => {
+            if (typeof e.alpha === "number") {
+                setHeading(e.alpha); // alpha: 0° (North) to 360°
+            }
+        };
+
+
+        window.addEventListener("deviceorientation", handleOrientation, true);
+
+        return () => {
+            window.removeEventListener("deviceorientation", handleOrientation);
+        };
     }, []);
 
     // if (isMap === null) {
@@ -115,9 +148,7 @@ const ExperiencesScreen = () => {
                             )}
 
                             {userLocation && (
-                                <Marker position={userLocation} icon={userIcon}>
-                                    <Popup>You are here!</Popup>
-                                </Marker>
+                                <Marker position={userLocation} icon={createUserIcon(heading)} />
                             )}
 
                             {locations.map((loc) => (
@@ -132,6 +163,7 @@ const ExperiencesScreen = () => {
                                     })}
                                     eventHandlers={{
                                         click: () => {
+                                            //console.log(text["pt"].mapScreen.experiences[selectedExperience.experiment.id].title)
                                             setSelectedExperience(loc);
                                         },
                                     }}
@@ -159,18 +191,20 @@ const ExperiencesScreen = () => {
                         <div className='fixed bottom-0 w-full p-2 z-[1000]'>
                             <div className="w-full bg-black bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl">
                                 <div className="flex justify-between items-center mb-2">
-                                    <h2 className="font-bold font-fontBtnMenus">{selectedExperience.experiment.title}</h2>
-                                    <button onClick={() => setSelectedExperience(null)} className="text-sm text-red-400">Close</button>
+                                    <h2 className="font-bold font-fontBtnMenus">{ text["pt"].experiences[selectedExperience.experiment.id].title }</h2>
+                                    <button onClick={() => setSelectedExperience(null)} className="text-sm text-red-400">{ text["pt"].mapScreen.btnClose }</button>
                                 </div>
-                                <p className='text-sm font-fontSans'>{selectedExperience.experiment.description}</p>
+                                <p className='text-sm font-fontSans'>{
+                                text["pt"].experiences[selectedExperience.experiment.id].description.length > 150 ? text["pt"].experiences[selectedExperience.experiment.id].description.slice(0, 150) + "..." : text["pt"].experiences[selectedExperience.experiment.id].description
+                                }</p>
                                 <div className='flex justify-between items-center'>
                                     <Link
                                         to={`/hidden/website/experience/${selectedExperience.experiment.id}`}
                                         className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
                                     >
-                                        Entrar na Experiência
+                                        { text["pt"].mapScreen.btnExperienceDetail }
                                     </Link>
-                                    <p className="mt-2 text-sm">Participantes: {selectedExperience.participants}</p>
+                                    <p className="mt-2 text-sm">{ text["pt"].mapScreen.participants }: {selectedExperience.participants}</p>
 
                                 </div>
                             </div>
@@ -191,7 +225,7 @@ const ExperiencesScreen = () => {
                     </div>
                 </div>
             )}
-            <BackButton to='/hidden/website/home' />
+            <BackButton to={localStorage.getItem('backLink')} />
         </div>
     );
 

@@ -15,7 +15,18 @@ const Home = () => {
                 transition={{ duration: 0.5, delay: 0}}
                 >
                     <Link to="/hidden/website" className='block bg-gray-800 p-5 rounded-lg shadow-lg hover:bg-gray-700 transition'>
-                        <h2 className='text-xl font-semibold'>Prototype Final Website</h2>
+                        <h2 className='text-xl font-semibold'>Prototype Final Website 1</h2>
+                    </Link>
+                </motion.div>
+                <motion.div
+                key="website"
+                whileHover={{ scale: 1.05 }}
+                initial={{ opacity: 0, y: 50 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0}}
+                >
+                    <Link to="/hidden/website/v2" className='block bg-gray-800 p-5 rounded-lg shadow-lg hover:bg-gray-700 transition'>
+                        <h2 className='text-xl font-semibold'>Prototype Final Website 2</h2>
                     </Link>
                 </motion.div>
                 <motion.div
