@@ -3,6 +3,7 @@ import { useEffect, useRef, useState } from 'react'
 import imgOverlay from '../assets/align_giant_justice.jpg'
 // import { VERTEX_SHADER, FRAGMENT_SHADER } from '../components/shaders';
 import { ChromaKeyMaterial } from '../components/ChromaKeyShader';
+import text from '../data/localization';
 // import * as dat from 'dat.gui';
 
 
@@ -67,6 +68,8 @@ const GiantJustice = () => {
     // const [zValue, setZValue] = useState(-70);
     // const zValueRef = useRef(-70);
     // const intervalRef = useRef(null);
+
+    const [lang] = useState(localStorage.getItem("lang") || 'pt');
 
     const getCamera = async () => {
         const video = document.getElementById("webcam");
@@ -248,22 +251,9 @@ const GiantJustice = () => {
             {!isAligned && loaded && (
                 <button
                     onClick={alignScene}
-                    style={{
-                        position: "absolute",
-                        bottom: "20px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        padding: "10px 20px",
-                        fontSize: "16px",
-                        background: "blue",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        zIndex: 1000, // Ensure it's above the AR scene
-                    }}
+                    className='absolute bottom-5 left-1/2 -translate-x-1/2 p-2 bg-[#E6E518] border-2 border-black rounded-lg cursor-pointer z-[1000] font-fontBtnMenus text-black tracking-thighter hover:border-[#E6E518] active:border-[#E6E518]'
                 >
-                    Align Scene
+                    { text[lang].experiences["justica-monstro"].alignScene }
                 </button>
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">

@@ -7,7 +7,7 @@ import L from 'leaflet';
 import MapCenter from '../../components/MapCenter';
 import { locations } from '../../data/locations_final';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import MoveZoomControl from '../../components/MoveZoomControl';
+import RemoveZoomControl from '../../components/RemoveZoomControl';
 import MapResizer from '../../components/MapResizer';
 import { Link } from 'react-router-dom';
 import BackButton from '../../components/BackButton';
@@ -15,6 +15,7 @@ import { fontMap } from '../../components/MapMarkerFont';
 import AccordionItem from '../../components/AccordionItem';
 import Routing from '../../components/Routing';
 import text from '../../data/localization';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 function generateMarkerSVG({
     text = '1',
@@ -81,6 +82,12 @@ const ExperiencesScreen = () => {
     const [heading, setHeading] = useState(0);
     const [selectedExperience, setSelectedExperience] = useState(null);
     const [uniqueKey] = useState(() => Date.now());
+
+    const [lang, setLang] = useState(localStorage.getItem("lang") || 'pt');
+
+    useEffect(() => {
+        console.log("Language changed to:", lang);
+    }, [lang]);
 
 
     useEffect(() => {
@@ -163,7 +170,7 @@ const ExperiencesScreen = () => {
                                     })}
                                     eventHandlers={{
                                         click: () => {
-                                            //console.log(text["pt"].mapScreen.experiences[selectedExperience.experiment.id].title)
+                                            //console.log(text[lang].mapScreen.experiences[selectedExperience.experiment.id].title)
                                             setSelectedExperience(loc);
                                         },
                                     }}
@@ -177,7 +184,7 @@ const ExperiencesScreen = () => {
                                 </Popup> */}
                                 </Marker>
                             ))}
-                            <MoveZoomControl />
+                            <RemoveZoomControl />
                             <MapResizer />
                             {/* {userLocation && selectedExperience && (
                                 <Routing from={userLocation} to={selectedExperience.coordinates} />
@@ -190,21 +197,22 @@ const ExperiencesScreen = () => {
                     {selectedExperience && (
                         <div className='fixed bottom-0 w-full p-2 z-[1000]'>
                             <div className="w-full bg-black bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl">
-                                <div className="flex justify-between items-center mb-2">
-                                    <h2 className="font-bold font-fontBtnMenus">{ text["pt"].experiences[selectedExperience.experiment.id].title }</h2>
-                                    <button onClick={() => setSelectedExperience(null)} className="text-sm text-red-400">{ text["pt"].mapScreen.btnClose }</button>
+                                <div className="flex justify-between items-center">
+                                    <h2 className="text-sm font-bold font-fontBtnMenus">{ selectedExperience.location }</h2>
+                                    <button onClick={() => setSelectedExperience(null)} className=" bg-red-950 text-sm p-2 text-red-400 w-8 h-8 items-center flex justify-center rounded-full">✕</button>
                                 </div>
+                                <p className='text-sm font-fontSans mb-3'>{ 'Experiência: ' + text[lang].experiences[selectedExperience.experiment.id].title }</p>
                                 <p className='text-sm font-fontSans'>{
-                                text["pt"].experiences[selectedExperience.experiment.id].description.length > 150 ? text["pt"].experiences[selectedExperience.experiment.id].description.slice(0, 150) + "..." : text["pt"].experiences[selectedExperience.experiment.id].description
+                                text[lang].experiences[selectedExperience.experiment.id].description.length > 150 ? text[lang].experiences[selectedExperience.experiment.id].description.slice(0, 150) + "..." : text[lang].experiences[selectedExperience.experiment.id].description
                                 }</p>
                                 <div className='flex justify-between items-center'>
                                     <Link
                                         to={`/hidden/website/experience/${selectedExperience.experiment.id}`}
                                         className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
                                     >
-                                        { text["pt"].mapScreen.btnExperienceDetail }
+                                        { text[lang].mapScreen.btnExperienceDetail }
                                     </Link>
-                                    <p className="mt-2 text-sm">{ text["pt"].mapScreen.participants }: {selectedExperience.participants}</p>
+                                    <p className="mt-2 text-sm">{ text[lang].mapScreen.participants }: {selectedExperience.participants}</p>
 
                                 </div>
                             </div>
@@ -215,16 +223,17 @@ const ExperiencesScreen = () => {
             )}
             {isMap == false && (
                 <div className='min-h-screen w-screen bg-black flex flex-col items-center py-10 top-0'>
-                    <h1 className="text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontTitle">J-U-S-T-I-Ç-A À CHIADO</h1>
+                    <h1 className="text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontTitle">{ text[lang].global.title }</h1>
                     <div className='grid grid-cols-1 gap-4 p-4'>
                         {locations.map((loc) => (
-                            <AccordionItem key={loc.id} expId={loc.experiment.id} title={loc.experiment.title} finished={true} >
-                                {loc.experiment.description}
+                            <AccordionItem key={loc.id} expId={loc.experiment.id} title={ text[lang].experiences[loc.experiment.id].title } finished={false} >
+                                { text[lang].experiences[loc.experiment.id].description.length > 150 ? text[lang].experiences[loc.experiment.id].description.slice(0, 150) + "..." : text[lang].experiences[loc.experiment.id].description }
                             </AccordionItem>
                         ))}
                     </div>
                 </div>
             )}
+            <LanguageSwitcher onLanguageChange={setLang} />
             <BackButton to={localStorage.getItem('backLink')} />
         </div>
     );

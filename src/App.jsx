@@ -13,6 +13,7 @@ import HomeScreen from "./pages/website/HomeScreen";
 import ExperiencesScreen from "./pages/website/ExperiencesScreen";
 import DetailScreen from "./pages/website/DetailScreen";
 import FirstScreenV2 from "./pages/website/FirstScreen_v2";
+import GraffitiPosScreen from "./pages/website/GraffitiPosScreen";
 
 function App() {
   return (
@@ -24,6 +25,7 @@ function App() {
         <Route path="/hidden/website/home" element={<HomeScreen />} />
         <Route path="/hidden/website/experiences" element={<ExperiencesScreen />} />
         <Route path="/hidden/website/experience/:id" element={<DetailScreen />} />
+        <Route path="/hidden/website/experience/:id/about" element={<GraffitiPosScreen />} />
         <Route path="/website" element={<FirstScreenV1 />} />
         <Route path="/website/main" element={<MainScreen />} />
         <Route path="/testing" element={<Hub />} />

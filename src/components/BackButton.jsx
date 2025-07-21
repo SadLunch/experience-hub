@@ -1,29 +1,27 @@
 import { useNavigate } from "react-router-dom";
 import propTypes from "prop-types";
+import text from "../data/localization";
 
-function BackButton({ to = "/testing" }) {
+function BackButton({ lang = "pt", to = null, callback = null }) {
   const navigate = useNavigate();
 
   return (
-    <button 
-      onClick={() => navigate(to)} 
-      style={{
-        position: "absolute",
-        top: "10px",
-        left: "10px",
-        zIndex: 1000,
-        border: "none",
-        cursor: "pointer",
+    <button
+      onClick={() => {
+        if (callback) callback();
+        if (to) navigate(to);
       }}
-      className="block bg-gray-800 p-3 mb-10 rounded-lg shadow-lg hover:bg-gray-700"
+      className="absolute block bg-[#E6E518] border-2 border-black p-2 mb-10 top-6 left-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black text-xs tracking-thighter hover:border-[#E6E518] active:border-[#E6E518]"
     >
-      ← Back
+      {text[lang].global.back}
     </button>
   );
 }
 
 BackButton.propTypes = {
-    to: propTypes.func.isRequired,
+  lang: propTypes.string.isRequired,
+  to: propTypes.string,
+  callback: propTypes.func,
 }
 
 export default BackButton;

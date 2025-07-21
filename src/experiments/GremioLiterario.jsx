@@ -4,6 +4,8 @@ import propTypes from 'prop-types';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 import imgOverlay from '../assets/align_gremio_lit.jpg';
 import { FaChevronRight } from 'react-icons/fa'
+import text from '../data/localization';
+// import { Tween, Easing } from '@tweenjs/tween.js';
 
 const raycaster = new THREE.Raycaster();
 
@@ -49,7 +51,7 @@ const GremioLiterario = ({ session, endSession }) => {
     const containerRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
-    // const cameraRef = useRef(null);
+    const cameraRef = useRef(null);
 
     const controllerRef = useRef(null);
 
@@ -61,6 +63,7 @@ const GremioLiterario = ({ session, endSession }) => {
     const ghostGroupRef = useRef(null);
     const floatingObjectsRef = useRef(null);
     const pathsGroupRef = useRef(null);
+    const cardsRef = useRef(null);
 
     // // movable objects refs
     const heartTextureRef = useRef(null);
@@ -69,6 +72,7 @@ const GremioLiterario = ({ session, endSession }) => {
     const ghostTextureRef = useRef(null);
     const bubbleModelRef = useRef(null);
     const bookModelRef = useRef(null);
+    const facesTextures = useRef([]);
 
     const isDragging = useRef(false);
     const selectedObject = useRef(null);
@@ -82,24 +86,27 @@ const GremioLiterario = ({ session, endSession }) => {
     const [lightbulbs, setLightbulbs] = useState(0)
     const lightbulbsRef = useRef(0);
 
-    const [gameOver, setGameOver] = useState(false);
     const gameOverRef = useRef(false);
 
-    const [gameWon, setGameWon] = useState(false);
     const gameWonRef = useRef(false);
+
+    const [showGameWonMessage, setShowGameWonMessage] = useState(false);
+    const [showGameLostMessage, setShowGameLostMessage] = useState(false);
 
     const hasPlaced = useRef(false);
 
     const interval = useRef(null);
 
-    const [step, setStep] = useState(1);
-    const stepRef = useRef(1);
+    const [step, setStep] = useState(0);
+    const stepRef = useRef(0);
     const [gameStarted, setGameStarted] = useState(false);
     const gameStartedRef = useRef(false);
 
     const [alignedScene, setAlignedScene] = useState(false);
 
     const loader = new GLTFLoader();
+
+    const [lang] = useState(localStorage.getItem("lang") || 'pt');
 
     const nextStep = () => {
         stepRef.current += 1;
@@ -198,8 +205,7 @@ const GremioLiterario = ({ session, endSession }) => {
                             setHearts(heartsRef.current);
                             ghostGroupRef.current.remove(ghost);
                         } else {
-                            setGameOver(true);
-                            setGameWon(false);
+                            setShowGameLostMessage(true);
                             ghostGroupRef.current.clear();
                             clearInterval(interval.current);
                             interval.current = null;
@@ -288,7 +294,137 @@ const GremioLiterario = ({ session, endSession }) => {
         material.color.setHSL(hsl.h, hsl.s, hsl.l);
     }
 
-    const wonGame = (nBubbles = 20, nBooks = 10) => {
+    // @description: wrapText wraps HTML canvas text onto a canvas of fixed width
+    // @param ctx - the context for the canvas we want to wrap text on
+    // @param text - the text we want to wrap.
+    // @param x - the X starting point of the text on the canvas.
+    // @param y - the Y starting point of the text on the canvas.
+    // @param maxWidth - the width at which we want line breaks to begin - i.e. the maximum width of the canvas.
+    // @param lineHeight - the height of each line, so we can space them below each other.
+    // @returns an array of [ lineText, x, y ] for all lines
+    const wrapText = function (ctx, text, x, y, maxWidth, lineHeight) {
+        // First, start by splitting all of our text into words, but splitting it into an array split by spaces
+        let words = text.split(' ');
+        let line = ''; // This will store the text of the current line
+        let testLine = ''; // This will store the text when we add a word, to test if it's too long
+        let lineArray = []; // This is an array of lines, which the function will return
+
+        // Lets iterate over each word
+        for (var n = 0; n < words.length; n++) {
+            // Create a test line, and measure it..
+            testLine += `${words[n]} `;
+            let metrics = ctx.measureText(testLine);
+            let testWidth = metrics.width;
+            // If the width of this test line is more than the max width
+            if (testWidth > maxWidth && n > 0) {
+                // Then the line is finished, push the current line into "lineArray"
+                lineArray.push([line, x, y]);
+                // Increase the line height, so a new line is started
+                y += lineHeight;
+                // Update line and test line to use this word as the first word on the next line
+                line = `${words[n]} `;
+                testLine = `${words[n]} `;
+            }
+            else {
+                // If the test line is still less than the max width, then add the word to the current line
+                line += `${words[n]} `;
+            }
+            // If we never reach the full max width, then there is only one line.. so push it into the lineArray so we return something
+            if (n === words.length - 1) {
+                lineArray.push([line, x, y]);
+            }
+        }
+        // Return the line array
+        return lineArray;
+    }
+
+    function createFrontTexture(imageUrl = null, name) {
+        const canvas = document.createElement('canvas');
+        const texture = new THREE.CanvasTexture(canvas);
+
+        // Load and draw image
+        const imgLoader = new THREE.ImageLoader();
+
+        imgLoader.load(imageUrl, image => {
+            const ctx = canvas.getContext('2d');
+
+            canvas.width = image.width;
+            canvas.height = image.height;
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Background
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+            // Draw name (bottom)
+            ctx.fillStyle = '#000000';
+            ctx.font = 'bold 32px sans-serif';
+            ctx.textAlign = 'center';
+
+            const wrappedText = wrapText(ctx, name, canvas.width / 2, canvas.height - 100, canvas.width - 40, 50);
+            wrappedText.forEach((item) => {
+                ctx.fillText(item[0], item[1], item[2]);
+            })
+            
+        });
+
+        return texture;
+    }
+
+    function spawnFaces(n, spacing = 2) {
+
+        const cards = new THREE.Group();
+        sceneRef.current.add(cards);
+        cardsRef.current = cards;
+
+        const totalWidth = (n - 1) * spacing;
+        const startX = -totalWidth / 2;
+
+        const max = Math.floor(n * (11 / 8)); // max number of points / max number of faces I have
+
+        for (let i = 0; i < max; i++) {
+            
+
+            const frontMaterial = new THREE.MeshBasicMaterial({ map: facesTextures.current[i][0] }); // 0 is front texture
+            frontMaterial.map.needsUpdate = false;
+            const backMaterial = new THREE.MeshBasicMaterial({ map: facesTextures.current[i][1]}); // 1 is back texture
+            backMaterial.map.needsUpdate = false;
+            // TODO material for the back side of the card
+
+            const sideMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+            const geometry = new THREE.BoxGeometry(1.5, 2, 0.01);
+
+            const materials = [
+                sideMaterial,
+                sideMaterial,
+                sideMaterial,
+                sideMaterial,
+                frontMaterial,
+                backMaterial
+            ];
+
+            const card = new THREE.Mesh(geometry, materials);
+
+            card.userData = {
+                mesh: card,
+                flip: function () {
+                    const card = this.mesh;
+
+                    card.rotateY(Math.PI);
+                }
+            };
+
+            card.position.set(startX + i * spacing, 0, -5);
+            card.lookAt(cameraRef.current.position); // face the camera
+            cardsRef.current.add(card);
+        }
+    }
+
+    const wonGame = (nBubbles = 20) => {
         if (hasPlaced.current) return;
 
         hasPlaced.current = true;
@@ -300,10 +436,6 @@ const GremioLiterario = ({ session, endSession }) => {
         const floatingObjects = new THREE.Group();
         sceneRef.current.add(floatingObjects);
         floatingObjectsRef.current = floatingObjects;
-
-        // const minX = -10, maxX = 10;
-        // const minY = 1.5, maxY = 4;
-        // const minZ = -9, maxZ = 2;
 
         const minScale = 0.5, maxScale = 1.5;
 
@@ -319,23 +451,8 @@ const GremioLiterario = ({ session, endSession }) => {
             floatingObjectsRef.current.add(bubbleClone)
         }
 
-        for (let book = 0; book < nBooks; book++) {
-            const bookClone = bookModelRef.current.clone();
-            bookClone.position.set(
-                Math.random() * 20 - 10,
-                Math.random() * 2 + 2,
-                THREE.MathUtils.randFloat(-10, 1)
-            );
-
-            bookClone.rotation.set(
-                Math.random() * 2 * Math.PI,
-                Math.random() * 2 * Math.PI,
-                Math.random() * 2 * Math.PI
-            )
-
-            bookClone.scale.multiplyScalar(THREE.MathUtils.randFloat(minScale, 1));
-            floatingObjectsRef.current.add(bookClone);
-        }
+        const score = heartsRef.current + lightbulbsRef.current;
+        spawnFaces(score);
     }
 
     const animateFloating = (object, timeOffset = 0) => {
@@ -346,9 +463,8 @@ const GremioLiterario = ({ session, endSession }) => {
     const tryAgain = () => {
         // Reset game references and states
         gameOverRef.current = false;
-        setGameOver(gameOverRef.current);
         gameWonRef.current = false;
-        setGameWon(gameWonRef.current);
+        setShowGameLostMessage(false);
 
         // Reset score
         lightbulbsRef.current = 0;
@@ -393,16 +509,25 @@ const GremioLiterario = ({ session, endSession }) => {
 
             raycaster.setFromXRController(controllerRef.current);
 
-            const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
-            if (intersected.length > 0) {
-                isDragging.current = true;
-                selectedObject.current = intersected[0].object;
+            if (gameWonRef.current) {
+                const intersected = raycaster.intersectObjects(cardsRef.current.children)
+                if (intersected.length > 0) {
+                    intersected[0].object.userData.flip();
+                }
+            } else {
+                const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
+                if (intersected.length > 0) {
+                    isDragging.current = true;
+                    selectedObject.current = intersected[0].object;
+                }
             }
         }
 
         const onSelectEnd = () => {
-            isDragging.current = false;
-            selectedObject.current = null;
+            if (!gameWonRef.current) {
+                isDragging.current = false;
+                selectedObject.current = null;
+            }
         }
 
         // Add controllers to be able to move the fishes
@@ -499,6 +624,18 @@ const GremioLiterario = ({ session, endSession }) => {
         ghostTexture.format = THREE.RGBAFormat;
         ghostTextureRef.current = ghostTexture;
 
+        text[lang].gremioLitFaces.forEach(obj => {
+            const cardFrontTexture = createFrontTexture(obj.img, obj.name); // Front of the card (face and name of author)
+            const cardBackTexture = createFrontTexture('/images/logo.png', "Back");
+            // TODO Back of the card (description and works of the author)
+
+            // Add it to a list with all the cards' textures
+            facesTextures.current.push([cardFrontTexture, cardBackTexture]);
+        })
+
+        // text[lang].gremioLitFaces[i].name
+        
+
     }
 
     const startGame = () => {
@@ -558,6 +695,7 @@ const GremioLiterario = ({ session, endSession }) => {
         const scene = new THREE.Scene();
         sceneRef.current = scene;
         const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 100);
+        cameraRef.current = camera;
         //camera.position.set(0, 3.6, 3); // typical VR height
 
         const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
@@ -812,15 +950,15 @@ const GremioLiterario = ({ session, endSession }) => {
                             // Win game
                             console.log("🎉 Won Game 🎉");
                             // Show win screen
-                            setGameOver(true);
                             gameOverRef.current = true;
-                            setGameWon(true);
                             gameWonRef.current = true;
+                            setShowGameWonMessage(true);
                             // After 1 or 2 seconds clear scene and place bubbles and books
                             setTimeout(() => {
                                 sceneRef.current.clear();
                                 wonGame();
-                            }, 2000);
+                                setShowGameWonMessage(false);
+                            }, 4000);
                             // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
                         }
                     }
@@ -885,6 +1023,22 @@ const GremioLiterario = ({ session, endSession }) => {
 
                 if (gameOverRef.current && gameWonRef.current && hasPlaced.current) {
                     floatingObjectsRef.current.children.forEach((obj, idx) => animateFloating(obj, idx));
+                    
+                    // if (hasTouched.current && selectedObject.current) {
+                    //     const card = selectedObject.current
+
+                    //     const targetRotation = card.userData.flipped ? 0 : Math.PI;
+
+                    //     // new Tween(card.rotation)
+                    //     //     .to({ y: targetRotation }, 500)
+                    //     //     .easing(Easing.Quadratic.Out)
+                    //     //     .start();
+
+                    //     card.rotateY(targetRotation);
+
+                    //     card.userData.flipped = !card.userData.flipped;
+                    //     console.log(card.userData.flipped);
+                    // }
                 }
             }
 
@@ -972,22 +1126,9 @@ const GremioLiterario = ({ session, endSession }) => {
             {!alignedScene && (
                 <button
                     onClick={alignScene}
-                    style={{
-                        position: "absolute",
-                        bottom: "20px",
-                        left: "50%",
-                        transform: "translateX(-50%)",
-                        padding: "10px 20px",
-                        fontSize: "16px",
-                        background: "blue",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "5px",
-                        cursor: "pointer",
-                        zIndex: 1000, // Ensure it's above the AR scene
-                    }}
+                    className='absolute bottom-5 left-1/2 -translate-x-1/2 p-2 bg-[#E6E518] border-2 border-black rounded-lg cursor-pointer z-[1000] font-fontBtnMenus text-black tracking-thighter hover:border-[#E6E518] active:border-[#E6E518]'
                 >
-                    Align Scene
+                    { text[lang].experiences["gremio-lit"].alignScene }
                 </button>
             )}
             {gameStarted && alignedScene && (
@@ -1036,7 +1177,7 @@ const GremioLiterario = ({ session, endSession }) => {
                 </div>
             )}
 
-            {gameOver && gameWon && (
+            {showGameWonMessage && (
                 <div style={{
                     position: "absolute",
                     top: "50%",
@@ -1048,10 +1189,10 @@ const GremioLiterario = ({ session, endSession }) => {
                     borderRadius: "5px",
                     fontSize: "18px"
                 }}>
-                    🎉 You Won! 🎉
+                    { text[lang].experiences["gremio-lit"].winMessage }
                 </div>
             )}
-            {gameOver && !gameWon && (
+            {showGameLostMessage && (
                 <div style={{
                     width: "100%",
                     height: "100%",
@@ -1067,7 +1208,7 @@ const GremioLiterario = ({ session, endSession }) => {
                         padding: "10px",
                         fontSize: "24px"
                     }}>
-                        Game Over!
+                        { text[lang].experiences["gremio-lit"].gameOver }
                     </div>
                     <button onClick={tryAgain} style={{
                         position: "absolute",
@@ -1080,17 +1221,28 @@ const GremioLiterario = ({ session, endSession }) => {
                         fontSize: "18px"
                     }}
                     >
-                        Try Again
+                        { text[lang].experiences["gremio-lit"].tryAgain }
                     </button>
                 </div>
             )}
 
             {step < 6 && alignedScene && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
-                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
-                        <p className='text-lg'>{
-                            step === 1 ? 'Olha em volta e encontra a estatua.' : step === 2 ? 'Arrasta a estatua pelo caminho azul até ao topo.' : step === 3 ? 'Para ganhares tens de obter ideais (lâmpadas) e emoções (corações).' : step === 4 ? 'Tem cuidado com as caveiras. Elas tiram-te emoções. Se as caveiras te acertarem quando não tens emoções, perdes o jogo.' : step === 5 ? 'Boa sorte!' : ''}</p>
-                            <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
+                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl">
+                        <div className='grid grid-flow-row grid-rows-3 gap-2 '>
+                            <p className='col-span-1 row-span-1 row-start-1 col-start-1 place-self-center text-lg'>{step < 5 ? "Instruções do jogo:" : "" }</p>
+                            {step < 5 && (
+                                <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
+                                { text[lang].experiences["gremio-lit"].instructions[step] }
+                                </p>
+                            )}
+                            {step === 5 && (
+                                <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
+                                    { text[lang].experiences["gremio-lit"].instructions[step][0] } <br /> { text[lang].experiences["gremio-lit"].instructions[step][1] }
+                                </p>
+                            )}
+                            <span className="col-span-1 row-span-2 row-start-2 col-start-3 place-self-center px-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
+                        </div>
                     </div>
                 </div>
             )}

@@ -1,16 +1,23 @@
 // import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import image from '../../assets/logo.png';
 import { motion, AnimatePresence } from 'framer-motion';
 // import BackButton from '../../components/BackButton';
 import text from '../../data/localization';
 import { Link, useNavigate } from 'react-router-dom';
 import BackButton from '../../components/BackButton';
+import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 const FirstScreen = () => {
     const [logoClicked, setLogoClicked] = useState(false);
     const [firstPart, setFirstPart] = useState(true);
     const navigate = useNavigate();
+
+    const [lang, setLang] = useState(localStorage.getItem("lang") || "pt");
+
+    useEffect(() => {
+        console.log("Language changed to:", lang);
+    }, [lang]);
 
     const goToMap = () => {
         localStorage.setItem('backLink', '/hidden/website');
@@ -19,9 +26,10 @@ const FirstScreen = () => {
 
     return (
         <div className={`flex flex-col items-center  transition-all duration-700 ease-in-out min-h-screen w-screen overflow-hidden bg-black ${!logoClicked ? "justify-center" : ""}`}>
-            <BackButton to='/' />
+            <BackButton lang={lang} to='/' />
+            <LanguageSwitcher onLanguageChange={setLang} />
             {!logoClicked && (
-                <h1 className={`mt-5 text-[#E6E518] font-bold font-fontTitle transition-all duration-700 ease-in-out text-3xl ${logoClicked ? "opacity-0 scale-90" : "opacity-100 scale-100"}`}>{ text["pt"].firstScreen.title }</h1>
+                <h1 className={`mt-5 text-[#E6E518] font-bold font-fontTitle transition-all duration-700 ease-in-out text-3xl ${logoClicked ? "opacity-0 scale-90" : "opacity-100 scale-100"}`}>{ text[lang].firstScreen.title }</h1>
             )}
 
 
@@ -50,7 +58,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center mt-10'>
-                                        <p className='text-lg font-fontSnas'>{text["pt"].firstScreen.introductionMessage1}</p>
+                                        <p className='text-lg font-fontSnas'>{text[lang].firstScreen.introductionMessage1}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -59,7 +67,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center'>
-                                        <p className='text-lg font-fontSnas'>{text["pt"].firstScreen.introductionMessage2}</p>
+                                        <p className='text-lg font-fontSnas'>{text[lang].firstScreen.introductionMessage2}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -69,7 +77,7 @@ const FirstScreen = () => {
 
                                         className='m-5 text-center'>
                                         <div onClick={() => setFirstPart(false)} className="block border border-[#5690CC] active:bg-[#5690CC] rounded-xl mt-16 px-4 py-2" >
-                                            <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>Avançar</h2>
+                                            <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>{ text[lang].firstScreen.next }</h2>
                                         </div>
                                     </motion.div>
                                 </div>
@@ -85,7 +93,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center mt-10'>
-                                        <p className='text-lg font-fontSnas'>{text["pt"].firstScreen.introductionMessage3}</p>
+                                        <p className='text-lg font-fontSnas'>{text[lang].firstScreen.introductionMessage3}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -95,7 +103,7 @@ const FirstScreen = () => {
 
                                         className='m-5 text-center'>
                                         <div onClick={goToMap} className="block border border-[#5690CC] active:bg-[#5690CC] rounded-xl mt-16 px-4 py-2" >
-                                            <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>Começar</h2>
+                                            <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>{ text[lang].firstScreen.map }</h2>
                                         </div>
                                     </motion.div>
 
@@ -106,7 +114,7 @@ const FirstScreen = () => {
 
                                         className='m-5 text-center'>
                                         <Link to={"#"} className="block border border-[#5690CC] active:bg-[#5690CC] rounded-xl px-4 py-2" >
-                                            <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>Sobre Nós</h2>
+                                            <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>{ text[lang].firstScreen.aboutUs }</h2>
                                         </Link>
                                     </motion.div>
                                 </div>

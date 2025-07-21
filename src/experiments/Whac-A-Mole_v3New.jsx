@@ -3,6 +3,9 @@ import * as THREE from "three";
 import propTypes from "prop-types";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { DRACOLoader, XRControllerModelFactory } from "three/examples/jsm/Addons.js";
+import volume from '../assets/volume.png';
+import mute from '../assets/mute.png';
+import text from "../data/localization";
 // import { ChromaKeyMaterial } from "../components/ChromaKeyShader";
 
 const raycaster = new THREE.Raycaster();
@@ -56,6 +59,8 @@ const WhacAMoleV3New = ({ session, endSession }) => {
     dracoLoader.setDecoderConfig({ type: 'js' });
     loader.setDRACOLoader(dracoLoader);
 
+    const [lang] = useState(localStorage.getItem("lang") || 'pt');
+
     const loadAudio = (name, url) => {
         return new Promise((resolve) => {
             audioLoader.load(url, (buffer) => {
@@ -80,8 +85,6 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             if (refVar) refVar.current = sound;
         }
     }
-
-
 
     const loadBackgroundMusic = () => {
         if (!listenerRef.current) return;
@@ -701,30 +704,36 @@ const WhacAMoleV3New = ({ session, endSession }) => {
         <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}>
             {instructionStep === 0 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Look around and find the hammer
+                    { text[lang].experiences["whac-a-mole"].instructions[instructionStep] }
                 </div>
             )}
             {instructionStep === 1 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Drag the hammer and drop it in front of the salute to hit it
+                    { text[lang].experiences["whac-a-mole"].instructions[instructionStep] }
                 </div>
             )}
             {instructionStep === 2 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    Good Job!
+                    { text[lang].experiences["whac-a-mole"].instructions[instructionStep] }
                 </div>
             )}
             {instructionStep === 3 && (
                 <div className="absolute w-5/6 bottom-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
-                    <div>You are ready now</div>
-                    <div>Tap to start the game</div>
+                    <div>{ text[lang].experiences["whac-a-mole"].instructions[instructionStep][0] }</div>
+                    <div>{ text[lang].experiences["whac-a-mole"].instructions[instructionStep][1] }</div>
                 </div>
             )}
 
             {gameStarted && (
-                <button onClick={muteUnmuteAudio} style={{ position: "absolute", top: 20, right: 20, padding: 10 }}>
-                    { bgMusicPlaying ? "Mute" : "Unmute" }
-                </button>
+                <div onClick={muteUnmuteAudio} className="absolute top-4 right-4 p-2 w-12 h-12 rounded-full">
+                    {bgMusicPlaying && (
+                        <img src={volume} width={64} height={64} alt="Sound On" />
+                    )}
+                    {!bgMusicPlaying && (
+                        <img src={mute} width={64} height={64} alt="Sound Off" />
+                    )}
+                    {/* { bgMusicPlaying ? "Mute" : "Unmute" } */}
+                </div>
             )}
 
             {gameStarted && (
@@ -739,7 +748,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     borderRadius: "5px",
                     fontSize: "18px"
                 }}>
-                    Score: {score}
+                    { text[lang].experiences["whac-a-mole"].points }: {score}
                 </div>
             )}
             {gameStarted && (
@@ -754,7 +763,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     borderRadius: "5px",
                     fontSize: "18px"
                 }}>
-                    Time Left: {timeLeft}s
+                    { text[lang].experiences["whac-a-mole"].timeLeft }: {timeLeft}s
                 </div>
             )}
             {gameOver && (
@@ -769,7 +778,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     borderRadius: "5px",
                     fontSize: "20px"
                 }}>
-                    Score: {score}
+                    { text[lang].experiences["whac-a-mole"].points }: {score}
                 </div>
             )}
             {gameOver && (
@@ -789,7 +798,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                         cursor: "pointer",
                     }}
                 >
-                    End Session
+                    { text[lang].experiences["whac-a-mole"].endSession }
                 </button>
             )}
 

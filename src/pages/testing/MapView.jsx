@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import icon from 'leaflet/dist/images/marker-icon.png';
 import iconShadow from 'leaflet/dist/images/marker-shadow.png';
-import MoveZoomControl from '../../components/MoveZoomControl';
+import RemoveZoomControl from '../../components/RemoveZoomControl';
 import MapResizer from '../../components/MapResizer';
 import BackButton from '../../components/BackButton';
 import MapCenter from '../../components/MapCenter';
@@ -92,10 +92,10 @@ const MapView = () => {
             </Popup>
           </Marker>
         ))}
-        <MoveZoomControl />
+        <RemoveZoomControl />
         <MapResizer />
       </MapContainer>
-      <BackButton />
+      <BackButton to={'/testing'} />
     </div>
   );
 };

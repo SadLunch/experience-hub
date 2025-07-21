@@ -2,14 +2,17 @@ import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import propTypes from 'prop-types';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-import { takeXRScreenshot } from '../components/XRScreenshot';
+// import { takeXRScreenshot } from '../components/XRScreenshot';
 import progress1 from '../assets/progress-bg-1.jpg';
 import download from '../assets/download_icon.png';
 import { FaChevronRight } from 'react-icons/fa';
+import { useNavigate } from 'react-router-dom';
+import text from '../data/localization';
 
 const raycaster = new THREE.Raycaster();
 
-const Graffiti_1FM_Image2 = ({ session, endSession }) => {
+const Graffiti_1FM_Image2 = ({ session, endSession, id }) => {
+    const navigate = useNavigate();
     const containerRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
@@ -39,8 +42,8 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
 
     const [error, setError] = useState(null);
 
-    const [step, setStep] = useState(1);
-    const stepRef = useRef(1);
+    const [step, setStep] = useState(0);
+    const stepRef = useRef(0);
     const [gameStarted, setGameStarted] = useState(false);
     const gameStartedRef = useRef(false);
 
@@ -49,10 +52,12 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
 
     const loader = new GLTFLoader();
 
+    const [lang] = useState(localStorage.getItem("lang") || 'pt');
+
     const nextStep = () => {
         stepRef.current += 1;
         setStep(stepRef.current);
-        if (stepRef.current > 5) {
+        if (stepRef.current > 6) {
             stepRef.current = null;
             gameStartedRef.current = true
             setGameStarted(true);
@@ -445,8 +450,7 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
             {!gameStarted && step < 7 && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
                     <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
-                        <p className='text-lg'>{
-                            step === 1 ? 'Olha em volta e encontra a lata de tinta spray.' : step === 2 ? 'Toca e segura com um dedo para agarrares a lata de tinta spray. Quando olhares em volta, ela vai apontar na direção do teu olhar.' : step === 3 ? 'Quando vires uma esfera semi-transparente, toca no ecrã com outro dedo para começares a pintar com tinta spray.' : step === 4 ? 'Enquanto pintas o graffiti, a barra de progresso em baixo vai-se preenchendo.' : step === 5 ? 'Quando tiveres pintado a maior parte do graffiti, podes clicar na barra de progresso para tirar uma foto do teu trabalho.' : step === 6 ? 'Diverte-te!' : ''}</p>
+                        <p className='text-lg'>{ text[lang].experiences['graffiti-2'].instructionsEasy[step] }</p>
                         <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
                     </div>
                 </div>
@@ -464,7 +468,9 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
                             sphereIndicator.current.visible = false;
 
                             try {
-                                setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Ana de Castro Osório", "#sufragistas"));
+                                // setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Ana de Castro Osório", "#sufragistas"));
+                                session.end();
+                                navigate(`/hidden/website/experience/${id}/about`);
                             } catch (err) {
                                 setError(err);
                             }
@@ -484,7 +490,7 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
                                     backgroundPosition: 'center',
                                 }}
                             >
-                                {revealed >= 90 ? "Take Screenshot" : `${revealed.toFixed(1)}%`}
+                                {revealed >= 90 ? text[lang].experiences["graffiti-2"].moreAbout : `${revealed.toFixed(1)}%`}
                             </div>
                         </div>
                     </div>
@@ -531,6 +537,7 @@ const Graffiti_1FM_Image2 = ({ session, endSession }) => {
 Graffiti_1FM_Image2.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
+    id: propTypes.string,
 };
 
 export default Graffiti_1FM_Image2;

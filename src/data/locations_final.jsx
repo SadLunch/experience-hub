@@ -11,6 +11,7 @@ export const locations = [
     {
         id: 'loc1' /* Text */,
         coordinates: [38.712004360930486, -9.140893187916427] /* list of two floats Ex.: [12.345, 67.890] */,
+        location: "Largo do Carmo",
         participants: 0 /* Number */,
         color: '#EE1D37' /* Color code */,
         experiment: {
@@ -25,12 +26,15 @@ export const locations = [
             attributions: [
                 '<a href="https://skfb.ly/owxOK" target="_blank" rel="nofollow">"gavel"</a> by <a href="https://sketchfab.com/ruteshsakpal" target="_blank" rel="nofollow">rutesh sakpal</a> is licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="nofollow">Creative Commons Attribution</a>.',
                 '<a href="https://skfb.ly/o9HYz" target="_blank" rel="nofollow">"White Lilly - Metascan"</a> by <a href="https://sketchfab.com/moshecaine" target="_blank" rel="nofollow">Moshe Caine</a> is licensed under <a href="http://creativecommons.org/licenses/by/4.0/" target="_blank" rel="nofollow">Creative Commons Attribution</a>.',
+                '<a href="https://www.flaticon.com/free-icons/windows-media-audio" title="windows media audio icons">Windows media audio icons created by Ferdinand - Flaticon</a>',
+                '<a href="https://www.flaticon.com/free-icons/mute" title="mute icons">Mute icons created by adrianadam - Flaticon</a>',
             ] /* list of text */
         }
     },
     {
         id: 'loc2' /* Text */,
         coordinates: [38.71001326249752, -9.140169870055326] /* list of two floats Ex.: [12.345, 67.890] */,
+        location: "Grémio Literário",
         participants: 0 /* Number */,
         color: '#F26621' /* Color code */,
         experiment: {
@@ -52,6 +56,7 @@ export const locations = [
     {
         id: 'loc3' /* Text */,
         coordinates: [38.70968531334263, -9.141464462160384] /* list of two floats Ex.: [12.345, 67.890] */,
+        location: "Teatro Nacional de São Carlos",
         participants: 0 /* Number */,
         color: '#5690CC' /* Color code */,
         experiment: {
@@ -77,6 +82,7 @@ export const locations = [
     {
         id: 'loc4' /* Text */,
         coordinates: [38.70872353140405, -9.141419528428177] /* list of two floats Ex.: [12.345, 67.890] */,
+        location: "Rua Serpa Pinto",
         participants: 0 /* Number */,
         color: '#B0D351' /* Color code */,
         experiment: {
@@ -102,6 +108,7 @@ export const locations = [
     {
         id: 'loc5' /* Text */,
         coordinates: [38.710880666013445, -9.139602147975914] /* list of two floats Ex.: [12.345, 67.890] */,
+        location: "Rua Nova do Almada",
         participants: 0 /* Number */,
         color: '#7161AB' /* Color code */,
         experiment: {
@@ -115,6 +122,7 @@ export const locations = [
     {
         id: 'loc6' /* Text */,
         coordinates: [38.709802105698756, -9.139374915593871] /* list of two floats Ex.: [12.345, 67.890] */,
+        location: "Antigo Tribunal da Boa Hora",
         participants: 0 /* Number */,
         color: '#ED3A95' /* Color code */,
         experiment: {

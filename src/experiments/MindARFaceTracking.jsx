@@ -2,11 +2,14 @@
 import { useEffect, useRef, useState } from 'react';
 import download from '../assets/download_icon.png';
 import photo from '../assets/photo_take.png';
+import text from '../data/localization';
 
 const MindARFaceTracking = () => {
     const containerRef = useRef(null);
     const iframeRef = useRef(null);
     const [imageURL, setImageURL] = useState(null);
+
+    const [lang] = useState(localStorage.getItem("lang") || 'pt');
 
     useEffect(() => {
         const handleImage = (event) => {
@@ -48,7 +51,7 @@ const MindARFaceTracking = () => {
                 allowFullScreen />
             {!imageURL && (
                 <div className='absolute bottom-20 left-1/2 -translate-x-1/2 z-9998 py-4 inline-flex flex-col items-center'>
-                    <span className='text-xl'>Clique para fotografar</span>
+                    <span className='text-xl'>{ text[lang].experiences["selfie"].takePhoto }</span>
                     <img src={photo} alt='Take Photo' width={96} height={96}
                         onClick={triggerIframePhoto}
                         className='' />
