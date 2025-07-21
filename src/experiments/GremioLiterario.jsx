@@ -956,8 +956,8 @@ const GremioLiterario = ({ session, endSession }) => {
                             // After 1 or 2 seconds clear scene and place bubbles and books
                             setTimeout(() => {
                                 sceneRef.current.clear();
-                                wonGame();
                                 setShowGameWonMessage(false);
+                                wonGame();
                             }, 4000);
                             // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
                         }
