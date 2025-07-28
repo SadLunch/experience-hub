@@ -1,7 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import propTypes from 'prop-types';
-import { GLTFLoader } from 'three/examples/jsm/Addons.js';
+import { GLTFLoader, RGBELoader } from 'three/examples/jsm/Addons.js';
 import imgOverlay from '../assets/align_gremio_lit.jpg';
 import { FaChevronRight } from 'react-icons/fa'
 import text from '../data/localization';
@@ -63,7 +63,8 @@ const GremioLiterario = ({ session, endSession }) => {
     const ghostGroupRef = useRef(null);
     const floatingObjectsRef = useRef(null);
     const pathsGroupRef = useRef(null);
-    const cardsRef = useRef(null);
+    const paintingGroupRef = useRef(null);
+    // const cardsRef = useRef(null);
 
     // // movable objects refs
     const heartTextureRef = useRef(null);
@@ -72,7 +73,9 @@ const GremioLiterario = ({ session, endSession }) => {
     const ghostTextureRef = useRef(null);
     const bubbleModelRef = useRef(null);
     const bookModelRef = useRef(null);
-    const facesTextures = useRef([]);
+    const paintingRef = useRef(null);
+    const paintingLoadedRef = useRef(false);
+    // const facesTextures = useRef([]);
 
     const isDragging = useRef(false);
     const selectedObject = useRef(null);
@@ -294,135 +297,295 @@ const GremioLiterario = ({ session, endSession }) => {
         material.color.setHSL(hsl.h, hsl.s, hsl.l);
     }
 
-    // @description: wrapText wraps HTML canvas text onto a canvas of fixed width
-    // @param ctx - the context for the canvas we want to wrap text on
-    // @param text - the text we want to wrap.
-    // @param x - the X starting point of the text on the canvas.
-    // @param y - the Y starting point of the text on the canvas.
-    // @param maxWidth - the width at which we want line breaks to begin - i.e. the maximum width of the canvas.
-    // @param lineHeight - the height of each line, so we can space them below each other.
-    // @returns an array of [ lineText, x, y ] for all lines
-    const wrapText = function (ctx, text, x, y, maxWidth, lineHeight) {
-        // First, start by splitting all of our text into words, but splitting it into an array split by spaces
-        let words = text.split(' ');
-        let line = ''; // This will store the text of the current line
-        let testLine = ''; // This will store the text when we add a word, to test if it's too long
-        let lineArray = []; // This is an array of lines, which the function will return
+    // // @description: wrapText wraps HTML canvas text onto a canvas of fixed width
+    // // @param ctx - the context for the canvas we want to wrap text on
+    // // @param text - the text we want to wrap.
+    // // @param x - the X starting point of the text on the canvas.
+    // // @param y - the Y starting point of the text on the canvas.
+    // // @param maxWidth - the width at which we want line breaks to begin - i.e. the maximum width of the canvas.
+    // // @param lineHeight - the height of each line, so we can space them below each other.
+    // // @returns an array of [ lineText, x, y ] for all lines
+    // const wrapText = function (ctx, text, x, y, maxWidth, lineHeight) {
+    //     // First, start by splitting all of our text into words, but splitting it into an array split by spaces
+    //     let words = text.split(' ');
+    //     let line = ''; // This will store the text of the current line
+    //     let testLine = ''; // This will store the text when we add a word, to test if it's too long
+    //     let lineArray = []; // This is an array of lines, which the function will return
 
-        // Lets iterate over each word
-        for (var n = 0; n < words.length; n++) {
-            // Create a test line, and measure it..
-            testLine += `${words[n]} `;
-            let metrics = ctx.measureText(testLine);
-            let testWidth = metrics.width;
-            // If the width of this test line is more than the max width
-            if (testWidth > maxWidth && n > 0) {
-                // Then the line is finished, push the current line into "lineArray"
-                lineArray.push([line, x, y]);
-                // Increase the line height, so a new line is started
-                y += lineHeight;
-                // Update line and test line to use this word as the first word on the next line
-                line = `${words[n]} `;
-                testLine = `${words[n]} `;
-            }
-            else {
-                // If the test line is still less than the max width, then add the word to the current line
-                line += `${words[n]} `;
-            }
-            // If we never reach the full max width, then there is only one line.. so push it into the lineArray so we return something
-            if (n === words.length - 1) {
-                lineArray.push([line, x, y]);
-            }
-        }
-        // Return the line array
-        return lineArray;
+    //     // Lets iterate over each word
+    //     for (var n = 0; n < words.length; n++) {
+    //         // Create a test line, and measure it..
+    //         testLine += `${words[n]} `;
+    //         let metrics = ctx.measureText(testLine);
+    //         let testWidth = metrics.width;
+    //         // If the width of this test line is more than the max width
+    //         if (testWidth > maxWidth && n > 0) {
+    //             // Then the line is finished, push the current line into "lineArray"
+    //             lineArray.push([line, x, y]);
+    //             // Increase the line height, so a new line is started
+    //             y += lineHeight;
+    //             // Update line and test line to use this word as the first word on the next line
+    //             line = `${words[n]} `;
+    //             testLine = `${words[n]} `;
+    //         }
+    //         else {
+    //             // If the test line is still less than the max width, then add the word to the current line
+    //             line += `${words[n]} `;
+    //         }
+    //         // If we never reach the full max width, then there is only one line.. so push it into the lineArray so we return something
+    //         if (n === words.length - 1) {
+    //             lineArray.push([line, x, y]);
+    //         }
+    //     }
+    //     // Return the line array
+    //     return lineArray;
+    // }
+
+    const createPaintingNameplate = (name, width, position) => {
+
+        const canvas = document.createElement("canvas");
+        const canvasTexture = new THREE.CanvasTexture(canvas);
+
+        canvas.width = 1500;
+        canvas.height = 90;
+
+        const ctx = canvas.getContext('2d');
+
+        // canvas.width = width;
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        ctx.fillStyle = "#000000";
+        ctx.font = 'bold 10vh sans-serif';
+        ctx.textAlign = 'center';
+
+        ctx.fillText(name, canvas.width / 2, 70);
+
+        const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture });
+
+        const nameplate = new THREE.Mesh(
+            new THREE.BoxGeometry(width, 0.15, 0.02),
+            //new THREE.MeshBasicMaterial({ color: 0xffffff })
+            [
+                new THREE.MeshBasicMaterial({ color: 0xffffff }),
+                new THREE.MeshBasicMaterial({ color: 0xffffff }),
+                new THREE.MeshBasicMaterial({ color: 0xffffff }),
+                new THREE.MeshBasicMaterial({ color: 0xffffff }),
+                canvasMaterial,
+                new THREE.MeshBasicMaterial({ color: 0xffffff })
+            ]
+        );
+
+        nameplate.position.set(position.x, position.y, position.z);
+        nameplate.lookAt(0, 0, 0);
+
+        sceneRef.current.add(nameplate);
     }
 
-    function createFrontTexture(imageUrl = null, name) {
-        const canvas = document.createElement('canvas');
-        const texture = new THREE.CanvasTexture(canvas);
+    const createFullPaintings = (n) => {
+        if (!paintingRef.current || !sceneRef.current) return;
 
-        // Load and draw image
-        const imgLoader = new THREE.ImageLoader();
+        const paintingGroup = new THREE.Group();
+        sceneRef.current.add(paintingGroup);
+        paintingGroupRef.current = paintingGroup;
 
-        imgLoader.load(imageUrl, image => {
-            const ctx = canvas.getContext('2d');
+        for (let i = 0; i < text[lang].gremioLitFaces.length; i++) {
+            if (i >= n) break;
 
-            canvas.width = image.width;
-            canvas.height = image.height;
+            const author = text[lang].gremioLitFaces[i];
 
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            const object = new THREE.Object3D();
+            object.add(paintingRef.current.clone());
+            object.scale.setScalar(9);
 
-            // Background
-            ctx.fillStyle = '#ffffff';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            const faceTexture = new THREE.TextureLoader().load(author.img);
 
-            ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+            const faceMaterial = new THREE.MeshBasicMaterial({ map: faceTexture, side: THREE.FrontSide });
 
-            // Draw name (bottom)
-            ctx.fillStyle = '#000000';
-            ctx.font = 'bold 32px sans-serif';
-            ctx.textAlign = 'center';
+            const backMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
 
-            const wrappedText = wrapText(ctx, name, canvas.width / 2, canvas.height - 100, canvas.width - 40, 50);
-            wrappedText.forEach((item) => {
-                ctx.fillText(item[0], item[1], item[2]);
-            })
-            
-        });
+            const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
 
-        return texture;
-    }
 
-    function spawnFaces(n, spacing = 2) {
+            const painting = new THREE.Mesh(
+                new THREE.BoxGeometry(0.13, 0.15, 0.013),
+                [
+                    sideMaterial,
+                    sideMaterial,
+                    sideMaterial,
+                    sideMaterial,
+                    faceMaterial,
+                    backMaterial
+                ]
+            );
 
-        const cards = new THREE.Group();
-        sceneRef.current.add(cards);
-        cardsRef.current = cards;
+            object.add(painting);
+            painting.position.setZ(-0.00215);
 
-        const totalWidth = (n - 1) * spacing;
-        const startX = -totalWidth / 2;
+            // Semicircle angle from -π/2 to π/2
+            const angle = (i / n) * Math.PI;
 
-        const max = Math.floor(n * (11 / 8)); // max number of points / max number of faces I have
+            const x = - (5 * Math.cos(angle) + Math.cos(Math.PI / 2));
+            const z = - (5 * Math.sin(angle) + Math.cos(Math.PI / 2));
 
-        for (let i = 0; i < max; i++) {
-            
+            const to_x = - (0.8 * Math.cos(angle) + Math.cos(Math.PI / 2));
+            const to_z = - (0.8 * Math.sin(angle) + Math.cos(Math.PI / 2));
 
-            const frontMaterial = new THREE.MeshBasicMaterial({ map: facesTextures.current[i][0] }); // 0 is front texture
-            frontMaterial.map.needsUpdate = false;
-            const backMaterial = new THREE.MeshBasicMaterial({ map: facesTextures.current[i][1]}); // 1 is back texture
-            backMaterial.map.needsUpdate = false;
-            // TODO material for the back side of the card
+            object.position.set(x, 0, z)//.applyMatrix4(cameraRef.current.matrixWorld); // Place model in front of camera
+            //model.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
 
-            const sideMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
 
-            const geometry = new THREE.BoxGeometry(1.5, 2, 0.01);
 
-            const materials = [
-                sideMaterial,
-                sideMaterial,
-                sideMaterial,
-                sideMaterial,
-                frontMaterial,
-                backMaterial
-            ];
+            const b = new THREE.Box3().setFromObject(object);
+            const t = new THREE.Vector3();
+            b.getSize(t);
 
-            const card = new THREE.Mesh(geometry, materials);
+            const position = new THREE.Vector3();
+            position.copy(object.position);
+            position.setY((position.y - (t.y / 2)) - 0.1)
+            createPaintingNameplate(author.name, t.x, position);
 
-            card.userData = {
-                mesh: card,
+            object.lookAt(0, 0, 0);
+
+            const scale = new THREE.Vector3();
+            scale.copy(object.scale);
+
+            object.userData = {
+                mesh: object,
+                animating: false,
+                canClick: true,
+                clicked: false,
+                startTime: 0,
+                duration: 3000,
+                from: new THREE.Vector3(x, 0, z),
+                to: new THREE.Vector3(to_x, 0, to_z),
+                fromScale: scale,
+                toScale: new THREE.Vector3(3, 3, 3),
+                rotFrom: object.rotation.y,
+                rotTo: object.rotation.y + Math.PI,
+                update: function (timestamp) {
+                    if (!this.animating) return;
+                    const elapsed = timestamp - this.startTime;
+                    const duration = this.duration;
+                    const t = Math.min(elapsed / duration, 1);
+
+                    const eased = t * (2 - t); // ease-out
+
+                    // Choose direction based on clicked state
+                    const fromPos = this.clicked ? this.from : this.to;
+                    const toPos = this.clicked ? this.to : this.from;
+
+                    const fromRot = this.clicked ? this.rotFrom : this.rotTo;
+                    const toRot = this.clicked ? this.rotTo : this.rotFrom;
+
+                    const fromScale = this.clicked ? this.fromScale : this.toScale;
+                    const toScale = this.clicked ? this.toScale : this.fromScale;
+
+
+                    this.mesh.position.lerpVectors(fromPos, toPos, eased);
+                    this.mesh.rotation.y = THREE.MathUtils.lerp(fromRot, toRot, eased);
+                    this.mesh.scale.lerpVectors(fromScale, toScale, eased);
+
+                    if (t >= 1) {
+                        this.animating = false;
+                    }
+                },
                 flip: function () {
-                    const card = this.mesh;
+                    const painting = this.mesh;
+                    painting.rotateY(Math.PI);
+                },
+            }
 
-                    card.rotateY(Math.PI);
-                }
-            };
-
-            card.position.set(startX + i * spacing, 0, -5);
-            card.lookAt(cameraRef.current.position); // face the camera
-            cardsRef.current.add(card);
+            paintingGroupRef.current.add(object);
         }
+        paintingLoadedRef.current = true;
     }
+
+    // function createFrontTexture(imageUrl = null, name) {
+    //     const canvas = document.createElement('canvas');
+    //     const texture = new THREE.CanvasTexture(canvas);
+
+    //     // Load and draw image
+    //     const imgLoader = new THREE.ImageLoader();
+
+    //     imgLoader.load(imageUrl, image => {
+    //         const ctx = canvas.getContext('2d');
+
+    //         canvas.width = image.width;
+    //         canvas.height = image.height;
+
+    //         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    //         // Background
+    //         ctx.fillStyle = '#ffffff';
+    //         ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+    //         ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+
+    //         // Draw name (bottom)
+    //         ctx.fillStyle = '#000000';
+    //         ctx.font = 'bold 32px sans-serif';
+    //         ctx.textAlign = 'center';
+
+    //         const wrappedText = wrapText(ctx, name, canvas.width / 2, canvas.height - 100, canvas.width - 40, 50);
+    //         wrappedText.forEach((item) => {
+    //             ctx.fillText(item[0], item[1], item[2]);
+    //         })
+
+    //     });
+
+    //     return texture;
+    // }
+
+    // function spawnFaces(n, spacing = 2) {
+
+    //     const cards = new THREE.Group();
+    //     sceneRef.current.add(cards);
+    //     cardsRef.current = cards;
+
+    //     const totalWidth = (n - 1) * spacing;
+    //     const startX = -totalWidth / 2;
+
+    //     const max = Math.floor(n * (9 / 11)); // max number of faces I have / max number of points
+
+    //     for (let i = 0; i < max; i++) {
+            
+
+    //         const frontMaterial = new THREE.MeshBasicMaterial({ map: facesTextures.current[i][0] }); // 0 is front texture
+    //         frontMaterial.map.needsUpdate = false;
+    //         const backMaterial = new THREE.MeshBasicMaterial({ map: facesTextures.current[i][1]}); // 1 is back texture
+    //         backMaterial.map.needsUpdate = false;
+    //         // TODO material for the back side of the card
+
+    //         const sideMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff });
+
+    //         const geometry = new THREE.BoxGeometry(1.5, 2, 0.01);
+
+    //         const materials = [
+    //             sideMaterial,
+    //             sideMaterial,
+    //             sideMaterial,
+    //             sideMaterial,
+    //             frontMaterial,
+    //             backMaterial
+    //         ];
+
+    //         const card = new THREE.Mesh(geometry, materials);
+
+    //         card.userData = {
+    //             mesh: card,
+    //             flip: function () {
+    //                 const card = this.mesh;
+
+    //                 card.rotateY(Math.PI);
+    //             }
+    //         };
+
+    //         card.position.set(startX + i * spacing, 0, -5);
+    //         card.lookAt(cameraRef.current.position); // face the camera
+    //         cardsRef.current.add(card);
+    //     }
+    // }
 
     const wonGame = (nBubbles = 20) => {
         if (hasPlaced.current) return;
@@ -452,7 +615,7 @@ const GremioLiterario = ({ session, endSession }) => {
         }
 
         const score = heartsRef.current + lightbulbsRef.current;
-        spawnFaces(score);
+        createFullPaintings(score);
     }
 
     const animateFloating = (object, timeOffset = 0) => {
@@ -510,9 +673,15 @@ const GremioLiterario = ({ session, endSession }) => {
             raycaster.setFromXRController(controllerRef.current);
 
             if (gameWonRef.current) {
-                const intersected = raycaster.intersectObjects(cardsRef.current.children)
+                const intersected = raycaster.intersectObjects(paintingGroupRef.current.children)
                 if (intersected.length > 0) {
-                    intersected[0].object.userData.flip();
+                    const selectedObj = intersected[0].object.parent;
+
+                    if (!selectedObj.userData.animating) {
+                        selectedObj.userData.clicked = !selectedObj.userData.clicked; // toggle
+                        selectedObj.userData.animating = true;
+                        selectedObj.userData.startTime = performance.now();
+                    }
                 }
             } else {
                 const intersected = raycaster.intersectObjects(movableGroupRef.current.children)
@@ -624,14 +793,20 @@ const GremioLiterario = ({ session, endSession }) => {
         ghostTexture.format = THREE.RGBAFormat;
         ghostTextureRef.current = ghostTexture;
 
-        text[lang].gremioLitFaces.forEach(obj => {
-            const cardFrontTexture = createFrontTexture(obj.img, obj.name); // Front of the card (face and name of author)
-            const cardBackTexture = createFrontTexture('/images/logo.png', "Back");
-            // TODO Back of the card (description and works of the author)
-
-            // Add it to a list with all the cards' textures
-            facesTextures.current.push([cardFrontTexture, cardBackTexture]);
+        loadModel("/models/frame03_centered.glb", paintingRef, null, () => {
+          if (!paintingLoadedRef.current) {
+            createFullPaintings();
+          }
         })
+
+        // text[lang].gremioLitFaces.forEach(obj => {
+        //     const cardFrontTexture = createFrontTexture(obj.img, obj.name); // Front of the card (face and name of author)
+        //     const cardBackTexture = createFrontTexture('/images/logo.png', "Back");
+        //     // TODO Back of the card (description and works of the author)
+
+        //     // Add it to a list with all the cards' textures
+        //     facesTextures.current.push([cardFrontTexture, cardBackTexture]);
+        // })
 
         // text[lang].gremioLitFaces[i].name
         
@@ -693,8 +868,14 @@ const GremioLiterario = ({ session, endSession }) => {
 
         // --- Setup basic scene ---
         const scene = new THREE.Scene();
+
+        new RGBELoader().load("/models/san_giuseppe_bridge_2k.hdr", (texture) => {
+            texture.mapping = THREE.EquirectangularReflectionMapping;
+            scene.environment = texture;
+        });
+
         sceneRef.current = scene;
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth/window.innerHeight, 0.01, 100);
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
         cameraRef.current = camera;
         //camera.position.set(0, 3.6, 3); // typical VR height
 
@@ -711,6 +892,14 @@ const GremioLiterario = ({ session, endSession }) => {
         renderer.xr.setSession(session);
 
         if (container) container.appendChild(renderer.domElement);
+
+        // Add a light
+        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1);
+        scene.add(light);
+
+        var dirLight = new THREE.DirectionalLight(0xffffff);
+        dirLight.position.set(75, 300, -75);
+        scene.add(dirLight);
 
         const onResize = () => {
             camera.aspect = window.innerWidth / window.innerHeight;
@@ -915,7 +1104,7 @@ const GremioLiterario = ({ session, endSession }) => {
         // }
 
         // Animation Loop
-        renderer.setAnimationLoop(() => {
+        renderer.setAnimationLoop((timestamp) => {
             if (gameStartedRef.current) {
                 if (!gameWonRef.current) {
                     controllerRef.current.updateMatrixWorld();
@@ -1023,6 +1212,10 @@ const GremioLiterario = ({ session, endSession }) => {
 
                 if (gameOverRef.current && gameWonRef.current && hasPlaced.current) {
                     floatingObjectsRef.current.children.forEach((obj, idx) => animateFloating(obj, idx));
+
+                    paintingGroupRef.current.children.forEach((object) => {
+                        if (object.userData?.update) object.userData.update(timestamp)
+                    })
                     
                     // if (hasTouched.current && selectedObject.current) {
                     //     const card = selectedObject.current

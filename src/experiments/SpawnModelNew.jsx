@@ -1,19 +1,19 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import * as THREE from "three";
 import propTypes from "prop-types";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/examples/jsm/Addons.js";
 
 const images = [
-  { src: '/images/256px-AlexandreHerculano.png', name: 'Alexandre Herculano (1810 - 1877)', position: new THREE.Vector3(-5, 0, 0) },
-  { src:'/images/256px-Almeida_Garrett_por_Guglielmi.jpg', name: 'Almeida Garrett (1799 - 1854)', position: new THREE.Vector3(-4, 0, -0.5) },
-  { src: '/images/256px-Anselmo_José_Braamcamp,_1887_(London,_Maclure_&_Co.).png', name: 'Anselmo Braamcamp (1817 - 1885)', position: new THREE.Vector3(-5, 0, ) },
-  { src: '/images/256px-António_Maria_de_Fontes_Pereira_de_Melo,_1883.png', name: 'Fontes Pereira de Melo (1819 - 1887)', position: -1 },
-  { src: '/images/256px-José_da_Silva_Mendes_Leal.png', name: 'Mendes Leal (1820 - 1886)', position: 0 },
-  { src: '/images/256px-Rebello_da_Silva_-_Serões_(Abr1907).png', name: 'Rebelo da Silva (1822 - 1871)', position: 1 },
-  { src: '/images/António_Rodrigues_Sampaio_(1806-1882).png', name: 'Rodrigues Sampaio (1806 - 1882)', position: 2},
-  { src: '/images/Retrato_do_Marquês_de_Sá_da_Bandeira_-_Academia_Militar.png', name: 'Sá da Bandeira (1795 - 1876)', position: 3 },
-  { src: '/images/Rodrigo_da_Fonseca_Magalhães_(Grémio_Literário).png', name: 'Rodrigo da Fonseca (1787 - 1858)', position: 4},
+  { src: '/images/256px-AlexandreHerculano.png', name: 'Alexandre Herculano (1810 - 1877)'},
+  { src:'/images/256px-Almeida_Garrett_por_Guglielmi.jpg', name: 'Almeida Garrett (1799 - 1854)'},
+  { src: '/images/256px-Anselmo_José_Braamcamp,_1887_(London,_Maclure_&_Co.).png', name: 'Anselmo Braamcamp (1817 - 1885)'},
+  { src: '/images/256px-António_Maria_de_Fontes_Pereira_de_Melo,_1883.png', name: 'Fontes Pereira de Melo (1819 - 1887)'},
+  { src: '/images/256px-José_da_Silva_Mendes_Leal.png', name: 'Mendes Leal (1820 - 1886)'},
+  { src: '/images/256px-Rebello_da_Silva_-_Serões_(Abr1907).png', name: 'Rebelo da Silva (1822 - 1871)'},
+  { src: '/images/António_Rodrigues_Sampaio_(1806-1882).png', name: 'Rodrigues Sampaio (1806 - 1882)'},
+  { src: '/images/Retrato_do_Marquês_de_Sá_da_Bandeira_-_Academia_Militar.png', name: 'Sá da Bandeira (1795 - 1876)'},
+  { src: '/images/Rodrigo_da_Fonseca_Magalhães_(Grémio_Literário).png', name: 'Rodrigo da Fonseca (1787 - 1858)'},
 ]
 
 const SpawnModelNew = ({ session, endSession }) => {
@@ -27,8 +27,8 @@ const SpawnModelNew = ({ session, endSession }) => {
 
   const paintingGroupRef = useRef(null);
 
-  const [selected, setSelected] = useState(false);
-  const selectedObject = useRef(null);
+  // const [selected, setSelected] = useState(false);
+  // const selectedObject = useRef(null);
 
   const raycaster = new THREE.Raycaster();
 
@@ -48,7 +48,7 @@ const SpawnModelNew = ({ session, endSession }) => {
     const canvasTexture = new THREE.CanvasTexture(canvas);
 
     canvas.width = 1500;
-    canvas.height = 80;
+    canvas.height = 90;
 
     const ctx = canvas.getContext('2d');
 
@@ -65,7 +65,7 @@ const SpawnModelNew = ({ session, endSession }) => {
     const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture });
 
     const nameplate = new THREE.Mesh(
-      new THREE.BoxGeometry(width, 0.05, 0.02),
+      new THREE.BoxGeometry(width, 0.15, 0.02),
       //new THREE.MeshBasicMaterial({ color: 0xffffff })
       [
         new THREE.MeshBasicMaterial({ color: 0xffffff }),
@@ -134,7 +134,7 @@ const SpawnModelNew = ({ session, endSession }) => {
 
       const position = new THREE.Vector3();
       position.copy(object.position);
-      position.setY((position.y - (t.y / 2)) - 0.05)
+      position.setY((position.y - (t.y / 2)) - 0.1)
       createPaintingNameplate(image.name, t.x, position);
 
       object.lookAt(0, 0, 0);
@@ -166,34 +166,34 @@ const SpawnModelNew = ({ session, endSession }) => {
     objectLoadedRef.current = true;
   }
 
-  const updatePosition = (object, targetPos, targetScale) => {
-    const totalSteps = 70000 / 16;
-    let step = 0;
+  // const updatePosition = (object, targetPos, targetScale) => {
+  //   const totalSteps = 70000 / 16;
+  //   let step = 0;
 
-    function update(t1, t2) {
-      step++;
-      const time = step / totalSteps;
-      object.position.lerp(t1, time);
-      object.scale.lerp(t2, time);
-      if (step < totalSteps) {
-        setTimeout(() => update(t1, t2), 16);
-      } else {
-        object.position.copy(t1); // Ensure exact position at end
-      }
-    }
-    update(targetPos, targetScale);
-  }
+  //   function update(t1, t2) {
+  //     step++;
+  //     const time = step / totalSteps;
+  //     object.position.lerp(t1, time);
+  //     object.scale.lerp(t2, time);
+  //     if (step < totalSteps) {
+  //       setTimeout(() => update(t1, t2), 16);
+  //     } else {
+  //       object.position.copy(t1); // Ensure exact position at end
+  //     }
+  //   }
+  //   update(targetPos, targetScale);
+  // }
 
-  const deselect = () => {
-    if (!selectedObject.current) return;
+  // const deselect = () => {
+  //   if (!selectedObject.current) return;
 
-    const targetPosition = selectedObject.current.userData.to;
-    const targetScale = selectedObject.current.userData.toScale;
-    selectedObject.current.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
-    selectedObject.current.scale.set(targetScale.x, targetScale.y, targetScale.z);
-    selectedObject.current = null;
-    setSelected(false);
-  }
+  //   const targetPosition = selectedObject.current.userData.to;
+  //   const targetScale = selectedObject.current.userData.toScale;
+  //   selectedObject.current.position.set(targetPosition.x, targetPosition.y, targetPosition.z);
+  //   selectedObject.current.scale.set(targetScale.x, targetScale.y, targetScale.z);
+  //   selectedObject.current = null;
+  //   setSelected(false);
+  // }
 
   useEffect(() => {
     if (!session) return;
@@ -281,18 +281,18 @@ const SpawnModelNew = ({ session, endSession }) => {
           }
         });
 
-        controller.addEventListener('selectend', (event) => {
-          const controller = event.target;
-          if (controller.userData.selected !== undefined) {
-            const object = controller.userData.selected;
-            if (object.userData.clicked) {
-              object.userData.clicked = false;
-            } else {
-              object.userData.clicked = true;
-            }
-            controller.userData.selected = undefined;
-          }
-        })
+        // controller.addEventListener('selectend', (event) => {
+        //   const controller = event.target;
+        //   if (controller.userData.selected !== undefined) {
+        //     const object = controller.userData.selected;
+        //     if (object.userData.clicked) {
+        //       object.userData.clicked = false;
+        //     } else {
+        //       object.userData.clicked = true;
+        //     }
+        //     controller.userData.selected = undefined;
+        //   }
+        // })
         scene.add(controller)
 
         // Load a model
@@ -411,12 +411,12 @@ const SpawnModelNew = ({ session, endSession }) => {
         </button>
       )} */}
 
-      {selected && (
+      {/* {selected && (
         <div className="w-screen h-screen">
           <span onClick={deselect} className="absolute top-10 right-10 w-10 h-10 border-2 border-white bg-black rounded-full ">✕</span>
           <div className="w-full h-full opacity-50 bg-black"></div>
         </div>
-      )}
+      )} */}
 
 
     </div>

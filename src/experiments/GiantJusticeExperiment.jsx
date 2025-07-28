@@ -28,15 +28,29 @@ AFRAME.registerComponent('move-forward', {
         stopDistance: { type: 'number', default: 10 } // distance to stop
         // minZ: { type: 'number', default: -2 }
     },
+    init: function () {
+        const video = document.querySelector('#giantJustice');
+        if (video) {
+            video.loop = false;
+            video.pause();
+            video.currentTime = 0;
+            video.play().catch(err => {
+                console.warn("Video play failed:", err);
+            });
+        }
+    },
     // init: function () {
-    //     const video = document.querySelector('#giantJustice');
+    //     const video = document.querySelector("#giantJustice");
     //     if (video) {
-    //         video.loop = false;
-    //         video.pause();
-    //         video.currentTime = 0;
-    //         video.play().catch(err => {
-    //             console.warn("Video play failed:", err);
-    //         });
+    //         video.addEventListener("ended", () => {
+    //             const container = document.querySelector("#container");
+                
+    //             const endDiv = document.createElement("div");
+    //             endDiv.className = "absolute w-5/6 top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center z-[1000]";
+    //             endDiv.innerText = "Text";
+
+    //             container.appendChild(endDiv);
+    //         })
     //     }
     // },
     tick: function (time, timeDelta) {
@@ -63,6 +77,7 @@ const GiantJustice = () => {
 
     const [isAligned, setIsAligned] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [ended, setEnded] = useState(false);
     const videoEntityRef = useRef(null);
     const streamRef = useRef(null);
     // const [zValue, setZValue] = useState(-70);
@@ -101,9 +116,7 @@ const GiantJustice = () => {
 
         const scene = document.querySelector('a-scene');
         if (scene) {
-            scene.addEventListener('loaded', () => {
-                setLoaded(true);
-            })
+            scene.addEventListener('loaded', () => setLoaded(true))
         }
 
         return () => {
@@ -115,6 +128,25 @@ const GiantJustice = () => {
             if (sceneEl?.renderer?.dispose) {
                 sceneEl.renderer.dispose();
             }
+        }
+    }, []);
+
+    useEffect(() => {
+        const video = document.getElementById('giantJustice');
+        if (!video) return;
+
+        const handleVideoEnded = () => {
+            console.log("Video Ended");
+            setEnded(true);
+        }
+
+        video.onended = handleVideoEnded;
+
+        // video.addEventListener("ended", handleVideoEnded);
+
+        return () => {
+            video.onended = null;
+            // video.removeEventListener("ended", handleVideoEnded);
         }
     }, []);
 
@@ -229,7 +261,7 @@ const GiantJustice = () => {
     };
 
     return (
-        <div>
+        <div id='container'>
 
             {!isAligned && loaded && (
                 <img
@@ -255,6 +287,13 @@ const GiantJustice = () => {
                 >
                     { text[lang].experiences["justica-monstro"].alignScene }
                 </button>
+            )}
+            {ended && (
+                <div className="absolute w-5/6 h-5/6 top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center z-[1000]">
+                    {
+                    // Text to show after the video has ended
+                    }Text
+                </div>
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>

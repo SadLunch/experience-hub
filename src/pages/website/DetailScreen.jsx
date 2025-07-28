@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import play from '../../assets/play_correct_color.png';
 import text from "../../data/localization";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
+import socket from "../../components/useSocket";
 
 const DetailScreen = () => {
     const { id } = useParams();
@@ -17,6 +18,14 @@ const DetailScreen = () => {
     const experiment = locations.find((exp) => exp.experiment.id === id);
 
     const [lang, setLang] = useState(localStorage.getItem("lang") || "pt");
+
+    useEffect(() => {
+        socket.emit("join_experiment", id);
+
+        return () => {
+            socket.emit("leave_experiment", id);
+        }
+    }, [id]);
 
     useEffect(() => {
         console.log("Language changed to:", lang);

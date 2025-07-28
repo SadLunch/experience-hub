@@ -16,6 +16,7 @@ import AccordionItem from '../../components/AccordionItem';
 import Routing from '../../components/Routing';
 import text from '../../data/localization';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
+import socket from '../../components/useSocket';
 
 function generateMarkerSVG({
     text = '1',
@@ -83,12 +84,23 @@ const ExperiencesScreen = () => {
     const [selectedExperience, setSelectedExperience] = useState(null);
     const [uniqueKey] = useState(() => Date.now());
 
+    const [participants, setParticipants] = useState({});
+
     const [lang, setLang] = useState(localStorage.getItem("lang") || 'pt');
 
     useEffect(() => {
         console.log("Language changed to:", lang);
     }, [lang]);
 
+    useEffect(() => {
+        socket.on("update_participants", (data) => {
+            setParticipants(data);
+        });
+
+        return () => {
+            socket.off("update_participants")
+        }
+    })
 
     useEffect(() => {
         // console.log('Mounting component:', Date.now())
@@ -163,7 +175,7 @@ const ExperiencesScreen = () => {
                                     key={loc.id}
                                     position={loc.coordinates}
                                     icon={L.icon({
-                                        iconUrl: generateMarkerSVG({ text: loc.participants, fill: loc.color, textColor: '#000000', fontSize: 100, fontBase64: fontMap }), // Custom marker icon (optional)
+                                        iconUrl: generateMarkerSVG({ text: participants[loc.experiment.id], fill: loc.color, textColor: '#000000', fontSize: 100, fontBase64: fontMap }), // Custom marker icon (optional)
                                         shadowUrl: iconShadow,
                                         iconSize: [25, 41],
                                         iconAnchor: [12, 41],
