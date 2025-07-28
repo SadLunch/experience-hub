@@ -138,14 +138,15 @@ const text = {
             }
         },
         gremioLitFaces: [
-            { img: "/images/256px-AlexandreHerculano.png", name: "Alexandre Herculano", description: "" },
-            { img: "/images/256px-Almeida_Garrett_por_Guglielmi.jpg", name: "Almeida Garret", description: "" },
-            { img: "/images/256px-Rebello_da_Silva_-_Serões_(Abr1907).png", name: "Luís Augusto Rebelo da Silva", description: "" },
-            { img: "/images/256px-José_da_Silva_Mendes_Leal.png", name: "José da Silva Mendes Leal", description: "" },
-            { img: "/images/256px-Anselmo_José_Braamcamp,_1887_(London,_Maclure_&_Co.).png", name: "Anselmo José Braamcamp", description: "" },
-            { img: "/images/Rodrigo_da_Fonseca_Magalhães_(Grémio_Literário).png", name: "Rodrigo da Fonseca Magalhães", description: "" },
-            { img: "/images/256px-António_Maria_de_Fontes_Pereira_de_Melo,_1883.png", name: "António Maria de Fontes Pereira de Melo", description: "" },
-            { img: "/images/António_Rodrigues_Sampaio_(1806-1882).png", name: "António Rodrigues Sampaio", description: "" },
+            { img: "/images/256px-AlexandreHerculano.png", name: "Alexandre Herculano (1810 - 1877)", description: "" },
+            { img: "/images/256px-Almeida_Garrett_por_Guglielmi.jpg", name: "Almeida Garrett (1799 - 1854)", description: "" },
+            { img: "/images/256px-Rebello_da_Silva_-_Serões_(Abr1907).png", name: "Rebelo da Silva (1822 - 1871)", description: "" },
+            { img: "/images/256px-José_da_Silva_Mendes_Leal.png", name: "Mendes Leal (1820 - 1886)", description: "" },
+            { img: "/images/256px-Anselmo_José_Braamcamp,_1887_(London,_Maclure_&_Co.).png", name: "Anselmo Braamcamp (1817 - 1885)", description: "" },
+            { img: "/images/Rodrigo_da_Fonseca_Magalhães_(Grémio_Literário).png", name: "Rodrigo da Fonseca (1787 - 1858)", description: "" },
+            { img: "/images/256px-António_Maria_de_Fontes_Pereira_de_Melo,_1883.png", name: "Fontes Pereira de Melo (1819 - 1887)", description: "" },
+            { img: "/images/António_Rodrigues_Sampaio_(1806-1882).png", name: "Rodrigues Sampaio (1806 - 1882)", description: "" },
+            { img: "/images/Retrato_do_Marquês_de_Sá_da_Bandeira_-_Academia_Militar.png", name: "Sá da Bandeira (1795 - 1876)", description: ""}
         ],
     },
     "pt": {
