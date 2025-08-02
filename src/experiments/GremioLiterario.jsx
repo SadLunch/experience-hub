@@ -95,6 +95,7 @@ const GremioLiterario = ({ session, endSession }) => {
 
     const [showGameWonMessage, setShowGameWonMessage] = useState(false);
     const [showGameLostMessage, setShowGameLostMessage] = useState(false);
+    const [showClickAndFindMessage, setShowClickAndFindMessage] = useState(false);
 
     const hasPlaced = useRef(false);
 
@@ -1146,6 +1147,10 @@ const GremioLiterario = ({ session, endSession }) => {
                             setTimeout(() => {
                                 sceneRef.current.clear();
                                 setShowGameWonMessage(false);
+                                setShowClickAndFindMessage(true);
+                                setTimeout(() => {
+                                    setShowClickAndFindMessage(false);
+                                }, 5000);
                                 wonGame();
                             }, 4000);
                             // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
@@ -1383,6 +1388,21 @@ const GremioLiterario = ({ session, endSession }) => {
                     fontSize: "18px"
                 }}>
                     { text[lang].experiences["gremio-lit"].winMessage }
+                </div>
+            )}
+            {showClickAndFindMessage && (
+                <div style={{
+                    position: "absolute",
+                    top: "50%",
+                    left: "50%",
+                    transform: "translateX(-50%)",
+                    background: "rgba(0, 0, 0, 0.7)",
+                    color: "white",
+                    padding: "10px",
+                    borderRadius: "5px",
+                    fontSize: "18px"
+                }}>
+                    { text[lang].experiences["gremio-lit"].clickAndFindMessage }
                 </div>
             )}
             {showGameLostMessage && (

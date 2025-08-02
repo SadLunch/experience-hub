@@ -15,13 +15,13 @@ const DetailScreen = () => {
     const [mode, setMode] = useState('easy');
     const [ar, setAR] = useState(false);
     const [session, setSession] = useState(null);
+    const startTime = useRef(null);
     const experiment = locations.find((exp) => exp.experiment.id === id);
 
     const [lang, setLang] = useState(localStorage.getItem("lang") || "pt");
 
     useEffect(() => {
         socket.emit("join_experiment", id);
-
         return () => {
             socket.emit("leave_experiment", id);
         }
@@ -38,6 +38,11 @@ const DetailScreen = () => {
     const ComponentToRender = hasModes ? experiment.experiment.component[mode] : experiment.experiment.component;
 
     const handleEndSession = () => {
+        const timeTaken = Date.now() - startTime.current;
+        socket.emit("completed_experiment", {
+            experimentId: id,
+            timeTaken: timeTaken
+        });
         setSession(null);
         setAR(false);
     }
@@ -73,6 +78,7 @@ const DetailScreen = () => {
             }
             navigator.xr.requestSession('immersive-ar', experiment.experiment.sessionOptions)
                 .then((xrSession) => {
+                    startTime.current = Date.now();
                     xrSession.addEventListener('end', handleEndSession);
 
                     setSession(xrSession);

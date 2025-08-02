@@ -39,20 +39,6 @@ AFRAME.registerComponent('move-forward', {
             });
         }
     },
-    // init: function () {
-    //     const video = document.querySelector("#giantJustice");
-    //     if (video) {
-    //         video.addEventListener("ended", () => {
-    //             const container = document.querySelector("#container");
-                
-    //             const endDiv = document.createElement("div");
-    //             endDiv.className = "absolute w-5/6 top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center z-[1000]";
-    //             endDiv.innerText = "Text";
-
-    //             container.appendChild(endDiv);
-    //         })
-    //     }
-    // },
     tick: function (time, timeDelta) {
         const el = this.el;
         const position = el.object3D.getWorldPosition(new AFRAME.THREE.Vector3());

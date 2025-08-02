@@ -63,6 +63,7 @@ const text = {
                 ],
                 alignScene: "Align",
                 winMessage: "🎉 You Won! 🎉",
+                clickAndFindMessage: "Click to find out!",
                 gameOver: "Game Over!",
                 tryAgain: "Try Again",
             },
@@ -121,20 +122,22 @@ const text = {
                 takePhoto: "Click to take photo",
             },
         },
-        garffitiPos: {
+        graffitiPos: {
             "graffiti-1": {
                 title: "Adelaide Cabete",
                 imageAlt: "Full Graffiti",
                 dob: "January 25th, 1867",
                 dod: "September 14, 1935",
-                description: "",
+                imageDesc: 'Adelaide Cabete - "Não se assustem...porque nós  caminhamos para a Justiça, para a Verdade, para a Luz, para o Direito Humano"',
+                description: "Adelaide Cabete (1867-1935) was one of the most influential Portuguese feminists and republicans of the early 20th century. Born in Elvas, of humble origins, she worked from an early age to help her family, but with the support of her husband, Manuel Cabete, she managed to study and graduate in Medicine in 1900, becoming the third woman doctor in Portugal. Her thesis, A Proteção às Mulheres Grávidas Pobres, already revealed her commitment to social justice and women's rights, proposing pioneering measures such as maternity leave and state support for disadvantaged mothers.\nHer feminist activism was intense and multifaceted. She founded and chaired the National Council of Portuguese Women for over two decades, leading initiatives such as the Feminist and Education Congress (1924), where she presented proposals on childcare, feminine hygiene and combating alcoholism in schools. She defended women's suffrage, sex education, child protection and the dignity of women in all spheres of life. She was also the director of the magazine Alma Feminina, where she disseminated progressive and humanist ideas.\nA staunch Republican, she took an active part in the establishment of the Republic in 1910, having embroidered flags to be flown in Lisbon. Disillusioned with the country's political direction, especially with the rise of the Estado Novo, she moved to Angola in 1929, where she continued to practice medicine and fight for the rights of the most vulnerable. In 1933, she became the first and only woman to vote in Luanda under the new Constitution, in a symbolic gesture of resistance and affirmation.",
             },
             "graffiti-2": {
                 title: "Ana de Castro Osório",
                 imageAlt: "Full Graffiti",
                 dob: "June 18th, 1872",
                 dod: "March 23, 1935",
-                description: "",
+                imageDesc: 'Ana de Castro Osório  -" Ser feminista é  apenas ser justo e ser logico"',
+                description: `Ana de Castro Osório (1872-1935) was one of the most striking figures of feminism and republicanism in Portugal. Born in Mangualde, she grew up in a cultured and progressive family environment, which allowed her to develop a critical awareness and a passion for writing from an early age. She became a pioneer of Portuguese children's literature, creating the collection Para as Crianças and dedicating herself to literacy as an instrument of emancipation. She believed that education was the key to transforming society and freeing women from the legal and social subordination they faced at the beginning of the 20th century.\nHer feminist activism gained momentum with the publication, in 1905, of the manifesto Às Mulheres Portuguesas, considered the first Portuguese feminist manifesto. Ana founded and led several organizations, such as the Portuguese Group of Feminist Studies (1907), the Republican League of Portuguese Women (1909) and the Feminist Propaganda Association (1912), which was part of the International Women Suffrage Alliance. She defended women's right to vote, to education, to work and to economic independence, and collaborated with Afonso Costa in drafting the Divorce Law of 1910, one of the First Republic's first achievements in the field of civil rights.\nA staunch Republican, Ana de Castro Osório believed that the Republic should serve women and not the other way around. Despite her disillusionment with the direction of the Republic, she remained faithful to the ideals of justice and equality, dedicating herself to writing and social action.`,
             }
         },
         gremioLitFaces: [
@@ -213,6 +216,7 @@ const text = {
                 ],
                 alignScene: "Alinhar",
                 winMessage: "🎉 Ganhaste! 🎉",
+                clickAndFindMessage: "Clica e Descobre!",
                 gameOver: "Game Over!",
                 tryAgain: "Tentar novamente",
             },
@@ -271,20 +275,24 @@ const text = {
                 takePhoto: "Clique para fotografar",
             },
         },
-        garffitiPos: {
+        graffitiPos: {
             "graffiti-1": {
                 title: "Adelaide Cabete",
                 imageAlt: "Graffiti Completo",
                 dob: "25 de janeiro de 1867",
                 dod: "14 de setembro de 1935",
-                description: "",
+                imageDesc: 'Adelaide Cabete - "Não se assustem...porque nós  caminhamos para a Justiça, para a Verdade, para a Luz, para o Direito Humano"',
+                description: `Adelaide Cabete (1867–1935) foi uma das mais influentes feministas e republicanas portuguesas do início do século XX. Nascida em Elvas, de origem humilde, trabalhou desde cedo para ajudar a família, mas com o apoio do marido, Manuel Cabete, conseguiu estudar e formar-se em Medicina em 1900, tornando-se a terceira mulher médica em Portugal. A sua tese, A Proteção às Mulheres Grávidas Pobres, já revelava o seu compromisso com a justiça social e os direitos das mulheres, propondo medidas pioneiras como a licença de maternidade e o apoio estatal às mães desfavorecidas.\nA sua militância feminista foi intensa e multifacetada. Fundou e presidiu ao Conselho Nacional das Mulheres Portuguesas durante mais de duas décadas, liderando iniciativas como o Congresso Feminista e da Educação (1924), onde apresentou propostas sobre puericultura, higiene feminina e combate ao alcoolismo nas escolas. Defendia o sufrágio feminino, a educação sexual, a proteção da infância e a dignidade das mulheres em todas as esferas da vida. Foi também diretora da revista Alma Feminina, onde divulgava ideias progressistas e humanistas.\nRepublicana convicta, participou ativamente na implantação da República em 1910, tendo bordado bandeiras para serem hasteadas em Lisboa. Desiludida com o rumo político do país, especialmente com a ascensão do Estado Novo, mudou-se para Angola em 1929, onde continuou a exercer medicina e a lutar pelos direitos dos mais vulneráveis. Em 1933, tornou-se a primeira e única mulher a votar em Luanda sob a nova Constituição, num gesto simbólico de resistência e afirmação.
+`,
             },
             "graffiti-2": {
                 title: "Ana de Castro Osório",
                 imageAlt: "Graffiti Completo",
                 dob: "18 de junho de 1872",
                 dod: "23 de março de 1935",
-                description: "",
+                imageDesc: 'Ana de Castro Osório  -" Ser feminista é  apenas ser justo e ser logico"',
+                description: `Ana de Castro Osório (1872–1935) foi uma das figuras mais marcantes do feminismo e do republicanismo em Portugal. Nascida em Mangualde, cresceu num ambiente familiar culto e progressista, o que lhe permitiu desenvolver desde cedo uma consciência crítica e uma paixão pela escrita. Tornou-se pioneira da literatura infantil portuguesa, criando a coleção Para as Crianças e dedicando-se à alfabetização como instrumento de emancipação. Acreditava que a educação era a chave para transformar a sociedade e libertar as mulheres da subordinação legal e social que enfrentavam no início do século XX.\nA sua militância feminista ganhou força com a publicação, em 1905, do manifesto Às Mulheres Portuguesas, considerado o primeiro manifesto feminista português. Ana fundou e liderou várias organizações, como o Grupo Português de Estudos Feministas (1907), a Liga Republicana das Mulheres Portuguesas (1909) e a Associação de Propaganda Feminista (1912), que integrou a International Women Suffrage Alliance. Defendia o direito ao voto, à educação, ao trabalho e à independência económica das mulheres, e colaborou com Afonso Costa na elaboração da Lei do Divórcio de 1910, uma das primeiras conquistas da Primeira República no campo dos direitos civis.\nRepublicana convicta, Ana de Castro Osório acreditava que a República deveria servir as mulheres e não o contrário. Apesar de desilusões com o rumo da República, manteve-se fiel aos ideais de justiça e igualdade, dedicando-se à escrita e à ação social até ao fim da vida. A sua trajetória é um exemplo de coragem e visão, tendo deixado um legado duradouro na luta pelos direitos das mulheres e pela construção de uma sociedade mais justa.
+`,
             }
         },
         gremioLitFaces: [
