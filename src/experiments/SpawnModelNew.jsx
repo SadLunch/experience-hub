@@ -389,7 +389,15 @@ const SpawnModelNew = ({ session, endSession }) => {
         sceneRef.current.children.forEach((object) => {
           if (!object.isLight) {
             if (object.geometry) object.geometry.dispose();
-            if (object.material) object.material.dispose();
+            if (object.material) {
+              if (Array.isArray(object.material)) {
+                object.material.forEach((mat) => {
+                  mat.dispose();
+                })
+              } else {
+                object.material.dispose();
+              }
+            }
             sceneRef.current.remove(object);
           }
         });

@@ -1250,14 +1250,19 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
         if (!session) return;
 
         const cleanupScene = () => {
-            clearInterval(interval.current);
-            interval.current = null;
-
             if (sceneRef.current) {
                 sceneRef.current.children.forEach((object) => {
                     if (!object.isLight) {
                         if (object.geometry) object.geometry.dispose();
-                        if (object.material) object.material.dispose();
+                        if (object.material) {
+                            if (Array.isArray(object.material)) {
+                                object.material.forEach((mat) => {
+                                    mat.dispose();
+                                })
+                            } else {
+                                object.material.dispose();
+                            }
+                        }
                         sceneRef.current.remove(object);
                     }
                 });
@@ -1266,7 +1271,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
 
         initAR();
 
-        
+
 
         return () => {
             cleanupScene();
