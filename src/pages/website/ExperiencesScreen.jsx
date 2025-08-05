@@ -238,7 +238,7 @@ const ExperiencesScreen = () => {
                     <h1 className="text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontTitle">{ text[lang].global.title }</h1>
                     <div className='grid grid-cols-1 gap-4 p-4'>
                         {locations.map((loc) => (
-                            <AccordionItem key={loc.id} expId={loc.experiment.id} title={ text[lang].experiences[loc.experiment.id].title } finished={false} >
+                            <AccordionItem key={loc.id} expId={loc.experiment.id} title={ text[lang].experiences[loc.experiment.id].title } finished={ localStorage.getItem("completed")?.split(",").includes(loc.experiment.id) ?? false} >
                                 { text[lang].experiences[loc.experiment.id].description.length > 150 ? text[lang].experiences[loc.experiment.id].description.slice(0, 150) + "..." : text[lang].experiences[loc.experiment.id].description }
                             </AccordionItem>
                         ))}

@@ -16,6 +16,7 @@ const DetailScreen = () => {
     const [ar, setAR] = useState(false);
     const [session, setSession] = useState(null);
     const startTime = useRef(null);
+    const [finishedExperience, setFinishedExperience] = useState(false);
     const experiment = locations.find((exp) => exp.experiment.id === id);
 
     const [lang, setLang] = useState(localStorage.getItem("lang") || "pt");
@@ -24,6 +25,7 @@ const DetailScreen = () => {
         socket.emit("join_experiment", id);
         return () => {
             socket.emit("leave_experiment", id);
+            startTime.current = null;
         }
     }, [id]);
 
@@ -38,13 +40,12 @@ const DetailScreen = () => {
     const ComponentToRender = hasModes ? experiment.experiment.component[mode] : experiment.experiment.component;
 
     const handleEndSession = () => {
-        const timeTaken = Date.now() - startTime.current;
-        socket.emit("completed_experiment", {
-            experimentId: id,
-            timeTaken: timeTaken
-        });
         setSession(null);
         setAR(false);
+    }
+
+    const handleFinishedExperience = () => {
+        setFinishedExperience(true);
     }
 
     const enterFullscreen = () => {
@@ -76,9 +77,9 @@ const DetailScreen = () => {
                 // Show webXR not supported message to user
                 return;
             }
+            startTime.current = Date.now();
             navigator.xr.requestSession('immersive-ar', experiment.experiment.sessionOptions)
                 .then((xrSession) => {
-                    startTime.current = Date.now();
                     xrSession.addEventListener('end', handleEndSession);
 
                     setSession(xrSession);
@@ -89,6 +90,7 @@ const DetailScreen = () => {
                     //show user message that some trouble has ocurred
                 })
         } else {
+            startTime.current = Date.now();
             enterFullscreen();
             setAR(true);
         }
@@ -100,6 +102,50 @@ const DetailScreen = () => {
         } else {
             exitFullscreen();
             setAR(false);
+        }
+    }
+
+    const finishExperience = () => {
+        if (experiment.experiment.isWebXR) {
+            if (session) session.end();
+        } else {
+            exitFullscreen();
+            setAR(false);
+        }
+        const timeTaken = Date.now() - startTime.current;
+        socket.emit("completed_experiment", {
+            experimentId: id,
+            timeTaken: timeTaken
+        });
+        if (localStorage.getItem("completed")) {
+            let completedStr = localStorage.getItem("completed");
+            let completedList = completedStr.split(",");
+            if (!completedList.includes(id)) {
+                completedList.push(id);
+                let outputStr = completedList.join(",");
+                localStorage.setItem("completed", outputStr);
+            }
+        } else {
+            localStorage.setItem("completed", id);
+        }
+    }
+
+    const finishedExperienceGraffiti = () => {
+        const timeTaken = Date.now() - startTime.current;
+        socket.emit("completed_experiment", {
+            experimentId: id,
+            timeTaken: timeTaken
+        });
+        if (localStorage.getItem("completed")) {
+            let completedStr = localStorage.getItem("completed");
+            let completedList = completedStr.split(",");
+            if (!completedList.includes(id)) {
+                completedList.push(id);
+                let outputStr = completedList.join(",");
+                localStorage.setItem("completed", outputStr);
+            }
+        } else {
+            localStorage.setItem("completed", id);
         }
     }
 
@@ -150,13 +196,16 @@ const DetailScreen = () => {
             {ar && (
                 <div>
                     {hasModes && (
-                        <ComponentToRender session={session} endSession={endAR} id={id} />
+                        <ComponentToRender session={session} endSession={endAR} id={id} onFinish={finishedExperienceGraffiti} />
                     )}
                     {!hasModes && (
-                        <ComponentToRender session={session} endSession={endAR} />
+                        <ComponentToRender session={session} endSession={endAR} onFinish={handleFinishedExperience} />
                     )}
                     {/* <button className="absolute bg-gray-800 shadow-lg rounded-lg top-5 left-5 p-3" onClick={endAR}>← Back</button> */}
                     <BackButton lang={lang} callback={endAR} />
+                    {finishedExperience && (
+                        <button onClick={finishExperience} className="absolute bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                    )}
                 </div>
             )}
         </div>

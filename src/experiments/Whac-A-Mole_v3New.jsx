@@ -10,7 +10,7 @@ import text from "../data/localization";
 
 const raycaster = new THREE.Raycaster();
 
-const WhacAMoleV3New = ({ session, endSession }) => {
+const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
     const containerRef = useRef(null);
     const sceneRef = useRef(null);
     const cameraRef = useRef(null);
@@ -109,8 +109,9 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
     const updateGameState = () => {
         hasHammerLoaded.current = false;
-        instructionStepRef.current = null;
-        setIntructionStep(null);
+        nextInstructionStep(null);
+        // instructionStepRef.current = null;
+        // setIntructionStep(null);
         gameStartedRef.current = true;
         setGameStarted(true);
         loadBackgroundMusic();
@@ -651,6 +652,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                                     clearInterval(timerRef.current);
                                     clearInterval(spawnInterval); // stop mole spawning
                                     setGameOver(true);
+                                    onFinish();
                                     setGameStarted(null);
                                     controllerRef.current.removeEventListener("selectstart", onSelectStart);
                                     controllerRef.current.removeEventListener("selectend", onSelectEnd);
@@ -702,22 +704,22 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 
     return (
         <div ref={containerRef} style={{ width: "100vw", height: "100vh" }}>
-            {instructionStep === 0 && (
+            {!gameOver && instructionStep === 0 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     { text[lang].experiences["whac-a-mole"].instructions[instructionStep] }
                 </div>
             )}
-            {instructionStep === 1 && (
+            {!gameOver && instructionStep === 1 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     { text[lang].experiences["whac-a-mole"].instructions[instructionStep] }
                 </div>
             )}
-            {instructionStep === 2 && (
+            {!gameOver && instructionStep === 2 && (
                 <div className="absolute w-5/6 top-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     { text[lang].experiences["whac-a-mole"].instructions[instructionStep] }
                 </div>
             )}
-            {instructionStep === 3 && (
+            {!gameOver && instructionStep === 3 && (
                 <div className="absolute w-5/6 bottom-20 left-[50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center">
                     <div>{ text[lang].experiences["whac-a-mole"].instructions[instructionStep][0] }</div>
                     <div>{ text[lang].experiences["whac-a-mole"].instructions[instructionStep][1] }</div>
@@ -769,7 +771,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
             {gameOver && (
                 <div style={{
                     position: "absolute",
-                    top: "10px",
+                    top: "45%",
                     left: "50%",
                     transform: "translateX(-50%)",
                     background: "rgba(0, 0, 0, 0.7)",
@@ -781,7 +783,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                     { text[lang].experiences["whac-a-mole"].points }: {score}
                 </div>
             )}
-            {gameOver && (
+            {/* {gameOver && (
                 <button
                     onClick={endSession}
                     style={{
@@ -800,7 +802,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
                 >
                     { text[lang].experiences["whac-a-mole"].endSession }
                 </button>
-            )}
+            )} */}
 
         </div>
     );
@@ -809,6 +811,7 @@ const WhacAMoleV3New = ({ session, endSession }) => {
 WhacAMoleV3New.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
+    onFinish: propTypes.func.isRequired,
 }
 
 export default WhacAMoleV3New;

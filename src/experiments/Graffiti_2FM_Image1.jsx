@@ -11,7 +11,7 @@ import text from '../data/localization';
 
 const raycaster = new THREE.Raycaster();
 
-const Graffiti_2FM_Image1 = ({ session, endSession, id }) => {
+const Graffiti_2FM_Image1 = ({ session, endSession, id, onFinish }) => {
     const navigate = useNavigate();
     const containerRef = useRef(null);
 
@@ -492,6 +492,7 @@ const Graffiti_2FM_Image1 = ({ session, endSession, id }) => {
                                 // setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Adelaide Cabete", "#sufragistas"));
                                 session.end();
                                 navigate(`/hidden/website/experience/${id}/about`);
+                                onFinish();
                             } catch (err) {
                                 setError(err);
                             }
@@ -548,6 +549,7 @@ Graffiti_2FM_Image1.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
     id: propTypes.string,
+    onFinish: propTypes.func.isRequired,
 };
 
 export default Graffiti_2FM_Image1;

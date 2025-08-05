@@ -10,7 +10,7 @@ const AccordionItem = ({ title, expId, children, finished }) => {
 
     return (
         <div className={``} onClick={() => {setIsOpen(!isOpen)}}>
-            <div className={`rounded-xl border px-6 py-4 my-2 transition-all cursor-pointer border-[#5690CC] text-white font-fontBtnMenus text-2xl tracking-wider ${isOpen ? 'bg-[#5690CC]' : 'bg-black'} flex justify-between items-center`}>
+            <div className={`rounded-xl border px-6 py-4 my-2 transition-all cursor-pointer border-[#5690CC] text-white font-fontBtnMenus tracking-wider ${isOpen ? 'bg-[#5690CC] text-sm' : 'bg-black text-lg'} flex justify-between items-center`}>
                 <span>{ title }</span>
                 {/* icon of checkmark if experience concluded */}
                 {/* icon of play if item is open and not concluded */}

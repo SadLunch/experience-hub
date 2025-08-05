@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from 'react';
 import download from '../assets/download_icon.png';
 import photo from '../assets/photo_take.png';
 import text from '../data/localization';
+import propTypes from 'prop-types';
 
-const MindARFaceTracking = () => {
+const MindARFaceTracking = ({ onFinish }) => {
     const containerRef = useRef(null);
     const iframeRef = useRef(null);
     const [imageURL, setImageURL] = useState(null);
@@ -29,6 +30,7 @@ const MindARFaceTracking = () => {
         link.download = `screenshot_${timestamp}.png`;
         link.href = imageURL;
         link.click();
+        onFinish();
     }
 
     const triggerIframePhoto = () => {
@@ -82,6 +84,10 @@ const MindARFaceTracking = () => {
             )}
         </div>
     );
+}
+
+MindARFaceTracking.propTypes = {
+    onFinish: propTypes.func.isRequired,
 }
 
 export default MindARFaceTracking;

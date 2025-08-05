@@ -47,7 +47,7 @@ const ghostWaypoints = [
     new THREE.Vector3(-1, 11.7, -9),
 ];
 
-const GremioLiterario = ({ session, endSession }) => {
+const GremioLiterario = ({ session, endSession, onFinish }) => {
     const containerRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
@@ -1148,10 +1148,11 @@ const GremioLiterario = ({ session, endSession }) => {
                                 sceneRef.current.clear();
                                 setShowGameWonMessage(false);
                                 setShowClickAndFindMessage(true);
+                                wonGame();
                                 setTimeout(() => {
                                     setShowClickAndFindMessage(false);
+                                    onFinish();
                                 }, 5000);
-                                wonGame();
                             }, 4000);
                             // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
                         }
@@ -1551,6 +1552,7 @@ const GremioLiterario = ({ session, endSession }) => {
 GremioLiterario.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
+    onFinish: propTypes.func.isRequired,
 };
 
 export default GremioLiterario;
