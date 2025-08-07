@@ -16,7 +16,7 @@ const DetailScreen = () => {
     const [ar, setAR] = useState(false);
     const [session, setSession] = useState(null);
     const startTime = useRef(null);
-    const [finishedExperience, setFinishedExperience] = useState(false);
+    // const [finishedExperience, setFinishedExperience] = useState(false);
     const experiment = locations.find((exp) => exp.experiment.id === id);
 
     const [lang, setLang] = useState(localStorage.getItem("lang") || "pt");
@@ -44,9 +44,9 @@ const DetailScreen = () => {
         setAR(false);
     }
 
-    const handleFinishedExperience = () => {
-        setFinishedExperience(true);
-    }
+    // const handleFinishedExperience = () => {
+    //     setFinishedExperience(true);
+    // }
 
     const enterFullscreen = () => {
         if (!container.current) return;
@@ -156,7 +156,7 @@ const DetailScreen = () => {
                     <LanguageSwitcher onLanguageChange={setLang} />
                     <h1 className="text-2xl sm:text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontBtnMenus">{ text[lang].experiences[experiment.experiment.id].title }</h1>
                     {description.map((p, index) => (
-                        <p key={index} className="w-full font-fontSans text-justify px-10 py-2">{ p }</p>
+                        <p key={index} className="w-full font-fontSans text-justify text-white px-10 py-2">{ p }</p>
                     ))}
                     
 
@@ -199,13 +199,13 @@ const DetailScreen = () => {
                         <ComponentToRender session={session} endSession={endAR} id={id} onFinish={finishedExperienceGraffiti} />
                     )}
                     {!hasModes && (
-                        <ComponentToRender session={session} endSession={endAR} onFinish={handleFinishedExperience} />
+                        <ComponentToRender session={session} endSession={endAR} onFinish={finishExperience} />
                     )}
                     {/* <button className="absolute bg-gray-800 shadow-lg rounded-lg top-5 left-5 p-3" onClick={endAR}>← Back</button> */}
                     <BackButton lang={lang} callback={endAR} />
-                    {finishedExperience && (
-                        <button onClick={finishExperience} className="absolute bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
-                    )}
+                    {/* {finishedExperience && (
+                        <button onClick={finishExperience} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                    )} */}
                 </div>
             )}
         </div>

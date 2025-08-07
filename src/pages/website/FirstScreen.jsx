@@ -58,7 +58,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center mt-10'>
-                                        <p className='text-lg font-fontSnas'>{text[lang].firstScreen.introductionMessage1}</p>
+                                        <p className='text-lg font-fontSans text-white'>{text[lang].firstScreen.introductionMessage1}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -67,7 +67,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center'>
-                                        <p className='text-lg font-fontSnas'>{text[lang].firstScreen.introductionMessage2}</p>
+                                        <p className='text-lg font-fontSans text-white'>{text[lang].firstScreen.introductionMessage2}</p>
                                     </motion.div>
 
                                     <motion.div
@@ -93,7 +93,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center mt-10'>
-                                        <p className='text-lg font-fontSnas'>{text[lang].firstScreen.introductionMessage3}</p>
+                                        <p className='text-lg font-fontSans text-white'>{text[lang].firstScreen.introductionMessage3}</p>
                                     </motion.div>
 
                                     <motion.div

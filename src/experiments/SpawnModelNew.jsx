@@ -5,15 +5,16 @@ import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import { RGBELoader } from "three/examples/jsm/Addons.js";
 
 const images = [
-  { src: '/images/256px-AlexandreHerculano.png', name: 'Alexandre Herculano (1810 - 1877)'},
-  { src:'/images/256px-Almeida_Garrett_por_Guglielmi.jpg', name: 'Almeida Garrett (1799 - 1854)'},
-  { src: '/images/256px-Anselmo_José_Braamcamp,_1887_(London,_Maclure_&_Co.).png', name: 'Anselmo Braamcamp (1817 - 1885)'},
-  { src: '/images/256px-António_Maria_de_Fontes_Pereira_de_Melo,_1883.png', name: 'Fontes Pereira de Melo (1819 - 1887)'},
-  { src: '/images/256px-José_da_Silva_Mendes_Leal.png', name: 'Mendes Leal (1820 - 1886)'},
-  { src: '/images/256px-Rebello_da_Silva_-_Serões_(Abr1907).png', name: 'Rebelo da Silva (1822 - 1871)'},
-  { src: '/images/António_Rodrigues_Sampaio_(1806-1882).png', name: 'Rodrigues Sampaio (1806 - 1882)'},
-  { src: '/images/Retrato_do_Marquês_de_Sá_da_Bandeira_-_Academia_Militar.png', name: 'Sá da Bandeira (1795 - 1876)'},
-  { src: '/images/Rodrigo_da_Fonseca_Magalhães_(Grémio_Literário).png', name: 'Rodrigo da Fonseca (1787 - 1858)'},
+  { src: '/images/256px-AlexandreHerculano.png', name: 'Alexandre Herculano (1810 - 1877)', description: "História da Origem e Estabelecimento da Inquisição em Portugal - Tomo I\n\nAnalisa o surgimento da Inquisição na Europa e em Portugal, a situação dos judeus, e as suas relações com o poder político nos séculos XV e XVI."},
+  { src:'/images/256px-Almeida_Garrett_por_Guglielmi.jpg', name: 'Almeida Garrett (1799 - 1854)', description: "Portugal Na Balança da Europa\n\nNesta obra, Garrett analisa a crise política portuguesa, inserindo-a no contexto europeu e apelando à moderação das fações  políticas durante a contrarrevolução miguelista."},
+  { src: '/images/Urbano_Tavares_Rodrigues.jpg', name: 'Urbano Tavares Rodrigues (1923 - 2013)', description: "Os Insubmissos\n\nUm livro que nos obriga a questionar a sociedade, em nome de uma justiça existencial."},
+  { src: '/images/jose-saramago.jpg', name: 'José Saramago (1922 - 2010)', description: "Ensaio sobre a Lucidez\n\nJosé Saramago constrói uma poderosa alegoria sobre o embate entre o poder instituído e a vontade coletiva, denunciando a fragilidade da justiça quando os interesses públicos são ignorados."},
+  { src: '/images/Francisco_Teixeira_de_Queirós_(Ilustração_Portugueza).png', name: 'Francisco Teixeira de Queiroz (1849 - 1919)', description: "Comédia Burguesa\n\nEste conjunto de romances traça um retrato multifacetado da Lisboa do século XIX, abordando tensões sociais, políticas e éticas."},
+  { src: '/images/Eça_de_Queirós_c._1882.jpg', name: 'Eça de Queiroz (1845 - 1900)', description: "A Ilustre Casa de Ramires\n\nO contraste entre feitos heroicos e a mesquinhez provinciana sugere uma crítica ao comodismo político e social, onde a justiça ética se torna tema central."},
+  { src: '/images/Retrato_de_Abel_Botelho_(1889)_-_António_Ramalho_Júnior_(Museu_Nacional_de_Arte_Contemporânea_-_Museu_do_Chiado).png', name: 'Abel Botelho (1854 - 1917)', description: "Amanhã\n\nAo abordar a chegada de ideias anarquistas e o sofrimento da classe trabalhadora, a obra levanta questões sobre equidade, dignidade e luta por direitos sociais."},
+  { src: '/images/Carlos_Amaro_de_Miranda_e_Silva_(As_Constituintes_de_1911_e_os_seus_Deputados,_Livr._Ferreira,_1911).png', name: 'Carlos Amaro (1879 - 1946)', description: "S. João Subiu ao Trono\n\nPeça lírica, escrita para crianças, que conjuga beleza poética com valores de justiça e bondade."},
+  { src: '/images/sophia.jpg', name: 'Sophia de Mello Breyner Andresen (1919 - 2004)', description: 'Mar Novo\n\n“Senhor se da tua pura justiça\nNascem os monstros que em minha roda eu vejo\nÉ porque alguém te venceu ou desviou\nEm não sei que penumbra os teus caminhos\nForam talvez os anjos revoltados.\nMuito tempo antes de eu ter vindo\nJá se tinha a tua obra dividido\nE em vão eu busco a tua face antiga\nÉs sempre um deus que nunca tem um rosto\nPor muito que eu te chame e te persiga.”'},
+  { src: '/images/Teófilo_Braga_(1915)_-_Fotografia_Vasques,_Lisboa_(Museu_da_Presidência_da_República).png', name: 'Teófilo Braga (1843 - 1924)', description: "Poesia do Direito\n\nReflete sobre como arte, religião e política revelam a busca humana por justiça, beleza e verdade através da criação poética. A poesia é apresentada como força fundadora que permite traduzir o espírito em linguagem, sendo essencial nas eras de transformação e progresso social."},
 ]
 
 const SpawnModelNew = ({ session, endSession }) => {
@@ -83,6 +84,97 @@ const SpawnModelNew = ({ session, endSession }) => {
     sceneRef.current.add(nameplate);
   }
 
+  const createBackPainting = (text) => {
+
+    const canvas = document.createElement("canvas");
+    const canvasTexture = new THREE.CanvasTexture(canvas);
+
+    canvas.width = 1300;
+    canvas.height = 1800;
+
+    const ctx = canvas.getContext("2d");
+
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    ctx.fillStyle = "#000000";
+    ctx.font = 'bold 10vh sans-serif';
+    ctx.textAlign = 'center';
+
+    const wrappedText = wrapText(ctx, text, canvas.width / 2, 200, canvas.width - 200, 100);
+    wrappedText.forEach((item) => {
+      if (item[3] === 0) {
+        ctx.font = '8vh sans-serif';
+        ctx.textAlign = 'center';
+      }
+      ctx.fillText(item[0], item[1], item[2]);
+    })
+
+    // ctx.fillText(text, canvas.width / 2, 70);
+
+    // const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture });
+
+    return canvasTexture;
+  }
+
+  // @description: wrapText wraps HTML canvas text onto a canvas of fixed width
+  // @param ctx - the context for the canvas we want to wrap text on
+  // @param text - the text we want to wrap.
+  // @param x - the X starting point of the text on the canvas.
+  // @param y - the Y starting point of the text on the canvas.
+  // @param maxWidth - the width at which we want line breaks to begin - i.e. the maximum width of the canvas.
+  // @param lineHeight - the height of each line, so we can space them below each other.
+  // @returns an array of [ lineText, x, y ] for all lines
+  const wrapText = function (ctx, text, x, y, maxWidth, lineHeight) {
+    let paragraphs = text.split('\n');
+    let lineArray = []; // This is an array of lines, which the function will return
+
+    for (var p = 0; p < paragraphs.length; p++) {
+      // First, start by splitting all of our text into words, but splitting it into an array split by spaces
+      let words = paragraphs[p].split(' ');
+      let line = ''; // This will store the text of the current line
+      let testLine = ''; // This will store the text when we add a word, to test if it's too long
+
+      // Lets iterate over each word
+      for (var n = 0; n < words.length; n++) {
+        // Create a test line, and measure it..
+        testLine += `${words[n]} `;
+        let metrics = ctx.measureText(testLine);
+        let testWidth = metrics.width;
+        // If the width of this test line is more than the max width
+        if (testWidth > maxWidth && n > 0) {
+          // Then the line is finished, push the current line into "lineArray"
+          if (p === 0) {
+            lineArray.push([line, x, y, 1]);
+          } else {
+            lineArray.push([line, x, y, 0]);
+          }
+          // Increase the line height, so a new line is started
+          y += lineHeight;
+          // Update line and test line to use this word as the first word on the next line
+          line = `${words[n]} `;
+          testLine = `${words[n]} `;
+        }
+        else {
+          // If the test line is still less than the max width, then add the word to the current line
+          line += `${words[n]} `;
+        }
+        // If we never reach the full max width, then there is only one line.. so push it into the lineArray so we return something
+        if (n === words.length - 1) {
+          if (p === 0) {
+            lineArray.push([line, x, y, 1]);
+          } else {
+            lineArray.push([line, x, y, 0]);
+          }
+        }
+      }
+      y += lineHeight;
+    }
+
+    // Return the line array
+    return lineArray;
+  }
+
   const createFullPaintings = () => {
     if (!objectRef.current || !sceneRef.current) return;
     images.forEach((image, i) => {
@@ -92,9 +184,11 @@ const SpawnModelNew = ({ session, endSession }) => {
 
       const faceTexture = new THREE.TextureLoader().load(image.src);
 
+      const backTexture = createBackPainting(image.description);
+
       const faceMaterial = new THREE.MeshBasicMaterial({ map: faceTexture, side: THREE.FrontSide });
 
-      const backMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+      const backMaterial = new THREE.MeshBasicMaterial({ map: backTexture, side: THREE.FrontSide })
 
       const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
 
@@ -120,8 +214,8 @@ const SpawnModelNew = ({ session, endSession }) => {
       const x = - (5 * Math.cos(angle) + Math.cos(Math.PI/2));
       const z = - (5 * Math.sin(angle) + Math.cos(Math.PI/2));
 
-      const to_x = - (0.5 * Math.cos(angle) + Math.cos(Math.PI/2));
-      const to_z = - (0.5 * Math.sin(angle) + Math.cos(Math.PI/2));
+      const to_x = - (0.8 * Math.cos(angle) + Math.cos(Math.PI/2));
+      const to_z = - (0.8 * Math.sin(angle) + Math.cos(Math.PI/2));
 
       object.position.set(x, 0, z)//.applyMatrix4(cameraRef.current.matrixWorld); // Place model in front of camera
       //model.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);

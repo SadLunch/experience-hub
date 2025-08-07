@@ -67,6 +67,7 @@ const GiantJustice = ({ onFinish }) => {
     const [ended, setEnded] = useState(false);
     const videoEntityRef = useRef(null);
     const streamRef = useRef(null);
+    const [showFinishButton, setShowFinishButton] = useState(false);
     // const [zValue, setZValue] = useState(-70);
     // const zValueRef = useRef(-70);
     // const intervalRef = useRef(null);
@@ -126,7 +127,7 @@ const GiantJustice = ({ onFinish }) => {
             console.log("Video Ended");
             setEnded(true);
             setTimeout(() => {
-                onFinish();
+                setShowFinishButton(true);
             }, 5000);
         }
 
@@ -284,6 +285,9 @@ const GiantJustice = ({ onFinish }) => {
                     // Text to show after the video has ended
                     }Text
                 </div>
+            )}
+            {showFinishButton && (
+                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>

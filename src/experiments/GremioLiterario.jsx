@@ -96,6 +96,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
     const [showGameWonMessage, setShowGameWonMessage] = useState(false);
     const [showGameLostMessage, setShowGameLostMessage] = useState(false);
     const [showClickAndFindMessage, setShowClickAndFindMessage] = useState(false);
+    const [showFinishButton, setShowFinishButton] = useState(false);
 
     const hasPlaced = useRef(false);
 
@@ -342,6 +343,97 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
     //     return lineArray;
     // }
 
+    const createBackPainting = (text) => {
+
+        const canvas = document.createElement("canvas");
+        const canvasTexture = new THREE.CanvasTexture(canvas);
+
+        canvas.width = 1300;
+        canvas.height = 1800;
+
+        const ctx = canvas.getContext("2d");
+
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+        ctx.fillStyle = "#000000";
+        ctx.font = 'bold 10vh sans-serif';
+        ctx.textAlign = 'center';
+
+        const wrappedText = wrapText(ctx, text, canvas.width / 2, 200, canvas.width - 200, 100);
+        wrappedText.forEach((item) => {
+            if (item[3] === 0) {
+                ctx.font = '8vh sans-serif';
+                ctx.textAlign = 'center';
+            }
+            ctx.fillText(item[0], item[1], item[2]);
+        })
+
+        // ctx.fillText(text, canvas.width / 2, 70);
+
+        // const canvasMaterial = new THREE.MeshBasicMaterial({ map: canvasTexture });
+
+        return canvasTexture;
+    }
+
+    // @description: wrapText wraps HTML canvas text onto a canvas of fixed width
+    // @param ctx - the context for the canvas we want to wrap text on
+    // @param text - the text we want to wrap.
+    // @param x - the X starting point of the text on the canvas.
+    // @param y - the Y starting point of the text on the canvas.
+    // @param maxWidth - the width at which we want line breaks to begin - i.e. the maximum width of the canvas.
+    // @param lineHeight - the height of each line, so we can space them below each other.
+    // @returns an array of [ lineText, x, y ] for all lines
+    const wrapText = function (ctx, text, x, y, maxWidth, lineHeight) {
+        let paragraphs = text.split('\n');
+        let lineArray = []; // This is an array of lines, which the function will return
+
+        for (var p = 0; p < paragraphs.length; p++) {
+            // First, start by splitting all of our text into words, but splitting it into an array split by spaces
+            let words = paragraphs[p].split(' ');
+            let line = ''; // This will store the text of the current line
+            let testLine = ''; // This will store the text when we add a word, to test if it's too long
+
+            // Lets iterate over each word
+            for (var n = 0; n < words.length; n++) {
+                // Create a test line, and measure it..
+                testLine += `${words[n]} `;
+                let metrics = ctx.measureText(testLine);
+                let testWidth = metrics.width;
+                // If the width of this test line is more than the max width
+                if (testWidth > maxWidth && n > 0) {
+                    // Then the line is finished, push the current line into "lineArray"
+                    if (p === 0) {
+                        lineArray.push([line, x, y, 1]);
+                    } else {
+                        lineArray.push([line, x, y, 0]);
+                    }
+                    // Increase the line height, so a new line is started
+                    y += lineHeight;
+                    // Update line and test line to use this word as the first word on the next line
+                    line = `${words[n]} `;
+                    testLine = `${words[n]} `;
+                }
+                else {
+                    // If the test line is still less than the max width, then add the word to the current line
+                    line += `${words[n]} `;
+                }
+                // If we never reach the full max width, then there is only one line.. so push it into the lineArray so we return something
+                if (n === words.length - 1) {
+                    if (p === 0) {
+                        lineArray.push([line, x, y, 1]);
+                    } else {
+                        lineArray.push([line, x, y, 0]);
+                    }
+                }
+            }
+            y += lineHeight;
+        }
+
+        // Return the line array
+        return lineArray;
+    }
+
     const createPaintingNameplate = (name, width, position) => {
 
         const canvas = document.createElement("canvas");
@@ -389,11 +481,12 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
         const paintingGroup = new THREE.Group();
         sceneRef.current.add(paintingGroup);
         paintingGroupRef.current = paintingGroup;
+        let auxList = [...text[lang].gremioLitFaces];
 
         for (let i = 0; i < text[lang].gremioLitFaces.length; i++) {
             if (i >= n) break;
 
-            const author = text[lang].gremioLitFaces[i];
+            const author = auxList.splice(Math.floor(Math.random() * auxList.length), 1)[0];
 
             const object = new THREE.Object3D();
             object.add(paintingRef.current.clone());
@@ -401,9 +494,11 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
 
             const faceTexture = new THREE.TextureLoader().load(author.img);
 
+            const backTexture = createBackPainting(author.description)
+
             const faceMaterial = new THREE.MeshBasicMaterial({ map: faceTexture, side: THREE.FrontSide });
 
-            const backMaterial = new THREE.MeshBasicMaterial({ color: 0xffffff, side: THREE.DoubleSide })
+            const backMaterial = new THREE.MeshBasicMaterial({ map: backTexture, side: THREE.FrontSide })
 
             const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
 
@@ -1151,7 +1246,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
                                 wonGame();
                                 setTimeout(() => {
                                     setShowClickAndFindMessage(false);
-                                    onFinish();
+                                    setShowFinishButton(true);
                                 }, 5000);
                             }, 4000);
                             // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
@@ -1384,7 +1479,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
             {showGameWonMessage && (
                 <div style={{
                     position: "absolute",
-                    top: "50%",
+                    top: "45%",
                     left: "50%",
                     transform: "translateX(-50%)",
                     background: "rgba(0, 0, 0, 0.7)",
@@ -1410,6 +1505,9 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
                 }}>
                     { text[lang].experiences["gremio-lit"].clickAndFindMessage }
                 </div>
+            )}
+            {showFinishButton && (
+                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
             {showGameLostMessage && (
                 <div style={{

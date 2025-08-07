@@ -9,6 +9,7 @@ const MindARFaceTracking = ({ onFinish }) => {
     const containerRef = useRef(null);
     const iframeRef = useRef(null);
     const [imageURL, setImageURL] = useState(null);
+    const [showFinishButton, setShowFinishButton] = useState(false);
 
     const [lang] = useState(localStorage.getItem("lang") || 'pt');
 
@@ -30,7 +31,7 @@ const MindARFaceTracking = ({ onFinish }) => {
         link.download = `screenshot_${timestamp}.png`;
         link.href = imageURL;
         link.click();
-        onFinish();
+        setShowFinishButton(true);
     }
 
     const triggerIframePhoto = () => {
@@ -81,6 +82,9 @@ const MindARFaceTracking = ({ onFinish }) => {
                         </span>
                     </div>
                 </div>
+            )}
+            {showFinishButton && (
+                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
         </div>
     );

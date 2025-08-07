@@ -43,6 +43,7 @@ const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
     const [gameStarted, setGameStarted] = useState(false);
     const [gameOver, setGameOver] = useState(false);
     const [score, setScore] = useState(0);
+    const [showFinishButton, setShowFinishButton] = useState(false);
 
     // Music variables
     const [bgMusicPlaying, setBgMusicPlaying] = useState(true);
@@ -652,7 +653,7 @@ const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
                                     clearInterval(timerRef.current);
                                     clearInterval(spawnInterval); // stop mole spawning
                                     setGameOver(true);
-                                    onFinish();
+                                    setShowFinishButton(true);
                                     setGameStarted(null);
                                     controllerRef.current.removeEventListener("selectstart", onSelectStart);
                                     controllerRef.current.removeEventListener("selectend", onSelectEnd);
@@ -782,6 +783,9 @@ const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
                 }}>
                     { text[lang].experiences["whac-a-mole"].points }: {score}
                 </div>
+            )}
+            {showFinishButton && (
+                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
             {/* {gameOver && (
                 <button

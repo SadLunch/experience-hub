@@ -63,6 +63,7 @@ const text = {
                 ],
                 alignScene: "Align",
                 winMessage: "🎉 You Won! 🎉",
+                explore: "Explore More",
                 clickAndFindMessage: "Click to find out!",
                 gameOver: "Game Over!",
                 tryAgain: "Try Again",
@@ -216,6 +217,7 @@ const text = {
                 ],
                 alignScene: "Alinhar",
                 winMessage: "🎉 Ganhaste! 🎉",
+                explore: "Explore Mais",
                 clickAndFindMessage: "Clica e Descobre!",
                 gameOver: "Game Over!",
                 tryAgain: "Tentar novamente",
@@ -296,15 +298,16 @@ const text = {
             }
         },
         gremioLitFaces: [
-            { img: "/images/256px-AlexandreHerculano.png", name: "Alexandre Herculano (1810 - 1877)", description: "" },
-            { img: "/images/256px-Almeida_Garrett_por_Guglielmi.jpg", name: "Almeida Garrett (1799 - 1854)", description: "" },
-            { img: "/images/256px-Rebello_da_Silva_-_Serões_(Abr1907).png", name: "Rebelo da Silva (1822 - 1871)", description: "" },
-            { img: "/images/256px-José_da_Silva_Mendes_Leal.png", name: "Mendes Leal (1820 - 1886)", description: "" },
-            { img: "/images/256px-Anselmo_José_Braamcamp,_1887_(London,_Maclure_&_Co.).png", name: "Anselmo Braamcamp (1817 - 1885)", description: "" },
-            { img: "/images/Rodrigo_da_Fonseca_Magalhães_(Grémio_Literário).png", name: "Rodrigo da Fonseca (1787 - 1858)", description: "" },
-            { img: "/images/256px-António_Maria_de_Fontes_Pereira_de_Melo,_1883.png", name: "Fontes Pereira de Melo (1819 - 1887)", description: "" },
-            { img: "/images/António_Rodrigues_Sampaio_(1806-1882).png", name: "Rodrigues Sampaio (1806 - 1882)", description: "" },
-            { img: "/images/Retrato_do_Marquês_de_Sá_da_Bandeira_-_Academia_Militar.png", name: "Sá da Bandeira (1795 - 1876)", description: ""}
+            { img: "/images/256px-AlexandreHerculano.png", name: "Alexandre Herculano (1810 - 1877)", description: "História da Origem e Estabelecimento da Inquisição em Portugal - Tomo I\n\nAnalisa o surgimento da Inquisição na Europa e em Portugal, a situação dos judeus, e as suas relações com o poder político nos séculos XV e XVI." },
+            { img: "/images/256px-Almeida_Garrett_por_Guglielmi.jpg", name: "Almeida Garrett (1799 - 1854)", description: "Portugal Na Balança da Europa\n\nNesta obra, Garrett analisa a crise política portuguesa, inserindo-a no contexto europeu e apelando à moderação das fações  políticas durante a contrarrevolução miguelista." },
+            { img: "/images/Urbano_Tavares_Rodrigues.jpg", name: 'Urbano Tavares Rodrigues (1923 - 2013)', description: "Os Insubmissos\n\nUm livro que nos obriga a questionar a sociedade, em nome de uma justiça existencial." },
+            { img: '/images/jose-saramago.jpg', name: 'José Saramago (1922 - 2010)', description: "Ensaio sobre a Lucidez\n\nJosé Saramago constrói uma poderosa alegoria sobre o embate entre o poder instituído e a vontade coletiva, denunciando a fragilidade da justiça quando os interesses públicos são ignorados." },
+            { img: '/images/Francisco_Teixeira_de_Queirós_(Ilustração_Portugueza).png', name: 'Francisco Teixeira de Queiroz (1849 - 1919)', description: "Comédia Burguesa\n\nEste conjunto de romances traça um retrato multifacetado da Lisboa do século XIX, abordando tensões sociais, políticas e éticas." },
+            { img: '/images/Eça_de_Queirós_c._1882.jpg', name: 'Eça de Queiroz (1845 - 1900)', description: "A Ilustre Casa de Ramires\n\nO contraste entre feitos heroicos e a mesquinhez provinciana sugere uma crítica ao comodismo político e social, onde a justiça ética se torna tema central." },
+            { img: '/images/Retrato_de_Abel_Botelho_(1889)_-_António_Ramalho_Júnior_(Museu_Nacional_de_Arte_Contemporânea_-_Museu_do_Chiado).png', name: 'Abel Botelho (1854 - 1917)', description: "Amanhã\n\nAo abordar a chegada de ideias anarquistas e o sofrimento da classe trabalhadora, a obra levanta questões sobre equidade, dignidade e luta por direitos sociais." },
+            { img: '/images/Carlos_Amaro_de_Miranda_e_Silva_(As_Constituintes_de_1911_e_os_seus_Deputados,_Livr._Ferreira,_1911).png', name: 'Carlos Amaro (1879 - 1946)', description: "S. João Subiu ao Trono\n\nPeça lírica, escrita para crianças, que conjuga beleza poética com valores de justiça e bondade." },
+            { img: '/images/sophia.jpg', name: 'Sophia de Mello Breyner Andresen (1919 - 2004)', description: 'Mar Novo\n\n“Senhor se da tua pura justiça\nNascem os monstros que em minha roda eu vejo\nÉ porque alguém te venceu ou desviou\nEm não sei que penumbra os teus caminhos\nForam talvez os anjos revoltados.\nMuito tempo antes de eu ter vindo\nJá se tinha a tua obra dividido\nE em vão eu busco a tua face antiga\nÉs sempre um deus que nunca tem um rosto\nPor muito que eu te chame e te persiga.”'},
+            { img: '/images/Teófilo_Braga_(1915)_-_Fotografia_Vasques,_Lisboa_(Museu_da_Presidência_da_República).png', name: 'Teófilo Braga (1843 - 1924)', description: "Poesia do Direito\n\nReflete sobre como arte, religião e política revelam a busca humana por justiça, beleza e verdade através da criação poética. A poesia é apresentada como força fundadora que permite traduzir o espírito em linguagem, sendo essencial nas eras de transformação e progresso social." }
         ],
     },
 };
