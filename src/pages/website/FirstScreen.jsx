@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 // import BackButton from '../../components/BackButton';
 import text from '../../data/localization';
 import { Link, useNavigate } from 'react-router-dom';
-import BackButton from '../../components/BackButton';
+// import BackButton from '../../components/BackButton';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 
 const FirstScreen = () => {
@@ -20,14 +20,13 @@ const FirstScreen = () => {
     }, [lang]);
 
     const goToMap = () => {
-        localStorage.setItem('backLink', '/hidden/website');
-        navigate("/hidden/website/experiences");
+        localStorage.setItem('backLink', '/');
+        navigate("/experiences");
     }
 
     return (
         <div className={`flex flex-col items-center  transition-all duration-700 ease-in-out min-h-screen w-screen overflow-hidden bg-black ${!logoClicked ? "justify-center" : ""}`}>
-            <BackButton lang={lang} to='/' />
-            <LanguageSwitcher onLanguageChange={setLang} />
+            {/* <BackButton lang={lang} to='/' /> */}
             {!logoClicked && (
                 <h1 className={`mt-5 text-[#E6E518] font-bold font-fontTitle transition-all duration-700 ease-in-out text-3xl ${logoClicked ? "opacity-0 scale-90" : "opacity-100 scale-100"}`}>{ text[lang].firstScreen.title }</h1>
             )}
@@ -49,6 +48,7 @@ const FirstScreen = () => {
             <AnimatePresence>
                 {logoClicked && (
                     <div>
+                        <LanguageSwitcher onLanguageChange={setLang} />
                         <AnimatePresence>
                             {firstPart && (
                                 <div>

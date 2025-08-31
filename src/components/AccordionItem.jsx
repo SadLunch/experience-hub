@@ -18,7 +18,7 @@ const AccordionItem = ({ title, expId, children, finished }) => {
                     <img src={check_correct_color} className="h-[64px] max-w-[64px]" />
                 )}
                 {isOpen && (
-                    <Link to={`/hidden/website/experience/${expId}`}>
+                    <Link to={`/experience/${expId}`}>
                         <img src={play_correct_color} className="h-[64px] max-w-[64px]" />
                     </Link>
                 )}

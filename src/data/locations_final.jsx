@@ -1,8 +1,8 @@
 import GiantJustice from "../experiments/GiantJusticeExperiment";
 import Graffiti_1FM_Image1 from "../experiments/Graffiti_1FM_Image1";
 import Graffiti_1FM_Image2 from "../experiments/Graffiti_1FM_Image2";
-import Graffiti_2FM_Image1 from "../experiments/Graffiti_2FM_Image1";
-import Graffiti_2FM_Image2 from "../experiments/Graffiti_2FM_Image2";
+// import Graffiti_2FM_Image1 from "../experiments/Graffiti_2FM_Image1";
+// import Graffiti_2FM_Image2 from "../experiments/Graffiti_2FM_Image2";
 import GremioLiterario from "../experiments/GremioLiterario";
 import MindARFaceTracking from "../experiments/MindARFaceTracking";
 import WhacAMoleV3New from "../experiments/Whac-A-Mole_v3New";
@@ -61,10 +61,11 @@ export const locations = [
         color: '#5690CC' /* Color code */,
         experiment: {
             id: 'graffiti-1' /* Text */,
-            component: {
-                'easy': Graffiti_1FM_Image1,
-                'hard': Graffiti_2FM_Image1
-            } /*Placeholder*/,
+            component: Graffiti_1FM_Image1,
+            // component: {
+            //     'easy': Graffiti_1FM_Image1,
+            //     'hard': Graffiti_2FM_Image1
+            // } /*Placeholder*/,
             sessionOptions: {
                 requiredFeatures: ['dom-overlay'] /*Placeholder*/,
                 domOverlay: { root: document.body },
@@ -87,10 +88,11 @@ export const locations = [
         color: '#B0D351' /* Color code */,
         experiment: {
             id: 'graffiti-2' /* Text */,
-            component: {
-                'easy': Graffiti_1FM_Image2,
-                'hard': Graffiti_2FM_Image2
-            }/*Placeholder*/,
+            component: Graffiti_1FM_Image2,
+            // component: {
+            //     'easy': Graffiti_1FM_Image2,
+            //     'hard': Graffiti_2FM_Image2
+            // }/*Placeholder*/,
             sessionOptions: {
                 requiredFeatures: ['dom-overlay'] /*Placeholder*/,
                 domOverlay: { root: document.body },

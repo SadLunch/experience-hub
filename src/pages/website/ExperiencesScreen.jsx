@@ -219,7 +219,7 @@ const ExperiencesScreen = () => {
                                 }</p>
                                 <div className='flex justify-between items-center'>
                                     <Link
-                                        to={`/hidden/website/experience/${selectedExperience.experiment.id}`}
+                                        to={`/experience/${selectedExperience.experiment.id}`}
                                         className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
                                     >
                                         { text[lang].mapScreen.btnExperienceDetail }
@@ -246,7 +246,7 @@ const ExperiencesScreen = () => {
                 </div>
             )}
             <LanguageSwitcher onLanguageChange={setLang} />
-            <BackButton to={localStorage.getItem('backLink')} />
+            <BackButton lang={lang} to={'/'} />
         </div>
     );
 

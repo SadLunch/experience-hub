@@ -12,7 +12,7 @@ const DetailScreen = () => {
 
     const container = useRef(null);
 
-    const [mode, setMode] = useState('easy');
+    // const [mode, setMode] = useState('easy');
     const [ar, setAR] = useState(false);
     const [session, setSession] = useState(null);
     const startTime = useRef(null);
@@ -35,9 +35,11 @@ const DetailScreen = () => {
 
     const description = text[lang].experiences[experiment.experiment.id].description.split('\n');
 
-    const hasModes = typeof experiment.experiment.component === 'object' && !Array.isArray(experiment.experiment.component);
+    // const hasModes = typeof experiment.experiment.component === 'object' && !Array.isArray(experiment.experiment.component);
 
-    const ComponentToRender = hasModes ? experiment.experiment.component[mode] : experiment.experiment.component;
+    // const ComponentToRender = hasModes ? experiment.experiment.component[mode] : experiment.experiment.component;
+
+    const ComponentToRender = experiment.experiment.component;
 
     const handleEndSession = () => {
         setSession(null);
@@ -105,7 +107,7 @@ const DetailScreen = () => {
         }
     }
 
-    const finishExperience = () => {
+    const finishExperience = (object) => {
         if (experiment.experiment.isWebXR) {
             if (session) session.end();
         } else {
@@ -113,10 +115,11 @@ const DetailScreen = () => {
             setAR(false);
         }
         const timeTaken = Date.now() - startTime.current;
-        socket.emit("completed_experiment", {
-            experimentId: id,
-            timeTaken: timeTaken
-        });
+        const readableTime = new Date(timeTaken);
+
+        let time = `${readableTime.getUTCMinutes()}:${readableTime.getUTCSeconds()}.${readableTime.getUTCMilliseconds()}`
+        const payload = { ...object, 'Time in Experience': time };
+        socket.emit("completed_experiment", payload);
         if (localStorage.getItem("completed")) {
             let completedStr = localStorage.getItem("completed");
             let completedList = completedStr.split(",");
@@ -130,24 +133,24 @@ const DetailScreen = () => {
         }
     }
 
-    const finishedExperienceGraffiti = () => {
-        const timeTaken = Date.now() - startTime.current;
-        socket.emit("completed_experiment", {
-            experimentId: id,
-            timeTaken: timeTaken
-        });
-        if (localStorage.getItem("completed")) {
-            let completedStr = localStorage.getItem("completed");
-            let completedList = completedStr.split(",");
-            if (!completedList.includes(id)) {
-                completedList.push(id);
-                let outputStr = completedList.join(",");
-                localStorage.setItem("completed", outputStr);
-            }
-        } else {
-            localStorage.setItem("completed", id);
-        }
-    }
+    // const finishedExperienceGraffiti = () => {
+    //     const timeTaken = Date.now() - startTime.current;
+    //     socket.emit("completed_experiment", {
+    //         experimentId: id,
+    //         timeTaken: timeTaken
+    //     });
+    //     if (localStorage.getItem("completed")) {
+    //         let completedStr = localStorage.getItem("completed");
+    //         let completedList = completedStr.split(",");
+    //         if (!completedList.includes(id)) {
+    //             completedList.push(id);
+    //             let outputStr = completedList.join(",");
+    //             localStorage.setItem("completed", outputStr);
+    //         }
+    //     } else {
+    //         localStorage.setItem("completed", id);
+    //     }
+    // }
 
     return (
         <div ref={container}>
@@ -160,7 +163,7 @@ const DetailScreen = () => {
                     ))}
                     
 
-                    {hasModes && (
+                    {/* {hasModes && (
                         <div className="flex items-center justify-center my-5">
                             <div className="mx-2">
                                 <input className="hidden peer" id="radio_1" type="radio" checked={mode === 'easy'} onChange={() => setMode('easy')} />
@@ -171,7 +174,7 @@ const DetailScreen = () => {
                                 <label className="font-fontBtnMenus text-sm text-gray-500 flex flex-col px-4 py-2 border-2 rounded-xl border-gray-500 cursor-pointer peer-checked:border-[#E6E518] peer-checked:text-white" htmlFor="radio_2">{ text[lang].detailScreen.hard }</label>
                             </div>
                         </div>
-                    )}
+                    )} */}
 
                     <button className="my-10 flex items-center border-2 border-[#E6E518] active:border-[#E6E518] hover:border-[#E6E518] py-2 px-4 rounded-xl bg-black" onClick={startAR}>
                         <span className="font-fontBtnMenus text-sm">{ text[lang].detailScreen.experienceStartExp }</span>
@@ -190,17 +193,18 @@ const DetailScreen = () => {
                             </ul>
                         </div>
                     )}
-                    <BackButton lang={lang} to='/hidden/website/experiences' />
+                    <BackButton lang={lang} to='/experiences' />
                 </div>
             )}
             {ar && (
                 <div>
-                    {hasModes && (
+                    {/* {hasModes && (
                         <ComponentToRender session={session} endSession={endAR} id={id} onFinish={finishedExperienceGraffiti} />
-                    )}
-                    {!hasModes && (
+                    )} */}
+                    <ComponentToRender session={session} endSession={endAR} id={id} onFinish={finishExperience} />
+                    {/* {!hasModes && (
                         <ComponentToRender session={session} endSession={endAR} onFinish={finishExperience} />
-                    )}
+                    )} */}
                     {/* <button className="absolute bg-gray-800 shadow-lg rounded-lg top-5 left-5 p-3" onClick={endAR}>← Back</button> */}
                     <BackButton lang={lang} callback={endAR} />
                     {/* {finishedExperience && (

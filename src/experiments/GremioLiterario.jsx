@@ -5,6 +5,7 @@ import { GLTFLoader, RGBELoader } from 'three/examples/jsm/Addons.js';
 import imgOverlay from '../assets/align_gremio_lit.jpg';
 import { FaChevronRight } from 'react-icons/fa'
 import text from '../data/localization';
+import { useNavigate } from 'react-router-dom';
 // import { Tween, Easing } from '@tweenjs/tween.js';
 
 const raycaster = new THREE.Raycaster();
@@ -47,7 +48,9 @@ const ghostWaypoints = [
     new THREE.Vector3(-1, 11.7, -9),
 ];
 
-const GremioLiterario = ({ session, endSession, onFinish }) => {
+const GremioLiterario = ({ session, endSession, id, onFinish }) => {
+    const navigate = useNavigate();
+
     const containerRef = useRef(null);
     const rendererRef = useRef(null);
     const sceneRef = useRef(null);
@@ -106,6 +109,8 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
     const stepRef = useRef(0);
     const [gameStarted, setGameStarted] = useState(false);
     const gameStartedRef = useRef(false);
+    const mazeStartTimeRef = useRef(null);
+    const mazeTimeTaken = useRef(null);
 
     const [alignedScene, setAlignedScene] = useState(false);
 
@@ -121,6 +126,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
             stepRef.current = null;
             gameStartedRef.current = true
             setGameStarted(true);
+            mazeStartTimeRef.current = Date.now();
             spawnGhosts();
         }
     }
@@ -482,23 +488,32 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
         sceneRef.current.add(paintingGroup);
         paintingGroupRef.current = paintingGroup;
         let auxList = [...text[lang].gremioLitFaces];
+        let isMaxPoints = n === text[lang].gremioLitFaces.length;
 
-        for (let i = 0; i < text[lang].gremioLitFaces.length; i++) {
-            if (i >= n) break;
+        for (let i = 0; i <= n; i++) {
+            // if (i >= n) break;
+            let faceTexture, backTexture, author;
 
-            const author = auxList.splice(Math.floor(Math.random() * auxList.length), 1)[0];
+            if (i !== n) {
+                author = auxList.splice(Math.floor(Math.random() * auxList.length), 1)[0];
+
+                faceTexture = new THREE.TextureLoader().load(author.img);
+
+                backTexture = createBackPainting(author.description);
+            } else {
+                faceTexture = new THREE.TextureLoader().load(isMaxPoints ? '/images/gremio-lit-no-extra.png' : '/images/gremio-lit-extra.png'); //question mark image here
+
+                backTexture = createBackPainting(isMaxPoints ? text[lang].experiences["gremio-lit"].extraFaceDescriptionMaxPoints : text[lang].experiences["gremio-lit"].extraFaceDescriptionNotMaxPoints); // static description (something like "There are still more paintings out there. Try the experience again and maybe you'll see new ones.")
+            }
+            
 
             const object = new THREE.Object3D();
             object.add(paintingRef.current.clone());
             object.scale.setScalar(9);
 
-            const faceTexture = new THREE.TextureLoader().load(author.img);
-
-            const backTexture = createBackPainting(author.description)
-
             const faceMaterial = new THREE.MeshBasicMaterial({ map: faceTexture, side: THREE.FrontSide });
 
-            const backMaterial = new THREE.MeshBasicMaterial({ map: backTexture, side: THREE.FrontSide })
+            const backMaterial = new THREE.MeshBasicMaterial({ map: backTexture, side: THREE.FrontSide });
 
             const sideMaterial = new THREE.MeshBasicMaterial({ color: 0x0000ff, side: THREE.DoubleSide });
 
@@ -519,27 +534,27 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
             painting.position.setZ(-0.00215);
 
             // Semicircle angle from -π/2 to π/2
-            const angle = (i / n) * Math.PI;
+            const angle = (i / n + 1) * Math.PI;
 
-            const x = - (5 * Math.cos(angle) + Math.cos(Math.PI / 2));
-            const z = - (5 * Math.sin(angle) + Math.cos(Math.PI / 2));
+            const x = (5 * Math.cos(angle) + Math.cos(Math.PI / 2));
+            const z = (5 * Math.sin(angle) + Math.cos(Math.PI / 2));
 
-            const to_x = - (0.8 * Math.cos(angle) + Math.cos(Math.PI / 2));
-            const to_z = - (0.8 * Math.sin(angle) + Math.cos(Math.PI / 2));
+            const to_x = (0.8 * Math.cos(angle) + Math.cos(Math.PI / 2));
+            const to_z = (0.8 * Math.sin(angle) + Math.cos(Math.PI / 2));
 
             object.position.set(x, 0, z)//.applyMatrix4(cameraRef.current.matrixWorld); // Place model in front of camera
             //model.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
 
+            if (i !== n) {
+                const b = new THREE.Box3().setFromObject(object);
+                const t = new THREE.Vector3();
+                b.getSize(t);
 
-
-            const b = new THREE.Box3().setFromObject(object);
-            const t = new THREE.Vector3();
-            b.getSize(t);
-
-            const position = new THREE.Vector3();
-            position.copy(object.position);
-            position.setY((position.y - (t.y / 2)) - 0.1)
-            createPaintingNameplate(author.name, t.x, position);
+                const position = new THREE.Vector3();
+                position.copy(object.position);
+                position.setY((position.y - (t.y / 2)) - 0.1)
+                createPaintingNameplate(author.name, t.x, position);
+            }
 
             object.lookAt(0, 0, 0);
 
@@ -1238,6 +1253,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
                             gameOverRef.current = true;
                             gameWonRef.current = true;
                             setShowGameWonMessage(true);
+                            mazeTimeTaken.current = Date.now() - mazeStartTimeRef.current;
                             // After 1 or 2 seconds clear scene and place bubbles and books
                             setTimeout(() => {
                                 sceneRef.current.clear();
@@ -1248,7 +1264,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
                                     setShowClickAndFindMessage(false);
                                     setShowFinishButton(true);
                                 }, 5000);
-                            }, 4000);
+                            }, 2500);
                             // Maybe add the feature of when clicking books showing some texts/books/authors reated to justice (ask artist later)
                         }
                     }
@@ -1507,7 +1523,14 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
                 </div>
             )}
             {showFinishButton && (
-                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                <button onClick={() => {
+                    const timeinMaze = Date.now() - mazeTimeTaken.current;
+                    const readableTime = new Date(timeinMaze);
+
+                    let time = `${readableTime.getUTCMinutes()}:${readableTime.getUTCSeconds()}.${readableTime.getUTCMilliseconds()}`
+                    onFinish({ 'Experiment': id, 'Time taken in Maze': time });
+                    navigate('/experiences')
+                }} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
             {showGameLostMessage && (
                 <div style={{
@@ -1543,11 +1566,18 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
                 </div>
             )}
 
+            {step < 5 && alignedScene && (
+                <div className='fixed w-full top-[30%] p-2 z-[1000] flex justify-center'>
+                    <div className='bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl'>
+                        <p className='text-xl font-bold'>{ text[lang].experiences["gremio-lit"].instructionTitle }</p>
+                    </div>
+                </div>
+            )}
             {step < 6 && alignedScene && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
                     <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl">
                         <div className='grid grid-flow-row grid-rows-3 gap-2 '>
-                            <p className='col-span-1 row-span-1 row-start-1 col-start-1 place-self-center text-lg'>{step < 5 ? "Instruções do jogo:" : "" }</p>
+                            {/* <p className='col-span-1 row-span-1 row-start-1 col-start-1 place-self-center text-lg'>{step < 5 ? "Instruções do jogo:" : "" }</p> */}
                             {step < 5 && (
                                 <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
                                 { text[lang].experiences["gremio-lit"].instructions[step] }
@@ -1655,6 +1685,7 @@ const GremioLiterario = ({ session, endSession, onFinish }) => {
 GremioLiterario.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
+    id: propTypes.string.isRequired,
     onFinish: propTypes.func.isRequired,
 };
 

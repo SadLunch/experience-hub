@@ -5,6 +5,7 @@ import propTypes from 'prop-types';
 // import { VERTEX_SHADER, FRAGMENT_SHADER } from '../components/shaders';
 import { ChromaKeyMaterial } from '../components/ChromaKeyShader';
 import text from '../data/localization';
+import { useNavigate } from 'react-router-dom';
 // import * as dat from 'dat.gui';
 
 
@@ -60,7 +61,8 @@ AFRAME.registerComponent('move-forward', {
 });
 
 
-const GiantJustice = ({ onFinish }) => {
+const GiantJustice = ({ id, onFinish }) => {
+    const navigate = useNavigate();
 
     const [isAligned, setIsAligned] = useState(false);
     const [loaded, setLoaded] = useState(false);
@@ -280,14 +282,16 @@ const GiantJustice = ({ onFinish }) => {
                 </button>
             )}
             {ended && (
-                <div className="absolute w-5/6 h-5/6 top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-black/70 text-white p-10 rounded-md text-xl font-semibold text-center z-[999]">
-                    {
-                    // Text to show after the video has ended
-                    }Text
+                <div className="absolute w-[90%] top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-black/70 text-white p-4 rounded-md text-xl z-[999]">
+                    <p className='font-semibold text-left'>{text[lang].experiences["justica-monstro"].finalText1}</p>
+                    <p className='mt-4 font-bold text-right'>{text[lang].experiences["justica-monstro"].finalText2}</p>
                 </div>
             )}
             {showFinishButton && (
-                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                <button onClick={() => {
+                    onFinish({ 'Experiment': id });
+                    navigate('/experiences')
+                }} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>
@@ -316,6 +320,7 @@ const GiantJustice = ({ onFinish }) => {
 }
 
 GiantJustice.propTypes = {
+    id: propTypes.string.isRequired,
     onFinish: propTypes.func.isRequired,
 }
 

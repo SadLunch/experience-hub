@@ -4,12 +4,17 @@ import download from '../assets/download_icon.png';
 import photo from '../assets/photo_take.png';
 import text from '../data/localization';
 import propTypes from 'prop-types';
+import { useNavigate } from 'react-router-dom';
 
-const MindARFaceTracking = ({ onFinish }) => {
+const MindARFaceTracking = ({ id, onFinish }) => {
+    const navigate = useNavigate();
+    
     const containerRef = useRef(null);
     const iframeRef = useRef(null);
     const [imageURL, setImageURL] = useState(null);
     const [showFinishButton, setShowFinishButton] = useState(false);
+    const [nPhotos, setNPhotos] = useState(0);
+    const nPhotosRef = useRef(0);
 
     const [lang] = useState(localStorage.getItem("lang") || 'pt');
 
@@ -36,6 +41,8 @@ const MindARFaceTracking = ({ onFinish }) => {
 
     const triggerIframePhoto = () => {
         iframeRef.current.contentWindow.postMessage({ type: 'TAKE_PHOTO' }, '*');
+        nPhotosRef.current += 1;
+        setNPhotos(nPhotosRef.current);
     };
 
 
@@ -84,13 +91,17 @@ const MindARFaceTracking = ({ onFinish }) => {
                 </div>
             )}
             {showFinishButton && (
-                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                <button onClick={() => {
+                    onFinish({ 'Experiment': id, 'Number of Photos': nPhotos });
+                    navigate('/experiences')
+                }} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
         </div>
     );
 }
 
 MindARFaceTracking.propTypes = {
+    id: propTypes.string.isRequired,
     onFinish: propTypes.func.isRequired,
 }
 

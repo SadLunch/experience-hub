@@ -19,13 +19,19 @@ function App() {
   return (
     <HashRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/hidden/website" element={<FirstScreen />} />
+        {/* Final Routing */}
+        <Route path="/" element={<FirstScreen />} />
+        <Route path="/experiences" element={<ExperiencesScreen />} />
+        <Route path="/experience/:id" element={<DetailScreen />} />
+        <Route path="/experience/:id/about" element={<GraffitiPosScreen />} />
+        {/* Testting Routing */}
+        <Route path="/hidden" element={<Home />} />
+        {/* <Route path="/hidden/website" element={<FirstScreen />} /> */}
         <Route path="/hidden/website/v2" element={<FirstScreenV2 />} />
         <Route path="/hidden/website/home" element={<HomeScreen />} />
-        <Route path="/hidden/website/experiences" element={<ExperiencesScreen />} />
-        <Route path="/hidden/website/experience/:id" element={<DetailScreen />} />
-        <Route path="/hidden/website/experience/:id/about" element={<GraffitiPosScreen />} />
+        {/* <Route path="/hidden/website/experiences" element={<ExperiencesScreen />} /> */}
+        {/* <Route path="/hidden/website/experience/:id" element={<DetailScreen />} /> */}
+        {/* <Route path="/hidden/website/experience/:id/about" element={<GraffitiPosScreen />} /> */}
         <Route path="/website" element={<FirstScreenV1 />} />
         <Route path="/website/main" element={<MainScreen />} />
         <Route path="/testing" element={<Hub />} />

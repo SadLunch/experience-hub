@@ -6,11 +6,13 @@ import { DRACOLoader, XRControllerModelFactory } from "three/examples/jsm/Addons
 import volume from '../assets/volume.png';
 import mute from '../assets/mute.png';
 import text from "../data/localization";
+import { useNavigate } from "react-router-dom";
 // import { ChromaKeyMaterial } from "../components/ChromaKeyShader";
 
 const raycaster = new THREE.Raycaster();
 
-const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
+const WhacAMoleV3New = ({ session, endSession, id, onFinish }) => {
+    const navigate = useNavigate();
     const containerRef = useRef(null);
     const sceneRef = useRef(null);
     const cameraRef = useRef(null);
@@ -785,7 +787,10 @@ const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
                 </div>
             )}
             {showFinishButton && (
-                <button onClick={onFinish} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                <button onClick={() => {
+                    onFinish({ 'Experiment': id, 'Points achieved': score });
+                    navigate('/experiences')
+                }} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
             )}
             {/* {gameOver && (
                 <button
@@ -815,6 +820,7 @@ const WhacAMoleV3New = ({ session, endSession, onFinish }) => {
 WhacAMoleV3New.propTypes = {
     session: propTypes.func.isRequired,
     endSession: propTypes.func.isRequired,
+    id: propTypes.string.isRequired,
     onFinish: propTypes.func.isRequired,
 }
 

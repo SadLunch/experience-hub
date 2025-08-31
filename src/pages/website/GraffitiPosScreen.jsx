@@ -35,7 +35,7 @@ const GraffitiPosScreen = () => {
                 ))}
 
                 <div className="flex-grow" /> {/* Use this to separate the bottom content from the top content */}
-                <BackButton to={`/hidden/website/experience/${id}`} />
+                <BackButton to={`/experience/${id}`} />
             </div>
         </div>
     );

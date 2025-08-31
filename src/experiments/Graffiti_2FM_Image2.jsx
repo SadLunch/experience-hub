@@ -489,7 +489,7 @@ const Graffiti_2FM_Image2 = ({ session, endSession, id, onFinish }) => {
                             try {
                                 // setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Ana de Castro Osório", "#sufragistas"));
                                 session.end();
-                                navigate(`/hidden/website/experience/${id}/about`);
+                                navigate(`/experience/${id}/about`);
                                 onFinish();
                             } catch (err) {
                                 setError(err);

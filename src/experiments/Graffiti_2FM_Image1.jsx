@@ -491,7 +491,7 @@ const Graffiti_2FM_Image1 = ({ session, endSession, id, onFinish }) => {
                             try {
                                 // setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Adelaide Cabete", "#sufragistas"));
                                 session.end();
-                                navigate(`/hidden/website/experience/${id}/about`);
+                                navigate(`/experience/${id}/about`);
                                 onFinish();
                             } catch (err) {
                                 setError(err);

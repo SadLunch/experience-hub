@@ -238,7 +238,7 @@ const Graffiti_1FM_Image2 = ({ session, endSession, id, onFinish }) => {
         })
 
         const onSelectStart = (event) => {
-            if (!hasCanLoaded.current) return;
+            if (!hasCanLoaded.current || !gameStartedRef.current) return;
 
             const controller = event.target;
 
@@ -470,8 +470,8 @@ const Graffiti_1FM_Image2 = ({ session, endSession, id, onFinish }) => {
                             try {
                                 // setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Ana de Castro Osório", "#sufragistas"));
                                 session.end();
-                                navigate(`/hidden/website/experience/${id}/about`);
-                                onFinish();
+                                navigate(`/experience/${id}/about`);
+                                onFinish({ 'Experiment': id, 'Reveal percentage': revealed > 100 ? '100.0%' : `${revealed.toFixed(1)}%` });
                             } catch (err) {
                                 setError(err);
                             }
