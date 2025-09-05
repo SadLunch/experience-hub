@@ -8,8 +8,10 @@ import download from '../assets/download_icon.png';
 import { FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import text from '../data/localization';
+import imgOverlay from '../assets/peacock.png'
 
 const raycaster = new THREE.Raycaster();
+const textureSize = 512;
 
 const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
     const navigate = useNavigate();
@@ -22,6 +24,13 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
 
     const canModelRef = useRef(null);
     const hasCanLoaded = useRef(false);
+    const revealMaterialRef = useRef(null);
+    const spraySoundRef = useRef(null);
+    const rattleSoundRef = useRef(null);
+    const sourceImageRef = useRef(null);
+    const paintCtxRef = useRef(null);
+    const paintedTextureRef = useRef(null);
+    const wallPlaneRef = useRef(null);
 
     const hasPickedUpCan = useRef(false);
     const isSpraying = useRef(false);
@@ -46,6 +55,8 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
     const stepRef = useRef(0);
     const [gameStarted, setGameStarted] = useState(false);
     const gameStartedRef = useRef(false);
+
+    const [alignedScene, setAlignedScene] = useState(false);
 
     // // groups ref
     // const movableGroupRef = useRef(null);
@@ -89,23 +100,15 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
         setRevealed(percent);
     };
 
-    const initAR = () => {
-        const container = containerRef.current;
+    const alignScene = () => {
+        setAlignedScene(true);
+        loadAssets();
+        controllerSetup();
+        startGame();
+    }
 
-        // --- Setup basic scene ---
-        const scene = new THREE.Scene();
-        sceneRef.current = scene;
-        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
-        cameraRef.current = camera;
-        //camera.position.set(0, 3.6, 3); // typical VR height
-
-        // Add a Light to the Scene
-        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.5);
-        scene.add(light);
-
-        // scene.add(new THREE.AmbientLight(0xffffff, 0.8));
-
-        const textureSize = 512;
+    const loadAssets = () => {
+        
 
         // Create a canvas where we'll paint the image gradually
         const paintCanvas = document.createElement('canvas');
@@ -117,6 +120,7 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
         // paintCtx.fillStyle = '#000';
         // paintCtx.fillRect(0, 0, textureSize, textureSize);
         paintCtx.clearRect(0, 0, textureSize, textureSize);
+        paintCtxRef.current = paintCtx;
 
         // Load source image to be revealed
         const sourceImage = new Image();
@@ -151,9 +155,12 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
             console.log("Total non-transparent (revealable) pixels:", totalRelevantPixels.current);
         }
 
+        sourceImageRef.current = sourceImage
+
         const paintedTexture = new THREE.CanvasTexture(paintCanvas);
         paintedTexture.encoding = THREE.sRGBEncoding;
         paintedTexture.needsUpdate = true;
+        paintedTextureRef.current = paintedTexture;
 
         const revealMaterial = new THREE.MeshBasicMaterial({
             map: paintedTexture,
@@ -161,36 +168,141 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
             side: THREE.DoubleSide,
             depthWrite: false
         });
+        revealMaterialRef.current = revealMaterial;
+    }
+
+    const startGame = () => {
+        if (!sceneRef.current || !cameraRef.current || !revealMaterialRef.current) return;
 
         const wallPlane = new THREE.Mesh(
             new THREE.PlaneGeometry(2, 1),
-            revealMaterial
+            revealMaterialRef.current
         );
         wallPlane.position.y = 0
         wallPlane.position.z = -2;
-        scene.add(wallPlane);
+        sceneRef.current.add(wallPlane);
+        wallPlaneRef.current = wallPlane;
 
         // Initialize audio listener
         const listener = new THREE.AudioListener();
-        camera.add(listener);
+        cameraRef.current.add(listener);
 
         const spraySound = new THREE.Audio(listener);
+        spraySoundRef.current = spraySound;
         const rattleSound = new THREE.Audio(listener);
+        rattleSoundRef.current = rattleSound;
 
         // Load spray sound
         const audioLoader = new THREE.AudioLoader();
         audioLoader.load('/sounds/spray.mp3', (buffer) => {
-            spraySound.setBuffer(buffer);
-            spraySound.setLoop(true);
-            spraySound.setVolume(0.5);
+            spraySoundRef.current.setBuffer(buffer);
+            spraySoundRef.current.setLoop(true);
+            spraySoundRef.current.setVolume(0.5);
         });
 
         // Load rattle sound
         audioLoader.load('/sounds/rattle.mp3', (buffer) => {
-            rattleSound.setBuffer(buffer);
-            rattleSound.setLoop(false);
-            rattleSound.setVolume(0.5);
+            rattleSoundRef.current.setBuffer(buffer);
+            rattleSoundRef.current.setLoop(false);
+            rattleSoundRef.current.setVolume(0.5);
         });
+
+        let model;
+
+        // Load model
+        loadModel('/models/spray_can_2_2.glb', canModelRef, 'spray can', () => {
+            if (!hasCanLoaded.current) {
+                model = canModelRef.current
+                // Probably will need a separate function for model transformations and stuff
+                model.scale.setScalar(1);
+                model.position.set(0, 0, -1);
+                // canModelRef.current.rotation.set(
+                //     -Math.PI / 4,
+                //     0,
+                //     -Math.PI / 2
+                // )
+                // canModelRef.current.rotateX(-Math.PI/4);
+                // canModelRef.current.rotateZ(-Math.PI/2);
+                // canModelRef.current.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
+                sceneRef.current.add(model);
+                hasCanLoaded.current = true;
+
+            }
+        });
+
+        sphereIndicator.current = new THREE.Mesh(
+            new THREE.SphereGeometry(0.1, 16, 16),
+            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
+        );
+        sphereIndicator.current.visible = false;
+        sceneRef.current.add(sphereIndicator.current);
+    }
+
+    const controllerSetup = () => {
+        const onSelectStart = (event) => {
+            if (!hasCanLoaded.current || !gameStartedRef.current) return;
+
+            const controller = event.target;
+
+
+            if (!hasPickedUpCan.current) {
+                controller.updateMatrixWorld();
+
+                raycaster.setFromXRController(controller);
+
+                const intersected = raycaster.intersectObject(canModelRef.current);
+
+                if (intersected.length > 0) {
+                    let picked = intersected[0].object;
+
+                    while (picked && !picked.userData.isPickable) {
+                        picked = picked.parent;
+                    }
+                    if (picked && picked.userData.isPickable) {
+                        selectedObject.current = picked;
+                        hasPickedUpCan.current = true;
+                        if (rattleSoundRef.current.isPlaying) rattleSoundRef.current.stop();
+                        rattleSoundRef.current.play();
+                        return;
+                    }
+                }
+            }
+
+
+            if (!isSpraying.current && hasPickedUpCan.current && selectedObject.current) {
+                isSpraying.current = true;
+                if (!spraySoundRef.current.isPlaying) spraySoundRef.current.play();
+            }
+        }
+
+        const onSelectEnd = () => {
+            if (isSpraying.current) {
+                isSpraying.current = false;
+                if (spraySoundRef.current.isPlaying) spraySoundRef.current.stop();
+            }
+        }
+        const controller = rendererRef.current.xr.getController(0);
+        controller.addEventListener('selectstart', onSelectStart);
+        controller.addEventListener('selectend', onSelectEnd);
+        sceneRef.current.add(controller);
+        controllerRef.current = controller;
+    }
+
+    const initAR = () => {
+        const container = containerRef.current;
+
+        // --- Setup basic scene ---
+        const scene = new THREE.Scene();
+        sceneRef.current = scene;
+        const camera = new THREE.PerspectiveCamera(70, window.innerWidth / window.innerHeight, 0.01, 100);
+        cameraRef.current = camera;
+        //camera.position.set(0, 3.6, 3); // typical VR height
+
+        // Add a Light to the Scene
+        const light = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 1.5);
+        scene.add(light);
+
+        // scene.add(new THREE.AmbientLight(0xffffff, 0.8));
 
         //Groups
         // const movableGroup = new THREE.Group();
@@ -215,87 +327,6 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
 
         if (container) container.appendChild(renderer.domElement);
 
-        let model;
-
-        // Load model
-        loadModel('/models/spray_can_2_2.glb', canModelRef, 'spray can', () => {
-            if (!hasCanLoaded.current) {
-                model = canModelRef.current
-                // Probably will need a separate function for model transformations and stuff
-                model.scale.setScalar(1);
-                model.position.set(0, 0, -1);
-                // canModelRef.current.rotation.set(
-                //     -Math.PI / 4,
-                //     0,
-                //     -Math.PI / 2
-                // )
-                // canModelRef.current.rotateX(-Math.PI/4);
-                // canModelRef.current.rotateZ(-Math.PI/2);
-                // canModelRef.current.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
-                sceneRef.current.add(model);
-                hasCanLoaded.current = true;
-            }
-        })
-
-        const onSelectStart = (event) => {
-            if (!hasCanLoaded.current || !gameStartedRef.current) return;
-
-            const controller = event.target;
-
-
-            if (!hasPickedUpCan.current) {
-                controller.updateMatrixWorld();
-
-                raycaster.setFromXRController(controller);
-
-                const intersected = raycaster.intersectObject(model);
-
-                if (intersected.length > 0) {
-                    let picked = intersected[0].object;
-
-                    while (picked && !picked.userData.isPickable) {
-                        picked = picked.parent;
-                    }
-                    if (picked && picked.userData.isPickable) {
-                        selectedObject.current = picked;
-                        hasPickedUpCan.current = true;
-                        if (rattleSound.isPlaying) rattleSound.stop();
-                        rattleSound.play();
-                        return;
-                    }
-                }
-            }
-
-
-            if (!isSpraying.current && hasPickedUpCan.current && selectedObject.current) {
-                isSpraying.current = true;
-                if (!spraySound.isPlaying) spraySound.play();
-            }
-        }
-
-        const onSelectEnd = () => {
-            if (isSpraying.current) {
-                isSpraying.current = false;
-                if (spraySound.isPlaying) spraySound.stop();
-            }
-        }
-
-        if (!controllerRef.current) {
-            const controller = renderer.xr.getController(0);
-            controller.addEventListener('selectstart', onSelectStart);
-            controller.addEventListener('selectend', onSelectEnd);
-            scene.add(controller);
-            controllerRef.current = controller;
-        }
-
-
-        sphereIndicator.current = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1, 16, 16),
-            new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
-        );
-        sphereIndicator.current.visible = false;
-        scene.add(sphereIndicator.current);
-
         // let time = 0;
 
         // Animation Loop
@@ -316,14 +347,14 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                 }
 
                 // Check if spray can is in scene
-                if (selectedObject.current && wallPlane && sourceImage.complete) {
+                if (selectedObject.current && wallPlaneRef.current && sourceImageRef.current.complete) {
                     const sprayTip = new THREE.Vector3();
                     // sprayTip.add(selectedObject.current.getObjectByName("Tip").position);
                     selectedObject.current.getWorldPosition(sprayTip);
 
                     raycaster.set(sprayTip, new THREE.Vector3(0, 0, -1).applyQuaternion(cameraRef.current.quaternion));
 
-                    const intersects = raycaster.intersectObject(wallPlane);
+                    const intersects = raycaster.intersectObject(wallPlaneRef.current);
                     if (intersects.length > 0) {
                         const uv = intersects[0].uv;
 
@@ -338,19 +369,19 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
 
                             if (isSpraying.current) {
                                 // Clip drawing to a circle
-                                paintCtx.save();
-                                paintCtx.beginPath();
-                                paintCtx.arc(x, y, radius, 0, Math.PI * 2);
-                                paintCtx.clip();
+                                paintCtxRef.current.save();
+                                paintCtxRef.current.beginPath();
+                                paintCtxRef.current.arc(x, y, radius, 0, Math.PI * 2);
+                                paintCtxRef.current.clip();
 
                                 // Draw that part of the source image
-                                paintCtx.drawImage(sourceImage, 0, 0, textureSize, textureSize);
+                                paintCtxRef.current.drawImage(sourceImageRef.current, 0, 0, textureSize, textureSize);
 
-                                paintCtx.restore();
-                                paintedTexture.needsUpdate = true;
+                                paintCtxRef.current.restore();
+                                paintedTextureRef.current.needsUpdate = true;
 
                                 // Count revealed pixels within brush area
-                                const imageData = paintCtx.getImageData(x - radius, y - radius, radius * 2, radius * 2);
+                                const imageData = paintCtxRef.current.getImageData(x - radius, y - radius, radius * 2, radius * 2);
                                 const data = imageData.data;
 
                                 for (let j = 0; j < data.length; j += 4) {
@@ -376,7 +407,7 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                 }
 
                 if (!isSpraying.current) {
-                    if (spraySound.isPlaying) spraySound.stop();
+                    if (spraySoundRef.current.isPlaying) spraySoundRef.current.stop();
                 }
             }
 
@@ -447,7 +478,32 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                 <div>If you see a semi-transparent ball that means you found a &quot;sprayable&quot; area</div>
                 <div>Touch anywhere on the screen to spray.</div>
             </div> */}
-            {!gameStarted && step < 7 && (
+            {!alignedScene && (
+                <img
+                    src={imgOverlay}
+                    alt="AR Guide Overlay"
+                    style={{
+                        position: "absolute",
+                        top: "50%",
+                        left: "50%",
+                        transform: "translate(-50%, -50%)",
+                        // width: "auto",
+                        // height: "100%",
+                        opacity: 0.5,
+                        pointerEvents: "none",
+                        zIndex: 999,
+                    }}
+                />
+            )}
+            {!alignedScene && (
+                <button
+                    onClick={alignScene}
+                    className='absolute bottom-5 left-1/2 -translate-x-1/2 p-2 bg-[#E6E518] border-2 border-black rounded-lg cursor-pointer z-[1000] font-fontBtnMenus text-black tracking-thighter hover:border-[#E6E518] active:border-[#E6E518]'
+                >
+                    { text[lang].experiences["gremio-lit"].alignScene }
+                </button>
+            )}
+            {!gameStarted && alignedScene && step < 7 && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
                     <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
                         <p className='text-lg'>{ text[lang].experiences['graffiti-1'].instructionsEasy[step] }</p>

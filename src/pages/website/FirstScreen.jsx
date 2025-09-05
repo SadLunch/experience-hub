@@ -113,7 +113,7 @@ const FirstScreen = () => {
                                         // exit={{ opacity: 0, y: 50, transition: { duration: 0 } }}
 
                                         className='m-5 text-center'>
-                                        <Link to={"#"} className="block border border-[#5690CC] active:bg-[#5690CC] rounded-xl px-4 py-2" >
+                                        <Link to={"/aboutUs"} className="block border border-[#5690CC] active:bg-[#5690CC] rounded-xl px-4 py-2" >
                                             <h2 className='text-lg text-white text-center font-bold font-fontBtnMenus'>{ text[lang].firstScreen.aboutUs }</h2>
                                         </Link>
                                     </motion.div>

@@ -48,17 +48,22 @@ const SpawnModelNew = ({ session, endSession }) => {
     const canvas = document.createElement("canvas");
     const canvasTexture = new THREE.CanvasTexture(canvas);
 
-    canvas.width = 1500;
-    canvas.height = 90;
+    
 
     const ctx = canvas.getContext('2d');
+    ctx.font = 'bold 8vh sans-serif';
+    const metrics = ctx.measureText(name);
+    const textWidth = metrics.width;
+
+    canvas.width = Math.ceil(textWidth + 40);
+    canvas.height = 90;
 
     // canvas.width = width;
     ctx.fillStyle = "#ffffff";
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     ctx.fillStyle = "#000000";
-    ctx.font = 'bold 10vh sans-serif';
+    ctx.font = 'bold 8vh sans-serif';
     ctx.textAlign = 'center';
 
     ctx.fillText(name, canvas.width / 2, 70);
@@ -89,8 +94,8 @@ const SpawnModelNew = ({ session, endSession }) => {
     const canvas = document.createElement("canvas");
     const canvasTexture = new THREE.CanvasTexture(canvas);
 
-    canvas.width = 1300;
-    canvas.height = 1800;
+    canvas.width = 1400;
+    canvas.height = 2000;
 
     const ctx = canvas.getContext("2d");
 
@@ -98,7 +103,7 @@ const SpawnModelNew = ({ session, endSession }) => {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
     ctx.fillStyle = "#000000";
-    ctx.font = 'bold 10vh sans-serif';
+    ctx.font = 'bold 8vh sans-serif';
     ctx.textAlign = 'center';
 
     const wrappedText = wrapText(ctx, text, canvas.width / 2, 200, canvas.width - 200, 100);
