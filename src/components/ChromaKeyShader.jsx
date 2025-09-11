@@ -7,7 +7,7 @@
 
 import * as THREE from 'three';
 
-import {VERTEX_SHADER, FRAGMENT_SHADER} from './shaders';
+import {VERTEX_SHADER, FRAGMENT_SHADER} from './shadersGrayscale';
 
 class ChromaKeyMaterial extends THREE.ShaderMaterial {
   /**
@@ -19,10 +19,11 @@ class ChromaKeyMaterial extends THREE.ShaderMaterial {
    * @param {number} similarity
    * @param {number} smoothness
    * @param {number} spill
+   * @param {number} grayscale
    */
   constructor(
     url, keyColor, width, height, similarity = 0.01, smoothness = 0.18,
-    spill = 0.1
+    spill = 0.1, grayscale = 0.0
   ) {
     super()
 
@@ -55,6 +56,7 @@ class ChromaKeyMaterial extends THREE.ShaderMaterial {
         similarity: {value: similarity},
         smoothness: {value: smoothness},
         spill: {value: spill},
+        grayscale: {value: grayscale}
 
       },
       vertexShader: VERTEX_SHADER,

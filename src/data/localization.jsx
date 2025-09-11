@@ -373,6 +373,39 @@ const text = {
                 description: "Poesia do Direito\n\nReflete sobre como arte, religião e política revelam a busca humana por justiça, beleza e verdade através da criação poética. A poesia é apresentada como força fundadora que permite traduzir o espírito em linguagem, sendo essencial nas eras de transformação e progresso social."
             }
         ],
+        giantJusticeSubtitles: [
+            { start: 0.0, end: 3.5, text: "Justiça rainha das virtudes." },
+            { start: 3.5, end: 5.5, text: "Surgindo das profundezas da História" },
+            { start: 5.7, end: 8.8, text: "Uma onda de terror" },
+            { start: 8.8, end: 11.8, text: "para julgar a Humanidade!" },
+            { start: 11.8, end: 14.9, text: "Justiça, rainha das virtudes" },
+            { start: 14.9, end: 18.0, text: "Derrubando a terra," },
+            { start: 18.0, end: 21.0, text: "esmagando todos em seu caminho" },
+            { start: 21.0, end: 24.0, text: "Cavalgada lenta de terror eletrizante" },
+            { start: 24.1, end: 27.1, text: "Percorrendo as ruas em uma onda" },
+            { start: 27.1, end: 30.2, text: "de condenação total!" },
+            { start: 31.2, end: 34.2, text: "Justiça, rainha das virtudes" },
+            { start: 34.2, end: 37.3, text: "Penas e canetas podem modificá-la," },
+            { start: 37.3, end: 40.8, text: "livros podem transformá-la," },
+            { start: 46.2, end: 49.8, text: "Qualquer pessoa pode fazê-lo," },
+            { start: 49.8, end: 53.3, text: "Será este o princípio da democracia?" },
+            { start: 53.3, end: 56.8, text: "Os filósofos do mundo podem encontrar" },
+            { start: 56.8, end: 60.3, text: "formas de repensar esta virtude?" },
+            { start: 60.3, end: 63.9, text: "A resposta: Reflitam…" },
+            { start: 65.2, end: 68.7, text: "Justiça rainha das virtudes!" },
+            { start: 68.7, end: 72.2, text: "Um conto para expandir a mente" },
+            { start: 72.2, end: 75.8, text: "Mais fantástico do que qualquer coisa escrita" },
+            { start: 75.8, end: 79.3, text: "por Eça de Queirós." },
+            { start: 79.3, end: 82.8, text: "Mais encorajador do que qualquer filme" },
+            { start: 84.7, end: 88.2, text: "Incrível!" },
+            { start: 88.2, end: 91.7, text: "Magnífico" },
+            { start: 91.7, end: 95.3, text: "É tangível" },
+            { start: 97.3, end: 100.8, text: "Uma história para além" },
+            { start: 100.8, end: 104.3, text: "dos mais loucos sonhos" },
+            { start: 104.3, end: 107.9, text: "Grandes emoções!" },
+            { start: 110.3, end: 113.8, text: "Justiça rainha das virtudes." }
+        ],
+
     },
 };
 

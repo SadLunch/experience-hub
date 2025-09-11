@@ -7,6 +7,8 @@ import { ChromaKeyMaterial } from '../components/ChromaKeyShader';
 import text from '../data/localization';
 import { useNavigate } from 'react-router-dom';
 // import * as dat from 'dat.gui';
+import volume from '../assets/volume.png';
+import mute from '../assets/mute.png';
 
 
 AFRAME.registerComponent('apply-camera-orientation', {
@@ -32,13 +34,18 @@ AFRAME.registerComponent('move-forward', {
     },
     init: function () {
         const video = document.querySelector('#giantJustice');
-        if (video) {
+        const audio = document.querySelector('#background');
+        if (video && audio) {
             video.loop = false;
             video.pause();
             video.currentTime = 0;
             video.play().catch(err => {
                 console.warn("Video play failed:", err);
             });
+            audio.pause();
+            audio.play().catch(err => {
+                console.warn("Audio play failed:", err);
+            })
         }
     },
     tick: function (time, timeDelta) {
@@ -70,6 +77,8 @@ const GiantJustice = ({ id, onFinish }) => {
     const videoEntityRef = useRef(null);
     const streamRef = useRef(null);
     const [showFinishButton, setShowFinishButton] = useState(false);
+    const [activeSubtitle, setActiveSubtitle] = useState(""); 
+    const [isMuted, setIsMuted] = useState(false);
     // const [zValue, setZValue] = useState(-70);
     // const zValueRef = useRef(-70);
     // const intervalRef = useRef(null);
@@ -90,6 +99,19 @@ const GiantJustice = ({ id, onFinish }) => {
             console.error("Error accessing webcam: ", err);
         }
     };
+
+    const toggleSound = () => {
+        const audio = document.getElementById('background');
+
+        if (isMuted) {
+            if (audio) audio.muted = false;
+        } else {
+            if (audio) audio.muted = true;
+        }
+
+        setIsMuted(!isMuted);
+    };
+
 
     useEffect(() => {
         // Auto-enter fullscreen + start camera
@@ -125,6 +147,8 @@ const GiantJustice = ({ id, onFinish }) => {
         const video = document.getElementById('giantJustice');
         if (!video) return;
 
+        const subtitles = text[lang].giantJusticeSubtitles;
+
         const handleVideoEnded = () => {
             console.log("Video Ended");
             setEnded(true);
@@ -133,12 +157,25 @@ const GiantJustice = ({ id, onFinish }) => {
             }, 5000);
         }
 
+        const handleTimeUpdate = () => {
+            const current = video.currentTime;
+            const activeSub = subtitles.find((sub) => current >= sub.start && current < sub.end);
+
+            if (activeSub) {
+                setActiveSubtitle(activeSub.text);
+            } else {
+                setActiveSubtitle("");
+            }
+        }
+
         video.onended = handleVideoEnded;
+        video.ontimeupdate = handleTimeUpdate;
 
         // video.addEventListener("ended", handleVideoEnded);
 
         return () => {
             video.onended = null;
+            video.ontimeupdate = null;
             // video.removeEventListener("ended", handleVideoEnded);
         }
     }, []);
@@ -237,13 +274,14 @@ const GiantJustice = ({ id, onFinish }) => {
             const mesh = videoEntityRef.current.getObject3D('mesh');
             if (mesh) {
                 const chromaMaterial = new ChromaKeyMaterial(
-                    '/videos/fortaleza_cropped.mp4', // your video path
+                    '/videos/justica-monstro.mp4', // your video path
                     '#63b757',                       // key color
                     1920,                            // width (can be video width)
                     1080,                            // height
                     0.149,                           // similarity
                     0.02,                            // smoothness
-                    0                                // spill (optional)
+                    0,
+                    1.0                                // spill (optional)
                 );
 
                 mesh.material = chromaMaterial;
@@ -281,6 +319,20 @@ const GiantJustice = ({ id, onFinish }) => {
                     { text[lang].experiences["justica-monstro"].alignScene }
                 </button>
             )}
+            {isAligned && (
+                <div
+                    onClick={toggleSound}
+                    className="absolute top-4 right-4 p-2 w-12 h-12 rounded-full z-[999]"
+                >
+                    {!isMuted && (
+                        <img src={volume} width={64} height={64} alt="Sound On" />
+                    )}
+                    {isMuted && (
+                        <img src={mute} width={64} height={64} alt="Sound Off" />
+                    )}
+                </div>
+
+            )}
             {ended && (
                 <div className="absolute w-[90%] top-[50%] left-[50%] translate-y-[-50%] translate-x-[-50%] bg-black/70 text-white p-4 rounded-md text-xl z-[999]">
                     <p className='font-semibold text-left'>{text[lang].experiences["justica-monstro"].finalText1}</p>
@@ -291,19 +343,39 @@ const GiantJustice = ({ id, onFinish }) => {
                 <button onClick={() => {
                     onFinish({ 'Experiment': id });
                     navigate('/experiences')
-                }} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{ text[lang].experiences["whac-a-mole"].endSession }</button>
+                }} className="absolute block bottom-10 left-1/2 -translate-x-1/2 p-2 z-[1000] rounded-lg cursor-pointer font-fontBtnMenus text-black bg-[#E6E518] border-2 border-black text-xs hover:border-[#E6E518] active:border-[#E6E518]">{text[lang].experiences["whac-a-mole"].endSession}</button>
+            )}
+            {activeSubtitle && (
+                <div /*className='absolute bottom-20 left-1/2 -translate-x-1/2 bg-black/70 text-white px-2 py-4 text-xl text-center max-w-screen z-[1000]'*/
+                    style={{
+                        position: "absolute",
+                        bottom: "10%",
+                        left: "50%",
+                        transform: "translateX(-50%)",
+                        background: "rgba(0, 0, 0, 0.7)",
+                        color: "white",
+                        padding: "8px 16px",
+                        borderRadius: "8px",
+                        fontSize: "18px",
+                        textAlign: "center",
+                        maxWidth: "80%",
+                        zIndex: 2000,
+                    }}
+                >
+                    {activeSubtitle}
+                </div>
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>
-                    <video id="giantJustice" muted src="/videos/fortaleza_cropped.mp4"></video>
+                    <video id="giantJustice" muted src="/videos/justica-monstro.mp4"></video>
+                    <audio id="background" src="/sounds/background.mp3" preload='auto'></audio>
                 </a-assets>
-                <a-camera position="0 1.6 0" look-controls="touchEnabled: false; mouseEnabled: false;"></a-camera>
+                <a-camera position="0 1.6 0" look-controls="touchEnabled: false; mouseEnabled: false;" sound="src: #background"></a-camera>
                 {/* {isAligned && (
                     <a-video ref={videoEntityRef} id="videoPlane" src="#giantJustice" width="9" height="16" position={`0 0 ${zValue}`}></a-video>
                 )} */}
                 {/* <a-video ref={videoEntityRef} src="#giantJustice" visible={isAligned} width="9" height="16" position={`0 0 ${zValue}`}></a-video> */}
             </a-scene>
-
             <video id="webcam" autoPlay playsInline muted
                 style={{
                     position: "fixed",
@@ -313,6 +385,7 @@ const GiantJustice = ({ id, onFinish }) => {
                     height: "100%",
                     objectFit: "cover",
                     zIndex: -1,
+                    // filter: 'grayscale(100%)'
                 }}
             ></video>
         </div>
