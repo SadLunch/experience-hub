@@ -1,6 +1,6 @@
 import AFRAME from 'aframe';
 import { useEffect, useRef, useState } from 'react'
-import imgOverlay from '../assets/align_giant_justice.jpg';
+import imgOverlay from '../assets/align_giant_justice1.jpg';
 import propTypes from 'prop-types';
 // import { VERTEX_SHADER, FRAGMENT_SHADER } from '../components/shaders';
 import { ChromaKeyMaterial } from '../components/ChromaKeyShader';
@@ -55,6 +55,7 @@ AFRAME.registerComponent('move-forward', {
         const camera = el.sceneEl.camera;
         const cameraPosition = new AFRAME.THREE.Vector3();
         camera.getWorldPosition(cameraPosition);
+        cameraPosition.add(new AFRAME.THREE.Vector3(-2, 0, 0));
 
         const directionToCamera = cameraPosition.clone().sub(position).normalize();
         const distance = position.distanceTo(cameraPosition);
@@ -261,7 +262,7 @@ const GiantJustice = ({ id, onFinish }) => {
         aentityVideo.setAttribute('position', '0 0 -70');
         aentityVideo.setAttribute('move-forward', {
             speed: 1.5,
-            stopDistance: 7
+            stopDistance: 10
         });
 
         aentityVideo.object3D.userData.forwardDirection = cameraDirection.clone();
@@ -279,9 +280,9 @@ const GiantJustice = ({ id, onFinish }) => {
                     1920,                            // width (can be video width)
                     1080,                            // height
                     0.149,                           // similarity
-                    0.02,                            // smoothness
-                    0,
-                    1.0                                // spill (optional)
+                    0.03,                            // smoothness
+                    0,                               // spill (optional)
+                    1.0                              // grayscale (optional)  
                 );
 
                 mesh.material = chromaMaterial;

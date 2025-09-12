@@ -177,14 +177,14 @@ const DetailScreen = () => {
                     )} */}
 
                     <button className="my-10 flex items-center border-2 border-[#E6E518] active:border-[#E6E518] hover:border-[#E6E518] py-2 px-4 rounded-xl bg-black" onClick={startAR}>
-                        <span className="font-fontBtnMenus text-sm">{ text[lang].detailScreen.experienceStartExp }</span>
+                        <span className="font-fontBtnMenus text-sm text-white">{ text[lang].detailScreen.experienceStartExp }</span>
                         <img src={play} className="h-[24px] max-w-[24px]" />
                     </button>
 
                     <div className="flex-grow" /> {/* Use this to separate the bottom content from the top content */}
 
                     {experiment.experiment.attributions.length > 0 && (
-                        <div className="px-10">
+                        <div className="px-10 text-white">
                             <h2 className="font-fontSans mt-4 font-semibold">{text[lang].detailScreen.attributions}:</h2>
                             <ul className="font-fontSans list-disc list-inside">
                                 {experiment.experiment.attributions.map((attr, i) => (

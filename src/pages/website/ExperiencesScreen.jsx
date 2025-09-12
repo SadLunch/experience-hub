@@ -17,6 +17,7 @@ import Routing from '../../components/Routing';
 import text from '../../data/localization';
 import LanguageSwitcher from '../../components/LanguageSwitcher';
 import socket from '../../components/useSocket';
+import loadingGif from '../../assets/loading.gif';
 
 function generateMarkerSVG({
     text = '1',
@@ -140,7 +141,27 @@ const ExperiencesScreen = () => {
     //     return <div>Placeholder</div>
     // }
 
-    if (isMap === null || !uniqueKey) return <div>Loading map...</div>;
+    if (isMap === null || !uniqueKey) {
+        return (
+            <div className="fixed inset-0 flex flex-col items-center justify-center bg-black bg-opacity-90 text-white z-[2000]">
+                {/* Animated GIF */}
+                <img
+                    src={loadingGif}
+                    alt="Loading..."
+                    className="w-48 h-48 mb-6"
+                />
+
+                {/* Animated dots */}
+                <p className="text-xl  font-fontSans font-semibold flex space-x-1">
+                    <span>Loading map</span>
+                    <span className="animate-bounce [animation-delay:-0.3s]">.</span>
+                    <span className="animate-bounce [animation-delay:-0.15s]">.</span>
+                    <span className="animate-bounce">.</span>
+                </p>
+            </div>
+        );
+    }
+
 
     return (
         <div>

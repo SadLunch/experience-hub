@@ -8,7 +8,7 @@ import download from '../assets/download_icon.png';
 import { FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import text from '../data/localization';
-import imgOverlay from '../assets/peacock.png'
+import imgOverlay from '../assets/align_graffiti1.jpg'
 
 const raycaster = new THREE.Raycaster();
 const textureSize = 512;
@@ -175,11 +175,11 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
         if (!sceneRef.current || !cameraRef.current || !revealMaterialRef.current) return;
 
         const wallPlane = new THREE.Mesh(
-            new THREE.PlaneGeometry(2, 1),
+            new THREE.PlaneGeometry(4, 2),
             revealMaterialRef.current
         );
         wallPlane.position.y = 0
-        wallPlane.position.z = -2;
+        wallPlane.position.z = -7;
         sceneRef.current.add(wallPlane);
         wallPlaneRef.current = wallPlane;
 
@@ -231,7 +231,7 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
         });
 
         sphereIndicator.current = new THREE.Mesh(
-            new THREE.SphereGeometry(0.1, 16, 16),
+            new THREE.SphereGeometry(0.25, 16, 16),
             new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 })
         );
         sphereIndicator.current.visible = false;
@@ -362,7 +362,7 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                             const x = Math.floor(uv.x * textureSize);
                             const y = Math.floor((1 - uv.y) * textureSize); // flip Y
 
-                            const radius = 30;
+                            const radius = 50;
 
                             sphereIndicator.current.visible = !isTakingScreenshot.current;
                             sphereIndicator.current.position.copy(intersects[0].point)

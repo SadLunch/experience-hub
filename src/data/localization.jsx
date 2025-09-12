@@ -3,6 +3,7 @@ const text = {
         global: {
             back: "← Back",
             title: "J-U-S-T-I-Ç-A À CHIADO",
+            loadingMap: "Loading map"
         },
         aboutUsScreen: {
             artist: "Ana Fonseca",
@@ -164,11 +165,44 @@ const text = {
             { img: "/images/António_Rodrigues_Sampaio_(1806-1882).png", name: "Rodrigues Sampaio (1806 - 1882)", description: "" },
             { img: "/images/Retrato_do_Marquês_de_Sá_da_Bandeira_-_Academia_Militar.png", name: "Sá da Bandeira (1795 - 1876)", description: ""}
         ],
+        giantJusticeSubtitles: [
+            { start: 0.0, end: 3.5, text: "Justice, queen of virtues." },
+            { start: 3.5, end: 5.5, text: "Emerging from the depths of History" },
+            { start: 5.7, end: 8.8, text: "A wave of terror" },
+            { start: 8.8, end: 11.8, text: "to judge Humanity!" },
+            { start: 11.8, end: 14.9, text: "Justice, queen of virtues" },
+            { start: 14.9, end: 18.0, text: "Toppling the earth," },
+            { start: 18.0, end: 21.0, text: "crushing all in its path" },
+            { start: 21.0, end: 24.0, text: "A slow march of electrifying terror" },
+            { start: 24.1, end: 27.1, text: "Roaming through the streets in a wave" },
+            { start: 27.1, end: 30.2, text: "of total condemnation!" },
+            { start: 31.2, end: 34.2, text: "Justice, queen of virtues" },
+            { start: 34.2, end: 37.3, text: "Quills and pens may alter it," },
+            { start: 37.3, end: 40.8, text: "books may transform it," },
+            { start: 46.2, end: 49.8, text: "Anyone can do it," },
+            { start: 49.8, end: 53.3, text: "Could this be the beginning of democracy?" },
+            { start: 53.3, end: 56.8, text: "Can the philosophers of the world find" },
+            { start: 56.8, end: 60.3, text: "ways to rethink this virtue?" },
+            { start: 60.3, end: 63.9, text: "The answer: Reflect…" },
+            { start: 65.2, end: 68.7, text: "Justice, queen of virtues!" },
+            { start: 68.7, end: 72.2, text: "A tale to expand the mind" },
+            { start: 72.2, end: 75.8, text: "More fantastic than anything written" },
+            { start: 75.8, end: 79.3, text: "by Eça de Queirós." },
+            { start: 79.3, end: 82.8, text: "More encouraging than any film" },
+            { start: 84.7, end: 88.2, text: "Incredible!" },
+            { start: 88.2, end: 91.7, text: "Magnificent" },
+            { start: 91.7, end: 95.3, text: "It is tangible" },
+            { start: 97.3, end: 100.8, text: "A story beyond" },
+            { start: 100.8, end: 104.3, text: "the wildest dreams" },
+            { start: 104.3, end: 107.9, text: "Great emotions!" },
+            { start: 110.3, end: 113.8, text: "Justice, queen of virtues." }
+        ],
     },
     "pt": {
         global: {
             back: "← Voltar",
             title: "J-U-S-T-I-Ç-A À CHIADO",
+            loadingMap: "A carregar mapa"
         },
         aboutUsScreen: {
             artist: "Ana Fonseca",
