@@ -178,8 +178,10 @@ const Graffiti_1FM_Image2 = ({ session, endSession, id, onFinish }) => {
             new THREE.PlaneGeometry(4, 2),
             revealMaterialRef.current
         );
-        wallPlane.position.y = 0
-        wallPlane.position.z = -7;
+        // wallPlane.position.y = 0
+        // wallPlane.position.z = -7;
+        wallPlane.position.set(0, 0, -7).applyMatrix4(cameraRef.current.matrixWorld);
+        wallPlane.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
         sceneRef.current.add(wallPlane);
         wallPlaneRef.current = wallPlane;
 
@@ -215,7 +217,9 @@ const Graffiti_1FM_Image2 = ({ session, endSession, id, onFinish }) => {
                 model = canModelRef.current
                 // Probably will need a separate function for model transformations and stuff
                 model.scale.setScalar(1);
-                model.position.set(0, 0, -1);
+                // model.position.set(0, 0, -1);
+                model.position.set(0, 0, -1).applyMatrix4(cameraRef.current.matrixWorld);
+                model.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
                 // canModelRef.current.rotation.set(
                 //     -Math.PI / 4,
                 //     0,
@@ -502,6 +506,13 @@ const Graffiti_1FM_Image2 = ({ session, endSession, id, onFinish }) => {
                 >
                     { text[lang].experiences["gremio-lit"].alignScene }
                 </button>
+            )}
+            {step < 6 && alignedScene && (
+                <div className='fixed w-full top-[40%] p-2 z-[1000] flex justify-center'>
+                    <div className='bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl'>
+                        <p className='text-xl font-bold'>{ text[lang].experiences[id].instructionTitle }</p>
+                    </div>
+                </div>
             )}
             {!gameStarted && alignedScene && step < 7 && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>

@@ -241,12 +241,12 @@ const text = {
                 title: "Reprovação ética",
                 description: `Foi aqui no Largo do Carmo, em 1974, que a ditadura em Portugal caiu.  Os revolucionários de Abril do MFA venceram o regime do Estado Novo, com a rendição de Marcelo Caetano que se encontrava aqui neste quartel.\nA liberdade foi uma conquista. Esteja atento aos sinais antidemocráticos, eles podem surgir onde menos se espera, mesmo no lugar onde nasceu a democracia!\nTransforme as saudações nazi rapidamente com a ajuda do martelo (martelo judicial) e veja aparecer uma linda flor no seu lugar. Através da aplicação da justiça, constrói-se a tolerância e a paz.`,
                 instructions: [
-                    "Olha em volte e encontra o martelo.",
-                    "Arrasta o martelo e larga-o em frente à saudação para acertar nela.",
+                    "Olhe em volta e encontre o martelo.",
+                    "Arraste o martelo e largue-o em frente à saudação para acertar nela.",
                     "Bom trabalho!",
                     [
-                        "Agora estás preparado.",
-                        "Clica no ecrã para começares o jogo.",
+                        "Agora está preparado.",
+                        "Clique no ecrã para começar o jogo.",
                     ],
                     
                 ],
@@ -292,12 +292,13 @@ const text = {
                 instructionsEasy: [
                     "Olhe em volta e encontre a lata de tinta spray.",
                     "Toque uma vez na lata de tinta spray para a agarrar — não precisa de manter o dedo no ecrã.",
-                    "Quando olhar em volta, ela vai apontar na direção do seu olhar.",
-                    "Depois, quando vir uma esfera semi-transparente, toque e segure (com o mesmo dedo ou outro) para começar a pintar com tinta spray.",
+                    "Olhe em volta movendo o dispositivo: a lata acompanha o movimento da câmara.",
+                    "Quando vir uma esfera semi-transparente, toque e segure para começar a pintar com tinta spray.",
                     "Enquanto pinta o graffiti, a barra de progresso em baixo vai-se preenchendo.",
-                    "Quando tiver pintado a maior parte do graffiti, pode clicar na barra de progresso para saber mais sobre a pessoa retratada no graffiti.",
+                    "Depois de pintar a maior parte do graffiti, pode clicar na barra de progresso para saber mais sobre a pessoa retratada.",
                     "Divirta-se!",
                 ],
+                instructionTitle: "Instruções do Jogo:",
                 moreAbout: "Saber Mais",
             },
             "graffiti-2": {
@@ -314,12 +315,13 @@ const text = {
                 instructionsEasy: [
                     "Olhe em volta e encontre a lata de tinta spray.",
                     "Toque uma vez na lata de tinta spray para a agarrar — não precisa de manter o dedo no ecrã.",
-                    "Quando olhar em volta, ela vai apontar na direção do seu olhar.",
-                    "Depois, quando vir uma esfera semi-transparente, toque e segure (com o mesmo dedo ou outro) para começar a pintar com tinta spray.",
+                    "Olhe em volta movendo o dispositivo: a lata acompanha o movimento da câmara.",
+                    "Quando vir uma esfera semi-transparente, toque e segure para começar a pintar com tinta spray.",
                     "Enquanto pinta o graffiti, a barra de progresso em baixo vai-se preenchendo.",
-                    "Quando tiver pintado a maior parte do graffiti, pode clicar na barra de progresso para saber mais sobre a pessoa retratada no graffiti.",
+                    "Depois de pintar a maior parte do graffiti, pode clicar na barra de progresso para saber mais sobre a pessoa retratada.",
                     "Divirta-se!",
                 ],
+                instructionTitle: "Instruções do Jogo:",
                 moreAbout: "Saber Mais",
             },
             "justica-monstro": {

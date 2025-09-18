@@ -152,6 +152,7 @@ const GiantJustice = ({ id, onFinish }) => {
 
         const handleVideoEnded = () => {
             console.log("Video Ended");
+            document.querySelector("#videoPlane").remove();
             setEnded(true);
             setTimeout(() => {
                 setShowFinishButton(true);

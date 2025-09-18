@@ -1570,7 +1570,7 @@ const GremioLiterario = ({ session, endSession, id, onFinish }) => {
             )}
 
             {step < 5 && alignedScene && (
-                <div className='fixed w-full top-[30%] p-2 z-[1000] flex justify-center'>
+                <div className='fixed w-full top-[40%] p-2 z-[1000] flex justify-center'>
                     <div className='bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl'>
                         <p className='text-xl font-bold'>{ text[lang].experiences["gremio-lit"].instructionTitle }</p>
                     </div>

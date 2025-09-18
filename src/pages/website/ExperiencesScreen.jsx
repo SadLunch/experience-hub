@@ -52,36 +52,41 @@ function generateMarkerSVG({
     return "data:image/svg+xml," + encodeURIComponent(svg);
 }
 
-const createUserIcon = (heading) =>
-    L.divIcon({
-    className: "",
-    iconSize: [30, 30],
-    html: `
-      <div style="
-        width: 40x;
-        height: 40px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        position: relative;
-      ">
-        <img src="/images/userIcon_1.png"
-             style="
-               width: 100%;
-               height: auto;
-               transform: rotate(${heading}deg);
-               transition: transform 0.2s ease;
-             "
-             alt="direction" />
-      </div>
-    `,
-  });
+// const createUserIcon = (heading) =>
+//     L.divIcon({
+//     className: "",
+//     iconSize: [30, 30],
+//     html: `
+//       <div style="
+//         width: 40x;
+//         height: 40px;
+//         display: flex;
+//         align-items: center;
+//         justify-content: center;
+//         position: relative;
+//       ">
+//         <img src="/images/userIcon_1.png"
+//              style="
+//                width: 100%;
+//                height: auto;
+//                transform: rotate(${heading}deg);
+//                transition: transform 0.2s ease;
+//              "
+//              alt="direction" />
+//       </div>
+//     `,
+//   });
+
+const userIcon = L.icon({
+    iconUrl: "images/userIcon_1.png",
+    iconSize: [28, 28],
+})
 
 
 const ExperiencesScreen = () => {
     const [isMap, setIsMap] = useState(null);
     const [userLocation, setUserLocation] = useState(null);
-    const [heading, setHeading] = useState(0);
+    // const [heading, setHeading] = useState(0);
     const [selectedExperience, setSelectedExperience] = useState(null);
     const [uniqueKey] = useState(() => Date.now());
 
@@ -122,20 +127,20 @@ const ExperiencesScreen = () => {
         }
     }, []);
 
-    useEffect(() => {
-        const handleOrientation = (e) => {
-            if (typeof e.alpha === "number") {
-                setHeading(e.alpha); // alpha: 0° (North) to 360°
-            }
-        };
+    // useEffect(() => {
+    //     const handleOrientation = (e) => {
+    //         if (typeof e.alpha === "number") {
+    //             setHeading(e.alpha); // alpha: 0° (North) to 360°
+    //         }
+    //     };
 
 
-        window.addEventListener("deviceorientation", handleOrientation, true);
+    //     window.addEventListener("deviceorientation", handleOrientation, true);
 
-        return () => {
-            window.removeEventListener("deviceorientation", handleOrientation);
-        };
-    }, []);
+    //     return () => {
+    //         window.removeEventListener("deviceorientation", handleOrientation);
+    //     };
+    // }, []);
 
     // if (isMap === null) {
     //     return <div>Placeholder</div>
@@ -152,8 +157,8 @@ const ExperiencesScreen = () => {
                 />
 
                 {/* Animated dots */}
-                <p className="text-xl  font-fontSans font-semibold flex space-x-1">
-                    <span>Loading map</span>
+                <p className="text-2xl font-fontSans font-semibold flex space-x-1">
+                    <span>{ text[lang].global.loadingMap }</span>
                     <span className="animate-bounce [animation-delay:-0.3s]">.</span>
                     <span className="animate-bounce [animation-delay:-0.15s]">.</span>
                     <span className="animate-bounce">.</span>
@@ -188,7 +193,7 @@ const ExperiencesScreen = () => {
                             )}
 
                             {userLocation && (
-                                <Marker position={userLocation} icon={createUserIcon(heading)} />
+                                <Marker position={userLocation} icon={userIcon/*createUserIcon(heading)*/} />
                             )}
 
                             {locations.map((loc) => (
