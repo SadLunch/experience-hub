@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import * as THREE from "three";
 import propTypes from "prop-types";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
-import { DRACOLoader, XRControllerModelFactory } from "three/examples/jsm/Addons.js";
+import { DRACOLoader, RGBELoader, XRControllerModelFactory } from "three/examples/jsm/Addons.js";
 import volume from '../assets/volume.png';
 import mute from '../assets/mute.png';
 import text from "../data/localization";
@@ -514,6 +514,12 @@ const WhacAMoleV3New = ({ session, endSession, id, onFinish }) => {
 
                 // Initialize Scene
                 const scene = new THREE.Scene();
+
+                new RGBELoader().load("/models/san_giuseppe_bridge_2k.hdr", (texture) => {
+                    texture.mapping = THREE.EquirectangularReflectionMapping;
+                    scene.environment = texture;
+                });
+
                 sceneRef.current = scene;
 
                 // Initialize Camera

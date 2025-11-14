@@ -3,6 +3,9 @@ import { useEffect, useState } from "react";
 import text from "../../data/localization";
 import LanguageSwitcher from "../../components/LanguageSwitcher";
 import play from '../../assets/play_correct_color.png';
+import fcul from '../../assets/fcul_logo.png';
+import ibeb from '../../assets/ibeb_logo.png';
+import lasige from '../../assets/lasige_logo.png';
 
 const AboutUsPage = () => {
     const [lang, setLang] = useState(localStorage.getItem("lang") || "pt");
@@ -62,19 +65,25 @@ const AboutUsPage = () => {
             )}
 
             {partnership && (
-                <div className="flex flex-col items-center justify-center text-center py-10">
-                    <BackButton callback={() => {
-                        setInitial(true);
-                        setArtist(false);
-                        setPartnership(false);
-                    }} />
-                    <h1 className="text-2xl sm:text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontBtnMenus">{text[lang].aboutUsScreen.partnershipFull}</h1>
+                <div>
+                    <div className="flex flex-col items-center justify-center text-center py-10">
+                        <BackButton callback={() => {
+                            setInitial(true);
+                            setArtist(false);
+                            setPartnership(false);
+                        }} />
+                        <h1 className="text-2xl sm:text-3xl text-[#E6E518] font-bold mt-[5rem] mb-10 font-fontBtnMenus">{text[lang].aboutUsScreen.partnershipFull}</h1>
 
-                    {partnershipText.map((p, index) => (
-                        <p key={"partnership" + index} className="w-full font-fontSans text-left px-10 py-2">{p}</p>
-                    ))}
+                        {partnershipText.map((p, index) => (
+                            <p key={"partnership" + index} className="w-full font-fontSans text-left px-10 py-2">{p}</p>
+                        ))}
+                    </div>
+                    <div className="flex flex-wrap w-full items-center justify-center gap-6 md:gap-10 px-4">
+                        <img src={fcul} alt="Logo Faculdade de Ciências da Universidade de Lisboa" className="w-40 md:w-64 object-contain" />
+                        <img src={ibeb} alt="Logo Instituto de Biofísica e Engenharia Biomédica" className="w-40 md:w-64 object-contain" />
+                        <img src={lasige} alt="Logo LASIGE" className="w-40md:w-64 object-contain" />
+                    </div>
                 </div>
-
             )}
 
 

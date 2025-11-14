@@ -3,7 +3,6 @@ import * as THREE from 'three';
 import propTypes from 'prop-types';
 import { GLTFLoader, RGBELoader } from 'three/examples/jsm/Addons.js';
 import imgOverlay from '../assets/align_gremio_lit.jpg';
-import { FaChevronRight } from 'react-icons/fa'
 import text from '../data/localization';
 import { useNavigate } from 'react-router-dom';
 // import { Tween, Easing } from '@tweenjs/tween.js';
@@ -128,6 +127,13 @@ const GremioLiterario = ({ session, endSession, id, onFinish }) => {
             setGameStarted(true);
             mazeStartTimeRef.current = Date.now();
             spawnGhosts();
+        }
+    }
+
+    const prevStep = () => {
+        if (stepRef.current != 0) {
+            stepRef.current -= 1;
+            setStep(stepRef.current);
         }
     }
 
@@ -1578,20 +1584,26 @@ const GremioLiterario = ({ session, endSession, id, onFinish }) => {
             )}
             {step < 6 && alignedScene && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
-                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl">
-                        <div className='grid grid-flow-row grid-rows-3 gap-2 '>
-                            {/* <p className='col-span-1 row-span-1 row-start-1 col-start-1 place-self-center text-lg'>{step < 5 ? "Instruções do jogo:" : "" }</p> */}
-                            {step < 5 && (
-                                <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
-                                { text[lang].experiences["gremio-lit"].instructions[step] }
-                                </p>
+                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex flex-col justify-between">
+                        {step < 5 && (
+                            <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
+                                {text[lang].experiences["gremio-lit"].instructions[step]}
+                            </p>
+                        )}
+                        {step === 5 && (
+                            <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
+                                {text[lang].experiences["gremio-lit"].instructions[step][0]} <br /> {text[lang].experiences["gremio-lit"].instructions[step][1]}
+                            </p>
+                        )}
+                        <div className='grid grid-cols-2 gap-2 my-2'>
+                            {step > 0 && (
+                                <button className="col-start-1 text-center border-2 border-[#E6E518] active:border-[#E6E518] hover:border-[#E6E518] pb-2 px-4 rounded-xl bg-black" onClick={prevStep}>
+                                    <span className="font-fontBtnMenus text-xs text-white">{text[lang].experiences[id].prevStep}</span>
+                                </button>
                             )}
-                            {step === 5 && (
-                                <p className='col-span-2 row-span-2 row-start-2 col-start-1 place-self-baseline text-lg'>
-                                    { text[lang].experiences["gremio-lit"].instructions[step][0] } <br /> { text[lang].experiences["gremio-lit"].instructions[step][1] }
-                                </p>
-                            )}
-                            <span className="col-span-1 row-span-2 row-start-2 col-start-3 place-self-center px-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
+                            <button className="col-start-2 text-center border-2 border-black active:border-[#E6E518] hover:border-[#E6E518] pb-2 px-4 rounded-xl bg-[#E6E518]" onClick={nextStep}>
+                                <span className="font-fontBtnMenus text-xs text-black">{step != 5 ? text[lang].experiences[id].nextStep : text[lang].experiences[id].lastStep}</span>
+                            </button>
                         </div>
                     </div>
                 </div>

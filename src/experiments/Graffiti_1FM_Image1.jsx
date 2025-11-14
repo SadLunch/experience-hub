@@ -3,12 +3,12 @@ import * as THREE from 'three';
 import propTypes from 'prop-types';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
 // import { takeXRScreenshot } from '../components/XRScreenshot';
-import progress1 from '../assets/progress-bg-1.jpg';
+// import progress1 from '../assets/progress-bg-1.jpg';
 import download from '../assets/download_icon.png';
-import { FaChevronRight } from 'react-icons/fa';
 import { useNavigate } from 'react-router-dom';
 import text from '../data/localization';
-import imgOverlay from '../assets/align_graffiti1.jpg'
+import imgOverlay from '../assets/align_graffiti1.jpg';
+import helpButton from '../assets/help_button.png';
 
 const raycaster = new THREE.Raycaster();
 const textureSize = 512;
@@ -57,6 +57,8 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
     const gameStartedRef = useRef(false);
 
     const [alignedScene, setAlignedScene] = useState(false);
+    const [help, setHelp] = useState(false);
+    const helpRef = useRef(false);
 
     // // groups ref
     // const movableGroupRef = useRef(null);
@@ -69,10 +71,31 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
         stepRef.current += 1;
         setStep(stepRef.current);
         if (stepRef.current > 6) {
+            helpRef.current = false;
+            setHelp(helpRef.current);
             stepRef.current = null;
             gameStartedRef.current = true
             setGameStarted(true);
         }
+    }
+
+    const prevStep = () => {
+        if (stepRef.current != 0) {
+            stepRef.current -= 1;
+            setStep(stepRef.current);
+        }
+    }
+
+    const showHelp = () => {
+        if (helpRef.current) {
+            helpRef.current = false;
+            stepRef.current = null;
+        } else {
+            helpRef.current = true;
+            stepRef.current = 0;
+        }
+        setHelp(helpRef.current);
+        setStep(stepRef.current);
     }
 
     const downloadImage = () => {
@@ -353,7 +376,7 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                 }
 
                 // Check if spray can is in scene
-                if (selectedObject.current && wallPlaneRef.current && sourceImageRef.current.complete) {
+                if (selectedObject.current && wallPlaneRef.current && sourceImageRef.current.complete && !helpRef.current) {
                     const sprayTip = new THREE.Vector3();
                     // sprayTip.add(selectedObject.current.getObjectByName("Tip").position);
                     selectedObject.current.getWorldPosition(sprayTip);
@@ -509,19 +532,38 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                     { text[lang].experiences["gremio-lit"].alignScene }
                 </button>
             )}
-            {step < 6 && alignedScene && (
+            {step < 6 && (alignedScene || help) && (
                 <div className='fixed w-full top-[40%] p-2 z-[1000] flex justify-center'>
                     <div className='bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl'>
                         <p className='text-xl font-bold'>{ text[lang].experiences[id].instructionTitle }</p>
                     </div>
                 </div>
             )}
-            {!gameStarted && alignedScene && step < 7 && (
+            {step < 7 && ((!gameStarted && alignedScene) || help)  && (
                 <div className='fixed bottom-2 w-full p-2 z-1000'>
-                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex items-center justify-between">
+                    <div className="w-full min-h-[150px] bg-zinc-800 bg-opacity-90 text-white p-4 rounded-2xl shadow-2xl flex flex-col justify-between">
                         <p className='text-lg'>{ text[lang].experiences['graffiti-1'].instructionsEasy[step] }</p>
-                        <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span>
+                        <div className='grid grid-cols-2 gap-2 my-2'>
+                            {step > 0 && (
+                                <button className="col-start-1 text-center border-2 border-[#E6E518] active:border-[#E6E518] hover:border-[#E6E518] pb-2 px-4 rounded-xl bg-black" onClick={prevStep}>
+                                    <span className="font-fontBtnMenus text-xs text-white">{text[lang].experiences[id].prevStep}</span>
+                                </button>
+                            )}
+                            <button className="col-start-2 text-center border-2 border-black active:border-[#E6E518] hover:border-[#E6E518] pb-2 px-4 rounded-xl bg-[#E6E518]" onClick={nextStep}>
+                                <span className="font-fontBtnMenus text-xs text-black">{step != 6 ? text[lang].experiences[id].nextStep : text[lang].experiences[id].lastStep}</span>
+                            </button>
+                        </div>
+                        {/* {step > 0 && (
+                            <span className="p-4 text-2xl" onClick={prevStep}><FaChevronLeft /></span>
+                        )}
+                        <p className='text-lg'>{ text[lang].experiences['graffiti-1'].instructionsEasy[step] }</p>
+                        <span className="p-4 text-2xl" onClick={nextStep}><FaChevronRight /></span> */}
                     </div>
+                </div>
+            )}
+            {gameStarted && (
+                <div className='absolute top-[30%] right-4 p-2' onClick={showHelp}>
+                    <img src={helpButton} width={64} height={64} alt="Help button"/>
                 </div>
             )}
             {gameStarted && error && (
@@ -529,7 +571,7 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                     {`${error.name}: ${error.message}`}
                 </div>
             )}
-            {gameStarted && !imageURL && (
+            {gameStarted && !help && !imageURL && (
                 <div className="absolute w-screen bottom-5 left-1/2 -translate-x-1/2 px-4">
                     <div onClick={async () => {
                         if (revealed >= 90) {
@@ -551,10 +593,11 @@ const Graffiti_1FM_Image1 = ({ session, endSession, id, onFinish }) => {
                     }} className="w-9/10 h-[70px] bg-transparent p-2">
                         <div className="w-full h-full bg-gray-300 border-black border-8 rounded-full relative overflow-hidden">
                             <div
-                                className="h-full bg-gray-400 rounded-full text-xl text-white flex justify-center items-center absolute left-1/2 top-0 -translate-x-1/2 transition-all duration-300"
+                                className="h-full bg-gray-400 rounded-full text-lg text-white flex justify-center items-center absolute left-1/2 top-0 -translate-x-1/2 transition-all duration-300 font-fontBtnMenus"
                                 style={{
                                     width: `${revealed}%`,
-                                    backgroundImage: `url(${progress1})`, // background image (maybe change later)
+                                    backgroundColor: '#5690CC',
+                                    //backgroundImage: `url(${progress1})`, // background image (maybe change later)
                                     backgroundSize: 'cover',
                                     backgroundRepeat: 'no-repeat',
                                     backgroundPosition: 'center',

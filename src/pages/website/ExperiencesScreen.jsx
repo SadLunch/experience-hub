@@ -20,7 +20,7 @@ import socket from '../../components/useSocket';
 import loadingGif from '../../assets/loading.gif';
 
 function generateMarkerSVG({
-    text = '1',
+    text = '0',
     fill = '#E11D48',
     textColor = '#ffffff',
     fontSize = 80,
@@ -246,7 +246,7 @@ const ExperiencesScreen = () => {
                                 <div className='flex justify-between items-center'>
                                     <Link
                                         to={`/experience/${selectedExperience.experiment.id}`}
-                                        className="inline-block mt-4 bg-blue-600 text-white px-4 py-2 rounded"
+                                        className="inline-block mt-4 border-2 border-[#E6E518] active:border-[#E6E518] hover:border-[#E6E518] py-2 px-4 rounded-xl bg-black/90 text-xs text-white font-fontBtnMenus"
                                     >
                                         { text[lang].mapScreen.btnExperienceDetail }
                                     </Link>

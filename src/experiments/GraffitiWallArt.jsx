@@ -100,10 +100,10 @@ const GraffitiWallArt = ({ session, endSession }) => {
         scene.add(movableGroup);
 
         // Load model
-        loadModel('/models/spray_can_1.glb', canModelRef, 'spray can', () => {
+        loadModel('/models/spray_can_2_2.glb', canModelRef, 'spray can', () => {
             if (canModelRef.current) {
                 // Probably will need a separate function for model transformations and stuff
-                canModelRef.current.scale.setScalar(0.05);
+                canModelRef.current.scale.setScalar(1);
                 canModelRef.current.position.set(0, 0, -1);
                 //canModelRef.current.quaternion.setFromRotationMatrix(cameraRef.current.matrixWorld);
                 movableGroup.add(canModelRef.current);

@@ -2,17 +2,17 @@ import { useRef, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import propTypes from 'prop-types';
 import { GLTFLoader } from 'three/examples/jsm/Addons.js';
-// import { takeXRScreenshot } from '../components/XRScreenshot';
+import { takeXRScreenshot } from '../components/XRScreenshot';
 import progress1 from '../assets/progress-bg-1.jpg';
 import download from '../assets/download_icon.png';
 import { FaChevronRight } from 'react-icons/fa';
-import { useNavigate } from 'react-router-dom';
+//import { useNavigate } from 'react-router-dom';
 import text from '../data/localization';
 
 const raycaster = new THREE.Raycaster();
 
-const Graffiti_2FM_Image1 = ({ session, endSession, id, onFinish }) => {
-    const navigate = useNavigate();
+const Graffiti_2FM_Image1 = ({ session, endSession/*, id, onFinish*/ }) => {
+    //const navigate = useNavigate();
     const containerRef = useRef(null);
 
     const rendererRef = useRef(null);
@@ -489,10 +489,10 @@ const Graffiti_2FM_Image1 = ({ session, endSession, id, onFinish }) => {
                             sphereIndicator.current.visible = false;
 
                             try {
-                                // setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Adelaide Cabete", "#sufragistas"));
-                                session.end();
-                                navigate(`/experience/${id}/about`);
-                                onFinish();
+                                setImageURL(await takeXRScreenshot(rendererRef.current, sceneRef.current, cameraRef.current, "Adelaide Cabete", "#sufragistas"));
+                                //session.end();
+                                /*navigate(`/experience/${id}/about`);
+                                onFinish();*/
                             } catch (err) {
                                 setError(err);
                             }

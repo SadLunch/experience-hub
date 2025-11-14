@@ -102,7 +102,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: []
   },
   {
@@ -167,7 +167,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: [
       '"Charité University Hospital - Operating Room" (https://skfb.ly/oCTvA) by ChrisRE is licensed under Creative Commons Attribution-NonCommercial (http://creativecommons.org/licenses/by-nc/4.0/).',
     ]
@@ -195,7 +195,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: [
       "'Gavel' (https://skfb.ly/6ZNqB) by RushilT is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/)."
     ]
@@ -210,7 +210,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: [
       '"2K Textured Animated Video Game Hammer" (https://skfb.ly/oInYQ) by Kimbell Whatley is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
       '"White Lilly - Metascan" (https://skfb.ly/o9HYz) by Moshe Caine is licensed under Creative Commons Attribution (http://creativecommons.org/licenses/by/4.0/).',
@@ -284,7 +284,7 @@ export const experiments = [
       domOverlay: { root: document.body },
     },
     isWebXR: true,
-    disabled: true,
+    disabled: false,
     attributions: []
   },
   {

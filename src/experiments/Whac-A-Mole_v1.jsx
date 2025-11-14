@@ -107,11 +107,11 @@ const WhacAMoleV1 = ({ session, endSession }) => {
                 // Load a model
                 //const model = new THREE.Object3D();
                 const loader = new GLTFLoader();
-                loader.load("/models/gavel.glb", (gltf) => {
+                loader.load("/models/gavel_modified.glb", (gltf) => {
                     const model = gltf.scene;
                     model.name = "hammer";
-                    model.position.set(0, 0, -0.3);
-                    model.scale.setScalar(0.01); // Ensure correct scale
+                    model.position.set(0, 0, -0.2);
+                    model.scale.setScalar(0.3); // Ensure correct scale
 
                     // This is to prevent duplicate hammers and to make the
                     // camera pick up the correct hammer.
@@ -154,6 +154,8 @@ const WhacAMoleV1 = ({ session, endSession }) => {
 
             const moleBox = new THREE.Box3().setFromObject(mole);
             molesBoundingBox.set(mole, moleBox);
+            const helper = new THREE.Box3Helper(moleBox, 0x00ff00);
+            sceneRef.current.add(helper);
         }
 
         const checkHammerCollision = () => {

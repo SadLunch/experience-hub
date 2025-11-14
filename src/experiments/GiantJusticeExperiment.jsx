@@ -369,7 +369,7 @@ const GiantJustice = ({ id, onFinish }) => {
             )}
             <a-scene id="scene" xr-mode-ui="enabled: false">
                 <a-assets>
-                    <video id="giantJustice" muted src="/videos/justica-monstro.mp4"></video>
+                    <video id="giantJustice" className='grayscale' muted src="/videos/justica-monstro.mp4"></video>
                     <audio id="background" src="/sounds/background.mp3" preload='auto'></audio>
                 </a-assets>
                 <a-camera position="0 1.6 0" look-controls="touchEnabled: false; mouseEnabled: false;" sound="src: #background"></a-camera>

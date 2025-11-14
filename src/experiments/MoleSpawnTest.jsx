@@ -40,7 +40,7 @@ const MoleSpawnTest = ({ session, endSession }) => {
         moleGeometry.translate(-0.4, 0.5, 0);
         // const moleMaterial = new ChromaKeyMaterial('/bonk_hand.png', 0x81ff8d, 608, 342, 0.2, 0.1, 0);
         const textureLoader = new THREE.TextureLoader();
-        const imgTexture = textureLoader.load('/saudacao_5_cut.png');
+        const imgTexture = textureLoader.load('/images/saudacao_5_cut.png');
         const moleMaterial = new THREE.MeshBasicMaterial({ map: imgTexture, transparent: true, side: THREE.DoubleSide });
         const moleMesh = new THREE.Mesh(moleGeometry, moleMaterial);
 
@@ -86,7 +86,7 @@ const MoleSpawnTest = ({ session, endSession }) => {
         
                 const hitboxMole = new THREE.Mesh(
                     new THREE.PlaneGeometry(1.5, 1.5),
-                    new THREE.MeshBasicMaterial({  wireframe: true, color: 0x00ff00, /*visible: false*/ })
+                    new THREE.MeshBasicMaterial({ wireframe: true, color: 0x00ff00/*, visible: false*/ })
                 );
         
                 hitboxMole.name = "hitbox";
