@@ -31,7 +31,7 @@ const GraffitiPosScreen = () => {
                 
 
                 {description.map((p, index) => (
-                    <p key={index} className="w-full font-fontSans text-left px-10 py-2">{p}</p>
+                    <p key={index} className="w-full font-fontSans text-left px-10 py-2 text-white">{p}</p>
                 ))}
 
                 <div className="flex-grow" /> {/* Use this to separate the bottom content from the top content */}
